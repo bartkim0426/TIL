@@ -19,6 +19,9 @@
 
 - [Resize split size](./vim/resize-split-size.md)
 - [Reindent whole file](./vim/reindent-whole-file)
+- [Register basic usage](./vim/Register-basic-usage.md)
+- [View help text in new tab](./vim/View-help-text-in-new-tab.md)
+- 
 
 ## BOOKS
 
