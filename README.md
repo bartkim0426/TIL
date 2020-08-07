@@ -22,7 +22,7 @@
 
 ## BOOKS
 
-- [one day one chapter project](./books/one-day-one-chapter)
+[one day one chapter project](./books/one-day-one-chapter.md)
 
 - [그림으로 공부하는 IT 인프라 구조](./books/infra-structure-with-pictures.md)
 - [그림으로 배우는 HTTP NETWORK BASIC](./books/HTTP-NETWORK-BASIC-with-pictures.md)
