@@ -1,30 +1,32 @@
 # TIL (Today I Learn)
 
-# BOOKS
+## Kubernetes
 
-- [books 그림으로 공부하는 IT 인프라 구조](./books/그림으로-공부하는-IT-인프라-구조.md)
-- [books 그림으로 배우는 HTTP NETWORK BASIC](./books/그림으로-배우는-HTTP-NETWORK-BASIC.md)
-- [books http 완벽 가이드](./books/http-완벽-가이드.md)
-- [books kubernetes in action](./books/kubernetes-in-action.md)
-- [books hands on microservices in kubernetes](./books/hands-on-microservices-in-kubernetes.md)
+- [Install argo cd](./kubernetes/install-argo-cd.md)
+- [Apply configmap to pod without restart pod](./kubernetes/apply-configmap-to-pod-without-restart-pod.md)
+- [K8s custom resource definition crd](./kubernetes/k8s-custom-resource-definition-crd)
 
-### Kubernetes
+## Docker
 
-- [kubernetes install argo cd](./kubernetes/install-argo-cd.md)
-- [kubernetes apply configmap to pod without restart pod](./kubernetes/apply-configmap-to-pod-without-restart-pod.md)
-- [kubernetes k8s custom resource definition crd](./kubernetes/k8s-custom-resource-definition-crd)
+- [Docker run override entrypoint](./docker/docker-run-override-entrypoint.md)
+- [Why docker and container](./docker/why-docker-and-container.md)
 
+## Python
 
-### Docker
+- [Get first item from list](./python/get-first-item-from-list.md)
 
-- [docker docker run override entrypoint](./docker/docker-run-override-entrypoint.md)
-- [docker why docker and container](./docker/why-docker-and-container.md)
+## Vim
 
-### Python
+- [Resize split size](./vim/resize-split-size.md)
+- [Reindent whole file](./vim/reindent-whole-file)
 
-- [python get first item from list](./python/get-first-item-from-list.md)
+## BOOKS
 
-### Vim
+- [one day one chapter project](./books/one-day-one-chapter)
 
-- [vim resize split size](./vim/resize-split-size.md)
-- [vim reindent whole file](./vim/reindent-whole-file)
+- [그림으로 공부하는 IT 인프라 구조](./books/infra-structure-with-pictures.md)
+- [그림으로 배우는 HTTP NETWORK BASIC](./books/HTTP-NETWORK-BASIC-with-pictures.md)
+- [http 완벽 가이드](./books/http.md)
+- [kubernetes in action](./books/kubernetes-in-action.md)
+- [hands on microservices in kubernetes](./books/hands-on-microservices-in-kubernetes.md)
+
