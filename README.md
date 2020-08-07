@@ -14,7 +14,15 @@
 - [kubernetes apply configmap to pod without restart pod](./kubernetes/apply-configmap-to-pod-without-restart-pod.md)
 - [kubernetes k8s custom resource definition crd](./kubernetes/k8s-custom-resource-definition-crd)
 
+
+### Docker
+
+- [docker docker run override entrypoint](./docker/docker-run-override-entrypoint.md)
+- [docker why docker and container](./docker/why-docker-and-container.md)
+
 ### Python
+
+- [python get first item from list](./python/get-first-item-from-list.md)
 
 ### Vim
 
