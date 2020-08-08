@@ -196,4 +196,9 @@ Don't summerize much in July. Read books below
 
 > Hands on microservices in kubernetes
 
-- [ ] 08/07:
+> Python data science handbook
+
+> Deep Learning with python
+
+- [o] 08/07: Python data science handbook: 01. IPython
+- [o] 08/08: deep learning with python: 01. What is deep learning?

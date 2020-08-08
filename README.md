@@ -21,7 +21,6 @@
 - [Reindent whole file](./vim/reindent-whole-file)
 - [Register basic usage](./vim/Register-basic-usage.md)
 - [View help text in new tab](./vim/View-help-text-in-new-tab.md)
-- 
 
 ## BOOKS
 
@@ -32,4 +31,5 @@
 - [http 완벽 가이드](./books/http.md)
 - [kubernetes in action](./books/kubernetes-in-action.md)
 - [hands on microservices in kubernetes](./books/hands-on-microservices-in-kubernetes.md)
-
+- [python data science handbook](./books/python-data-science-handbook.md)
+- [deep learning with python](./books/deep-learning-with-python.md)
