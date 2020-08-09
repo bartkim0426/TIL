@@ -46,10 +46,10 @@ ML의 핵심: input data의 useful representations를 학습하여 expected outp
 
 deep learning은 machine learning의 subfield이다.
 
-`deep`은 더 깊은 이해도 등을 의미하는 게 아니라 representations의 sucessive layers의 아이디어에 가깝다.
+`deep`은 더 깊은 이해도 등을 의미하는 게 아니라 representations의 연속된 layers의 아이디어에 가깝다.
 
 모델에 관여하는 layer가 얼마나 많은지를 모델의 `depth`라고 한다.
-현대의 deep learning은 수십개, 많게는 수백개의 representations의 성공적인 layers가 관여된다.
+현대의 deep learning은 수십개, 많게는 수백개의 representations의 연속적인 layers가 관여된다.
 
 (거의 대부분의) Deep learning에서는 이런 레이어드된 representations은 `neural networks`라는 모델을 통해서 학습됨.
 
@@ -59,7 +59,7 @@ deep learning은 machine learning의 subfield이다.
 
 ![deep-neural-network-img](https://learning.oreilly.com/library/view/deep-learning-with/9781617294433/OEBPS/Images/01fig05.jpg)
 
-deep network를 정보에서 sucessive filter를 사용하여 불순물을 제거하는(?) 정보 증류 작업의 multistage로 생각하면 된다.
+deep network를 정보에서 연속된 filter를 사용하여 불순물을 제거하는(?) 정보 증류 작업의 multistage로 생각하면 된다.
 
 ![deep-representations-img](https://learning.oreilly.com/library/view/deep-learning-with/9781617294433/OEBPS/Images/01fig06_alt.jpg)
 

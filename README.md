@@ -22,6 +22,10 @@
 - [Register basic usage](./vim/Register-basic-usage.md)
 - [View help text in new tab](./vim/View-help-text-in-new-tab.md)
 
+
+## ML
+
+
 ## BOOKS
 
 [one day one chapter project](./books/one-day-one-chapter.md)
@@ -33,3 +37,12 @@
 - [hands on microservices in kubernetes](./books/hands-on-microservices-in-kubernetes.md)
 - [python data science handbook](./books/python-data-science-handbook.md)
 - [deep learning with python](./books/deep-learning-with-python.md)
+
+
+## My progress
+
+꾸준히 할 수 있게 어떻게 공부를 시작하고 진행중인지 기록하는 공간. 본문에 해당 내용을 작성한 날짜를 적어둠
+
+- [kubernetes](./my-progress/kubernetes.md)
+- [machine learning](./my-progress/machine-learning.md)
+- [graphql](./my-progress/graphql.md)

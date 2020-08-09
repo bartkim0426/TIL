@@ -202,3 +202,4 @@ Don't summerize much in July. Read books below
 
 - [o] 08/07: Python data science handbook: 01. IPython
 - [o] 08/08: deep learning with python: 01. What is deep learning?
+- [o] 08/09: learning graphql: 01. what is graphql, 02. graph theory
