@@ -37,6 +37,7 @@
 - [hands on microservices in kubernetes](./books/hands-on-microservices-in-kubernetes.md)
 - [python data science handbook](./books/python-data-science-handbook.md)
 - [deep learning with python](./books/deep-learning-with-python.md)
+- [learning graphql](./books/learning-graphql.md)
 
 
 ## My progress
@@ -45,4 +46,5 @@
 
 - [kubernetes](./my-progress/kubernetes.md)
 - [machine learning](./my-progress/machine-learning.md)
+- [data science](./my-progress/data-science.md)
 - [graphql](./my-progress/graphql.md)
