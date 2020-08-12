@@ -200,7 +200,8 @@ Don't summerize much in July. Read books below
 
 > Deep Learning with python
 
-- [o] 08/07: Python data science handbook: 01. IPython
-- [o] 08/08: deep learning with python: 01. What is deep learning?
-- [o] 08/09: learning graphql: 01. what is graphql, 02. graph theory
-- [o] 08/09: learning graphql: 03. The GraphQL Query Language
+- [x] 08/07: Python data science handbook: 01. IPython
+- [x] 08/08: deep learning with python: 01. What is deep learning?
+- [x] 08/09: learning graphql: 01. what is graphql, 02. graph theory
+- [x] 08/10: learning graphql: 03. The GraphQL Query Language
+- [x] 08/11: deep learning with python: 02. Before we begin: the mathmatical building blocks of neural networks

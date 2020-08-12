@@ -98,3 +98,115 @@ deep network를 정보에서 연속된 filter를 사용하여 불순물을 제�
 
 
 
+## Ch02. Before we begin: the mathmatical building blocks of neural networks
+
+MNIST 데이터셋을 이용한 간단한 예제
+
+```
+from keras.datasets import mnist
+(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+from keras import models
+from keras import layers
+
+network = models.Sequential()
+network.add(layers.Dense(512, activation='relu', input_shape=(28 * 28,)))
+network.add(layers.Dense(10, activation='softmax'))
+
+network.compile(optimizer='rmsprop',
+                loss='categorical_crossentropy',
+                metrics=['accuracy'])
+                
+train_images = train_images.reshape((60000, 28 * 28))
+train_images = train_images.astype('float32') / 255
+
+test_images = test_images.reshape((10000, 28 * 28))
+test_images = test_images.astype('float32') / 255
+
+from keras.utils import to_categorical
+
+train_labels = to_categorical(train_labels)
+test_labels = to_categorical(test_labels)
+
+network.fit(train_images, train_labels, epochs=5, batch_size=128)
+
+test_loss, test_acc = network.evaluate(test_images, test_labels)
+```
+
+### What is tensor?
+
+- 텐서란 (대개는 숫자) data의 컨테이너이다. 즉, 이는 숫자들의 컨테이너.
+- 텐서는 임의의 값의 dimension을 가진 매트릭스 (dimension를 대개는 axis라고 한다)
+
+**Scalars (0D tensors)**
+
+- 단 한 숫자만 가지고 있는 텐서를 `scalar`라고 부른다
+- `float32`, `float64` 타입이 scalar tensor.
+- numpy에서는 `ndim`을 사용하여 dimension(axis)의 숫자를 볼 수 있는데 이는 `rank`라고도 불림
+
+```
+>>> import numpy as np
+>>> x = np.array(12)
+>>> x
+array(12)
+>>> x.ndim
+0
+```
+
+**Vector (1D tensors)**
+
+숫자들의 배열은 `vector` 혹은 `1D tensor`라고 한다
+
+```
+>>> x = np.array([12, 3, 6, 14, 7])
+>>> x
+array([12,3,6,14,7])
+>>> x.ndim
+1
+```
+
+위 vector는 5개의 값을 가지고 있기 때문에 `5-dimensional vector`이다
+
+`5D vector`과 `5D tensor`를 헷갈리면 안된다. `5D vector`는 한개의 axis를 가지고 있고 그 axis는 5개의 dimension을 가지고 있다. `5D tensor`는 5개의 axis를 가지고 있다.
+
+dimension은 여러 의미로 쓰일 수 있기 때문에 헷갈릴 수도 있다. 그래서 기술적으로는 `a tensor of rank 5`로 쓰는게 명확하지만 `5D tensor`도 흔히 사용됨
+
+**Matrics (2D tensors)**
+
+vector들의 배열을 `matrices` 혹은 `2D tensor`라고 부른다.
+
+```
+>>> x = np.array([[5, 78, 2, 34, 0],
+                  [6, 79, 3, 35, 1],
+                  [7, 80, 4, 36, 2]])
+>>> x.ndim
+2
+```
+
+첫 번째 axis의 값들을 `rows`라고 부르고, 두 번째 axis의 항목을 `columns`라고 한다.
+
+**3D tensor and higher-dimensional tensors**
+
+위의 matrics들을 새 배열에 넣으면 3D tensor가 된다.
+
+```
+>>> x = np.array([[[5, 78, 2, 34, 0],
+                   [6, 79, 3, 35, 1],
+                   [7, 80, 4, 36, 2]],
+                  [[5, 78, 2, 34, 0],
+                   [6, 79, 3, 35, 1],
+                   [7, 80, 4, 36, 2]],
+                  [[5, 78, 2, 34, 0],
+                   [6, 79, 3, 35, 1],
+                   [7, 80, 4, 36, 2]]])
+>>> x.ndim
+3
+```
+
+#### Key attributes
+
+- Number of axes (rank): 텐서의 `ndim`을 사용함
+- shape: 텐서에 각 axis마다 몇개의 dimension이 있는지를 나타내는 튜플.
+- Data type (dtype): 텐서가 포함하고 있는 데이터의 타입
+
+
