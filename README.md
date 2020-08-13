@@ -22,6 +22,8 @@
 - [Register basic usage](./vim/Register-basic-usage.md)
 - [View help text in new tab](./vim/View-help-text-in-new-tab.md)
 
+- [Use vim in ipython](./vim/Use-vim-in-ipython.md)
+- [Use vim in shell](./vim/Use-vim-in-shell.md)
 
 ## ML
 
