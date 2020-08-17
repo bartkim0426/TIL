@@ -14,6 +14,7 @@
 ## Python
 
 - [Get first item from list](./python/get-first-item-from-list.md)
+- [Bitwise operator XOR](./python/Bitwise-operator-XOR.md)
 
 ## Vim
 
