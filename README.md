@@ -39,6 +39,7 @@
 - [hands on microservices in kubernetes](./books/hands-on-microservices-in-kubernetes.md)
 - [python data science handbook](./books/python-data-science-handbook.md)
 - [deep learning with python](./books/deep-learning-with-python.md)
+- [deep learning and the game of go](./books/deep-learning-and-the-game-of-go.md)
 - [learning graphql](./books/learning-graphql.md)
 
 

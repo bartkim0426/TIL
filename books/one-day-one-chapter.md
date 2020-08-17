@@ -206,3 +206,6 @@ Don't summerize much in July. Read books below
 - [x] 08/10: learning graphql: 03. The GraphQL Query Language
 - [x] 08/11: deep learning with python: 02. Before we begin: the mathmatical building blocks of neural networks (ing)
 - [x] 08/14: Python data science handbook: 02. Numpy
+- [x] 08/15: 딥러닝과 바둑: 01. 딥러닝을 향해, 02. 머신러닝 문제로서의 바둑
+- [x] 08/16: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기
+- [x] 08/17: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기
