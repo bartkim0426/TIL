@@ -15,6 +15,8 @@
 
 - [Get first item from list](./python/get-first-item-from-list.md)
 - [Bitwise operator XOR](./python/Bitwise-operator-XOR.md)
+- [type hinting self class forward reference](type-hinting-self-class-forward-reference.md)
+- [type hinting multiple return type union](./python/type-hinting-multiple-return-type-union.md)
 
 ## Vim
 

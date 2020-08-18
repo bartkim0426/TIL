@@ -209,4 +209,11 @@ vector들의 배열을 `matrices` 혹은 `2D tensor`라고 부른다.
 - shape: 텐서에 각 axis마다 몇개의 dimension이 있는지를 나타내는 튜플.
 - Data type (dtype): 텐서가 포함하고 있는 데이터의 타입
 
+def naive_relu(x):
+    assert len(x.shape) == 2
 
+    x = x.copy()
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            x[i, j] = max(x[i, j], 0)
+    return x
