@@ -210,3 +210,7 @@ Don't summerize much in July. Read books below
 - [x] 08/16: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기
 - [x] 08/17: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기
 - [x] 08/18: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기
+- [x] 08/19: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기 (done) / Cloud navtive infrastructure: 01. What is cloud native infrastructure?
+- [ ] 08/20
+- [x] 08/21: Cloud navtive infrastructure: 01. What is cloud native infrastructure?
+- [x] 08/21: Cloud navtive infrastructure: 01. What is cloud native infrastructure?

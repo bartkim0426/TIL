@@ -5,6 +5,9 @@
 - [Install argo cd](./kubernetes/install-argo-cd.md)
 - [Apply configmap to pod without restart pod](./kubernetes/apply-configmap-to-pod-without-restart-pod.md)
 - [K8s custom resource definition crd](./kubernetes/k8s-custom-resource-definition-crd)
+- [kubecon europe](./kubernetes/kubecon-2020-europe.md)
+- [kubectl alpha debug command](./kubernetes/kubectl-alpha-debug-command.md)
+- [Update minikube and k8s version](./kubernetes/Update-minikube-and-k8s-version.md)
 
 ## Docker
 
@@ -15,8 +18,9 @@
 
 - [Get first item from list](./python/get-first-item-from-list.md)
 - [Bitwise operator XOR](./python/Bitwise-operator-XOR.md)
-- [type hinting self class forward reference](type-hinting-self-class-forward-reference.md)
+- [type hinting self class forward reference](./python/type-hinting-self-class-forward-reference.md)
 - [type hinting multiple return type union](./python/type-hinting-multiple-return-type-union.md)
+- python-IO-stream-and-buffer
 
 ## Vim
 
@@ -44,6 +48,7 @@
 - [deep learning with python](./books/deep-learning-with-python.md)
 - [deep learning and the game of go](./books/deep-learning-and-the-game-of-go.md)
 - [learning graphql](./books/learning-graphql.md)
+- Cloud-Native-Infrastructure
 
 
 ## My progress
