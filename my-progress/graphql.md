@@ -9,5 +9,3 @@
 
 - graphql examples
   - [ ] github api (v4) 등 직접 사용해보는게 큰 도움이 될것같아 사용해볼것 (2020-08-10)
-
-

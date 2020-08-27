@@ -34,6 +34,9 @@
 
 ## ML
 
+## etc
+
+- [happy hacking hybrid tips](./etc/happy-hacking-hybrid-tips.md)
 
 ## BOOKS
 
@@ -48,12 +51,15 @@
 - [deep learning with python](./books/deep-learning-with-python.md)
 - [deep learning and the game of go](./books/deep-learning-and-the-game-of-go.md)
 - [learning graphql](./books/learning-graphql.md)
-- Cloud-Native-Infrastructure
+- [Cloud Native Infrastructure](./books/Cloud-Native-Infrastructure.md)
+- [Deep learning from scratch](./books/deep-learning-from-scratch.md)
 
 
 ## My progress
 
 꾸준히 할 수 있게 어떻게 공부를 시작하고 진행중인지 기록하는 공간. 본문에 해당 내용을 작성한 날짜를 적어둠
+
+[plan](./my-progress/plan.md)
 
 - [kubernetes](./my-progress/kubernetes.md)
 - [machine learning](./my-progress/machine-learning.md)

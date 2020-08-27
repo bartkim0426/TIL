@@ -28,5 +28,7 @@
     - 서비스가 절대 죽지 않으면, business value보다 실패를 피하기 위해 많은 엔지니어링 시간을 쏟고 있는 것
     - application에 가장 좋은 상태는 healthy. 두번째로 좋은 상태는 failed.
       - 이 두 가지 상태가 아닌 다른 모든 상태는 모니터링과 트러블슈팅에 어려움을 겪는다
+  - `graceeful degradation`
+- Declarative, Not Reactivate
 
 

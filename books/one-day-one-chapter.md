@@ -212,5 +212,13 @@ Don't summerize much in July. Read books below
 - [x] 08/18: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기
 - [x] 08/19: 딥러닝과 바둑: 03. 첫번째 바둑봇 만들기 (done) / Cloud navtive infrastructure: 01. What is cloud native infrastructure?
 - [ ] 08/20
-- [x] 08/21: Cloud navtive infrastructure: 01. What is cloud native infrastructure?
-- [x] 08/21: Cloud navtive infrastructure: 01. What is cloud native infrastructure?
+- [x] 08/21: Cloud native infrastructure: 01. What is cloud native infrastructure?
+- [x] 08/22: Cloud native infrastructure: 01. What is cloud native infrastructure?
+- [x] 08/23: Cloud native infrastructure: 01. What is cloud native infrastructure? (done)
+- [ ] 08/24:
+- [x] 08/25: Cloud native infrastructure: 02. When to Adopt Cloud native
+- [x] 08/26: deep learning from scratch: 01. Foundations
+- [ ] 08/27:
+- [ ] 08/28:
+- [ ] 08/29:
+- [ ] 08/30:
