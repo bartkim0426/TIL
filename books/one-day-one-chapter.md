@@ -217,8 +217,28 @@ Don't summerize much in July. Read books below
 - [x] 08/23: Cloud native infrastructure: 01. What is cloud native infrastructure? (done)
 - [ ] 08/24:
 - [x] 08/25: Cloud native infrastructure: 02. When to Adopt Cloud native
-- [x] 08/26: deep learning from scratch: 01. Foundations
+- [x] 08/26: deep learning from scratch: 01. Foundations (ing)
 - [ ] 08/27:
 - [ ] 08/28:
 - [ ] 08/29:
 - [ ] 08/30:
+- [ ] 08/31:
+
+## 2020-09
+
+> 딥러닝과 바둑
+
+> Deep learning from scratch
+
+> Python data science handbook
+
+> 밑바닥부터 시작하는 딥러닝
+
+
+- [ ] 09/01:
+- [x] 09/02: 딥러닝과 바둑: 04. 트리 탐색을 통한 경기
+- [ ] 09/03
+- [ ] 09/04
+- [x] 09/05: 밑바닥부터 시작하는 딥러닝: 01. 헬로 파이썬
+- [x] 09/05: 밑바닥부터 시작하는 딥러닝: 02. 퍼셉트론
+- [ ] 09/06:

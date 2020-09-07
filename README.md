@@ -13,6 +13,7 @@
 
 - [Docker run override entrypoint](./docker/docker-run-override-entrypoint.md)
 - [Why docker and container](./docker/why-docker-and-container.md)
+- [difference between cmd and entrypoint](./docker/difference-between-cmd-and-entrypoint.md)
 
 ## Python
 
@@ -34,6 +35,8 @@
 
 ## ML
 
+- [pytorch dataset dataloader](./ML/pytorch-dataset-dataloader.md)
+
 ## etc
 
 - [happy hacking hybrid tips](./etc/happy-hacking-hybrid-tips.md)
@@ -53,6 +56,7 @@
 - [learning graphql](./books/learning-graphql.md)
 - [Cloud Native Infrastructure](./books/Cloud-Native-Infrastructure.md)
 - [Deep learning from scratch](./books/deep-learning-from-scratch.md)
+- [밑바닥부터 시작하는 딥러닝](./books/밑바닥부터-시작하는-딥러닝.md)
 
 
 ## My progress
@@ -65,3 +69,4 @@
 - [machine learning](./my-progress/machine-learning.md)
 - [data science](./my-progress/data-science.md)
 - [graphql](./my-progress/graphql.md)
+- [mathematics](./my-progress/mathematics.md)
