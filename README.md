@@ -32,10 +32,18 @@
 
 - [Use vim in ipython](./vim/Use-vim-in-ipython.md)
 - [Use vim in shell](./vim/Use-vim-in-shell.md)
+- [What is vimgrep and how to use it](./vim/What-is-vimgrep-and-how-to-use-it.md)
+
+## Linux
+
+- [find command usage](./linux/find-command-usage.md)
+- [count files in linux](./linux/count-files-in-linux.md)
 
 ## ML
 
 - [pytorch dataset dataloader](./ML/pytorch-dataset-dataloader.md)
+- [softmax function](./ML/softmax-function.md)
+- [machine learning from blank paper](./ML/machine-learning-from-blank-paper.md)
 
 ## etc
 
