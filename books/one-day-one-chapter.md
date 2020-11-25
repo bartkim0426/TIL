@@ -226,6 +226,9 @@ Don't summerize much in July. Read books below
 
 ## 2020-09
 
+
+Don't read much books from 2020-09 ~ 2020-10
+
 > 딥러닝과 바둑
 
 > Deep learning from scratch
@@ -242,4 +245,16 @@ Don't summerize much in July. Read books below
 - [x] 09/05: 밑바닥부터 시작하는 딥러닝: 01. 헬로 파이썬
 - [x] 09/06: 밑바닥부터 시작하는 딥러닝: 02. 퍼셉트론
 - [x] 09/07: 밑바닥부터 시작하는 딥러닝: 03. 신경망
-- [ ] 09/08: 밑바닥부터 시작하는 딥러닝: 04. 신경망 학습
+- [x] 09/08: 밑바닥부터 시작하는 딥러닝: 04. 신경망 학습 (ing)
+
+## 2020-11
+
+> 모두의 인공지능 기초수학
+
+> The Linux Command LIne
+
+- [x] 11/20: 모두의 인공지능 기초수학: 01 ~ 06 (기초수학)
+- [x] 11/23: The Linux Command Line: 1-1 ~ 1-3 (exploring the system)
+- [x] 11/24: The Linux Command Line: ~ 1-5 (Working with commnads)
+- [ ] 11/25: The Linux Command Line: ~ 1.6 Redirection
+- 

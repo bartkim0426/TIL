@@ -22,6 +22,7 @@
 - [type hinting self class forward reference](./python/type-hinting-self-class-forward-reference.md)
 - [type hinting multiple return type union](./python/type-hinting-multiple-return-type-union.md)
 - python-IO-stream-and-buffer
+- [import requirements txt to poetry](./python/import-requirements-txt-to-poetry.md)
 
 ## Vim
 
@@ -65,6 +66,7 @@
 - [Cloud Native Infrastructure](./books/Cloud-Native-Infrastructure.md)
 - [Deep learning from scratch](./books/deep-learning-from-scratch.md)
 - [밑바닥부터 시작하는 딥러닝](./books/밑바닥부터-시작하는-딥러닝.md)
+- [The Linux Command Line](./books/The-Linux-Command-Line.md)
 
 
 ## My progress
