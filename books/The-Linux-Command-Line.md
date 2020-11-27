@@ -328,3 +328,291 @@ root@37ba9ce1e69f:~# tail -f /var/log/messages
 # ls의 명령어를 모두 ls.txt에 입력 후 zip이 포함된 애들만출력
 root@e78e6ae9e14a:~# ls /usr/bin | tee ls.txt | grep zip
 ```
+
+## 7. Seeing the world as the shell sees it
+
+expansion: 무언가 입력했을 때 shell에서 실제로는 다른 확장된 일을 해줌
+
+```
+root@e78e6ae9e14a:~# echo *
+ls.txt
+```
+
+위처럼 `*`를 프린트하지 않고 wildcard가 모든 파일명을 반환함.
+
+### pathname expansion
+
+wildcard로 동작하는 매커니즘을 `pathname expansion`이라고 부른다.
+
+```
+root@e78e6ae9e14a:~# ls
+Desktop  Documents  Music  Pictures  Public  Templates  Videos  ls.txt
+root@e78e6ae9e14a:~# echo D*
+Desktop Documents
+root@e78e6ae9e14a:~# echo *s
+Documents Pictures Templates Videos
+root@e78e6ae9e14a:~# echo [[:upper:]]*
+Desktop Documents Music Pictures Public Templates Videos
+root@e78e6ae9e14a:~# echo /usr/*/share
+/usr/local/share
+```
+
+숨긴 파일 (`.`으로 시작되는 파일)을 보는 법
+
+```
+# 이렇게 하면 ., .. 같은 경로가 나옴
+root@e78e6ae9e14a:~# echo .*
+. .. .bashrc .profile
+
+root@e78e6ae9e14a:~# ls -d .* | less
+
+# pathname expansion으로는 이렇게 표현 가능
+root@e78e6ae9e14a:~# echo .[!.]*
+.bashrc .profile
+
+root@e78e6ae9e14a:~# ls -A
+.bashrc  .profile  Desktop  Documents  Music  Pictures  Public  Templates  Videos  ls.txt
+```
+
+### Tilde expansion
+
+`cd ~`로 수없이 사용해봤을 명령어. home 디렉토리의 경로로 expand됨
+
+
+### Arithmetic expansion
+
+`$((expression))` 문법으로 산술 가능
+
+```
+root@e78e6ae9e14a:~# echo $((2 + 2))
+4
+```
+
+### Brace expansion
+
+이상한 expansion중 하나. 괄호에 들어있는 패턴으로 여러 텍스트 스트링을 만들어줌.
+
+```
+root@e78e6ae9e14a:~# echo Front-{A,B,C}-Back
+Front-A-Back Front-B-Back Front-C-Back
+```
+
+comma-seperated list나 range of integer를 받는다.
+
+```
+root@e78e6ae9e14a:~# echo Number_{1..5}
+Number_1 Number_2 Number_3 Number_4 Number_5
+
+# zero padding도 가능
+root@e78e6ae9e14a:~# echo {1..5}
+1 2 3 4 5
+root@e78e6ae9e14a:~# echo {01..5}
+01 02 03 04 05
+root@e78e6ae9e14a:~# echo {001..5}
+001 002 003 004 005
+
+# 알파벳도 가능
+root@e78e6ae9e14a:~# echo {Z..A}
+Z Y X W V U T S R Q P O N M L K J I H G F E D C B A
+
+# nested도 가능
+root@e78e6ae9e14a:~# echo a{A{1,2},B{3,4}}b
+aA1b aA2b aB3b aB4b
+```
+
+어디에 쓰일까? 많은 리스트의 파일이나 디렉토리를 만들 때 쓰면 좋음.
+
+```
+root@e78e6ae9e14a:~/Photos# mkdir {2007..2009}-{01..12}
+root@e78e6ae9e14a:~/Photos# ls
+2007-01  2007-04  2007-07  2007-10  2008-01  2008-04  2008-07  2008-10  2009-01  2009-04  2009-07  2009-10
+2007-02  2007-05  2007-08  2007-11  2008-02  2008-05  2008-08  2008-11  2009-02  2009-05  2009-08  2009-11
+2007-03  2007-06  2007-09  2007-12  2008-03  2008-06  2008-09  2008-12  2009-03  2009-06  2009-09  2009-12
+```
+
+
+### Parameter Expansion
+
+(나중에도 다룰) variables를 사용해 작은 데이터를 저장하고 이름을 부여할 수 있다.
+
+```
+root@e78e6ae9e14a:~# echo $PWD
+/root
+
+# list 확인 (env 명령어로도 확인 가능)
+root@e78e6ae9e14a:~# printenv | less
+```
+
+### Command substitution
+
+명령어의 output을 expansion으로 사용할 수 있게 해줌.
+
+```
+root@e78e6ae9e14a:~# echo $(ls)
+Desktop Documents Music Photos Pictures Public Templates Videos ls.txt
+
+root@e78e6ae9e14a:~# ls -l $(which cp)
+-rwxr-xr-x 1 root root 153976 Sep  5  2019 /usr/bin/cp
+```
+
+단순히 싱글 커맨드가 아닌 pipeline에서도 사용이 가능하다.
+
+```
+root@e78e6ae9e14a:~# file $(ls -d /usr/bin/* | grep zip)
+/usr/bin/bunzip2:      ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=00c09d800d549d58e3b7c4f6170446cc69bf14a5, for GNU/Linux 3.2.0, stripped
+/usr/bin/bzip2:        ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=00c09d800d549d58e3b7c4f6170446cc69bf14a5, for GNU/Linux 3.2.0, stripped
+/usr/bin/bzip2recover: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=aa9666f913c3a67eab9d62585a9b37e46d0c7cb9, for GNU/Linux 3.2.0, stripped
+/usr/bin/gunzip:       POSIX shell script, ASCII text executable
+/usr/bin/gzip:         ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=445b2aa3186ca2fc7b96fa7c42c348a1662769c1, for GNU/Linux 3.2.0, stripped
+```
+
+bash에서는 backquote도 지원한다.
+
+```
+root@e78e6ae9e14a:~# ls -l `which cp`
+-rwxr-xr-x 1 root root 153976 Sep  5  2019 /usr/bin/cp
+```
+
+### Quoting
+
+expansion때문에 표현이 안되는 것들도 있음
+
+```
+root@e78e6ae9e14a:~# echo this is a     test
+this is a test
+root@e78e6ae9e14a:~# echo The total is $100.00
+The total is 00.00
+```
+
+원하지 않는 expansion을 피하기 위해서 quotinig mechanism을 사용 가능
+
+가장 흔한건 쌍따옴표 (`"`)
+
+```
+# 띄어쓰기가 들어간 파일
+root@e78e6ae9e14a:~# ls -l two words.txt
+ls: cannot access 'two': No such file or directory
+ls: cannot access 'words.txt': No such file or directory
+root@e78e6ae9e14a:~# ls -l "two words.txt"
+-rw-r--r-- 1 root root 0 Nov 26 13:23 'two words.txt'
+
+
+root@e78e6ae9e14a:~# echo $PWD $((2+2)) $(gcal)
+/root 4 November 2020 Su Mo Tu We Th Fr Sa 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25<26>27 28 29 30
+root@e78e6ae9e14a:~# echo "$PWD $((2+2)) $(gcal)"
+/root 4
+    November 2020
+ Su Mo Tu We Th Fr Sa
+  1  2  3  4  5  6  7
+  8  9 10 11 12 13 14
+ 15 16 17 18 19 20 21
+ 22 23 24 25<26>27 28
+ 29 30
+
+root@e78e6ae9e14a:~# echo this is a    test
+this is a test
+root@e78e6ae9e14a:~# echo "this is a    test"
+this is a    test
+```
+
+모든 expansion을 쓰지 않게 하고 싶으면 일반 따옴표 (`'`)를 사용하면 됨
+
+```
+# 모든 expansion 사용됨
+root@e78e6ae9e14a:~# echo text ~/*.txt {a,b} $(echo foo) $((2+2)) $PWD
+text /root/ls.txt /root/two words.txt a b foo 4 /root
+
+# $ expansion만 사용됨
+root@e78e6ae9e14a:~# echo "text ~/*.txt {a,b} $(echo foo) $((2+2)) $PWD"
+text ~/*.txt {a,b} foo 4 /root
+
+# 모든 expansion 무시
+root@e78e6ae9e14a:~# echo 'text ~/*.txt {a,b} $(echo foo) $((2+2)) $PWD'
+text ~/*.txt {a,b} $(echo foo) $((2+2)) $PWD
+```
+
+escaping도 사용 가능 (`\`)
+
+```
+root@e78e6ae9e14a:~# echo "The balance of the $PWD is : \$5.00"
+The balance of the /root is : $5.00
+
+# 백슬래쉬를 쓰고 싶으면 `\\` 사용
+root@e78e6ae9e14a:~# echo "\\"
+\
+```
+
+escape 문자를 사용하면 `control code`라고 불리는 몇몇 특별한 문자도 표현 가능하다.
+
+- `\a`: Bell (an alert that causes the computer to beep)
+- `\b`: backspace
+- `\n`: newline
+- `\r`: carrage return
+- `\t`: tab
+
+```
+root@e78e6ae9e14a:~# echo -e "test \t test"
+test     test
+root@e78e6ae9e14a:~# echo -e "test \b test"
+test test
+root@e78e6ae9e14a:~# echo -e "123\b45"
+1245
+root@e78e6ae9e14a:~# echo -e "test \ntest"
+test
+test
+```
+
+## 08. Advanced keyboard tricks
+
+### Cursor movement
+
+> 나는 개인적으로 vi mode로 shell을 사용한다.
+
+```
+set -o vi
+
+bindkey -v
+```
+
+- `CTRL-A`: 커서를 줄의 앞으로
+- `CTRL-E`: 커서를 줄 뒤로
+- `CTRL-F`: Move cursor forward one character; same as the right arrow key. 
+- `CTRL-B`: Move cursor backward one character; same as the left arrow key. 
+
+그 외 다양한 명령어들이 있지만 굳이 정리는 안해놓을 예정
+
+
+### Using history
+
+```
+root@e78e6ae9e14a:~# history | less
+root@e78e6ae9e14a:~# history | grep /usr/bin
+   10  ls /usr/bin | tee ls.txt | grep zip
+  105  file $(ls -d /usr/bin/* | grep zip)
+  213  history | grep /usr/bin
+  
+# history expansion 사용 가능
+root@e78e6ae9e14a:~# !10
+ls /usr/bin | tee ls.txt | grep zip
+bunzip2
+bzip2
+bzip2recover
+gunzip
+gzip
+zipdetails
+```
+
+`CTRL-R`을 사용해서 incremental search를 사용할 수 있다. (대부분의 사람들은 zsh 쉘에서 peco나 zsh-autocompletion을 사용할듯 하지만.. 기본 기능을 알아두면 편할때가 많다)
+
+- `CTRL-R`: 증분검색 시작
+- `ENTER` (`CTRL-J`): 해당 명령어 확인
+- `CTRL-R`: 다음 검색으로 넘어가기
+
+history expansion
+
+- `!!`: 이전 명령어 실행
+- `!number`: 해당 번호의 history 실행
+- `!string`: 해당 string으로 시작되는 가장 최근 명령어 실행 (startswith)
+- `!?string`: 해당 string을 가지고 있는 가장 최근 명령어 실행 (contains)
+
+

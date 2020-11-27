@@ -256,5 +256,7 @@ Don't read much books from 2020-09 ~ 2020-10
 - [x] 11/20: 모두의 인공지능 기초수학: 01 ~ 06 (기초수학)
 - [x] 11/23: The Linux Command Line: 1-1 ~ 1-3 (exploring the system)
 - [x] 11/24: The Linux Command Line: ~ 1-5 (Working with commnads)
-- [ ] 11/25: The Linux Command Line: ~ 1.6 Redirection
+- [x] 11/25: The Linux Command Line: ~ 1.6 Redirection
+- [x] 11/26: The Linux Command Line: ~ 1.7. Seeing the world as the shell sees it
+- [x] 11/27: The Linux Command Line: ~ 1.8. Advanced keyboard tricks
 - 

@@ -34,6 +34,7 @@
 - [Use vim in ipython](./vim/Use-vim-in-ipython.md)
 - [Use vim in shell](./vim/Use-vim-in-shell.md)
 - [What is vimgrep and how to use it](./vim/What-is-vimgrep-and-how-to-use-it.md)
+- [Use vim for read man page](./vim/Use-vim-for-read-man-page.md)
 
 ## Linux
 
