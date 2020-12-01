@@ -615,4 +615,373 @@ history expansion
 - `!string`: 해당 string으로 시작되는 가장 최근 명령어 실행 (startswith)
 - `!?string`: 해당 string을 가지고 있는 가장 최근 명령어 실행 (contains)
 
+## 09. Permission
 
+user account는 `/etc/passwd`에, group은 `/etc/group`에 정의되어 있고 유저나 그룹이 생성되면 `etc/shadow`가 수정된다.
+
+```
+root@e78e6ae9e14a:~# > foo.txt
+root@e78e6ae9e14a:~# ls -l foo.txt
+-rw-r--r-- 1 root root 0 Nov 28 16:02 foo.txt
+```
+
+앞의 10 문자는 file attribute를 나타낸다. 첫번째 문자는 파일타입.
+
+- `-`: regular file
+- `d`: directory
+- `l`: symbolic link. 이 경우 나머지 값은 `rwxrwxrwx` (dummy 값이다)
+- `c`: terminal이나 `/dev/null`같은 character special file
+- `b`: block special file (HDD, DVD 드라이브 등)
+
+나머지 9자리는 file mode. owner, group, world(전역)의 read, write, execute 권한을 나타냄.
+
+파일인지 디렉토리인지에 따라 조금씩 내용이 달라짐.
+
+- r
+  - file: open, read
+  - directory: 파일 list 가능 (execute가 셋업되어 있어야됨)
+- w
+  - file: written or truncated; 다만 파일의 제거나 이름 변경은 directory 속성을 따름
+  - directory: 디렉토리 하위의 파일의 생성, 제거, 이름변경 (execute가 셋업되어 있어야됨)
+- w
+  - file: 실행가능
+  - directory: 해당 디렉토리에 접근 가능 (ex. `cd directory`)
+
+
+파일 모드 변경은 `chmod` 명령어로 가능. (owner나 superuser만 가능하다)
+
+두가지 방법을 지원하는데
+
+- Octal number representation
+- Symbolic representation
+
+
+### Octal
+
+> octal (8진법), hexadecimal (16진법)이 많이 사용되는 이유는 컴퓨터가 binairy(2진법)으로 작동하기 때문. hex color처럼 16진법이 더 많이 사용되지만 8진법이 3 bit binary를 표현하기에 좋기 때문에 8진법이 사용됨
+
+
+| ocatl | binary | file mode |
+| 0     | 000    | ---       |
+| 1     | 001    | --x       |
+| 2     | 010    | -w-       |
+| 3     | 011    | -wx       |
+| 4     | 100    | r--       |
+| 5     | 101    | r-x       |
+| 6     | 110    | rw-       |
+| 7     | 111    | rwx       |
+
+
+```
+root@e78e6ae9e14a:~# ls -l foo.txt
+-rw-r--r-- 1 root root 0 Nov 28 16:02 foo.txt
+root@e78e6ae9e14a:~# chmod 600 foo.txt
+root@e78e6ae9e14a:~# ls -l foo.txt
+-rw------- 1 root root 0 Nov 28 16:02 foo.txt
+```
+
+주로 사용되는 항목들은 다음과 같음
+
+- 7 (rwx)
+- 6 (rx-)
+- 5 (r-x)
+- 4 (r--)
+- 0 (---)
+
+
+### Symbolic
+
+symbolic notation은 세가지 파트로 나뉜다.
+
+- 변경이 어디에 적용될 것인지: u (user), g(group), o(others=world), a(all)
+- Which operation will be performed: + (추가), -(제거), =(해당 항목만 추가 후 나머지 모두 제거)
+- What permission will be set: r, w, x
+
+다음은 몇몇 예시
+
+- `u+x`: user(u) 에게 execute (x) 권한 추가 (+)
+- `+x`: `a+x`와 동일. 모두에게 execute 권한 추가
+- `go=rw`: group, other(world)에게 r, w 권한 추가. 나머지 권한 (execute)이 있었다면 제거
+- `u+x,go=rw`
+
+
+### umask
+
+umask는 default permission을 조정해줌.
+
+```
+root@e78e6ae9e14a:~# umask
+0002
+root@e78e6ae9e14a:~# > foo.txt
+root@e78e6ae9e14a:~# ls -l foo.txt
+-rw-rw-r-- 1 root root 0 Nov 29 10:17 foo.txt
+```
+
+보통 `0002, 0022`가 default value.
+
+```
+root@e78e6ae9e14a:~# rm foo.txt
+root@e78e6ae9e14a:~# umask 0000
+root@e78e6ae9e14a:~# > foo.txt
+root@e78e6ae9e14a:~# ls -l foo.txt
+-rw-rw-rw- 1 root root 0 Nov 29 10:17 foo.txt
+```
+
+mask를 `0000`로 변경하면 모두 `rw`로 변경된 것을 볼 수 있다.
+
+`1`로 셋팅되면 mask가 없어지는 것. 아래 표를 보면 world의 기본 모드는 `rw-`인데 0002의 마스크의 2의 2진법이 `010`이기 때문에 `w`가 꺼진다.
+
+| original file mode | --- rw- rw- rw- |
+| Mask               | 000 000 000 010 |
+| result             | --- rw- rw- r-- |
+
+
+`0022`일 경우에는 world와 마찬가지로 group의 `w`모드도 꺼진다.
+
+| original file mode | --- rw- rw- rw- |
+| Mask               | 000 000 010 010 |
+| result             | --- rw- r-- r-- |
+
+대부분의 경우 umask를 변경할 일은 없고, 특별히 보안을 신경써야 할 때 주로 변경한다.
+
+
+위의 mask는 3자리수면 충분한데 4자리인 이유는 잘 쓰이지 않는 특수 권한이 사용되기 때문.
+
+- `setuid bit`(4000): 실행 가능한 파일에 적용되면 실제로 파일을 실행하는 권한이 프로그램의 owner로 변경된다. 보통 superuser 권한의 프로그램에 사용되어 일반 유저도 해당 프로그램을 superuser 권한으로 실행시킬 수 있게 해줌. 보안 이슈가 생길 수 있어 쵲대한 적게 적용하는게 좋음
+- `setgid bit`(2000): directory에 적용되면 파일을 만든 group이 아니라 directory의 그룹이 사용된다.
+- `sticky bit`: 오래된 unix의 잔재. directory에 사용되면 directory의 owner나 superuser가 제외하고는 해당 디렉토리의 파일을 지우거나 이름 변경을 못하게 함. 주로 `/tmp`같은 shared directory에 적용되어 있음.
+
+각각을 지정하는 방법은 다음과 같음
+
+```
+# setuid
+chmod u+s program
+# 이렇게 execute에 s가 표시됨
+-rwsr-xr-x
+
+# setgid
+chmod g+s dir
+# 이렇게 directroy execute에 s가 표시됨
+drwxrwsr-x
+
+# sticky
+chmod +t dir
+# world execute에 t가 표시됨
+drwxrwxrwt
+```
+
+### Changing id
+
+주로 세가지 방법으로 유저 변경.
+
+- logout 하고 다른 유저로 login
+- `su` 명령어
+- `sudo` 명령어
+
+#### `su`: Substitute User
+
+새로운 유저로 shell을 시작함.
+
+`-l` option은 특정 유저의 login shell이 열림. 이는 곧 새로운 유저의 env가 로드되고 새로운 유저의 home 디렉토리로 변경되는 것. (보통 이렇게 사용함)
+
+> `-`가 `-l`의 축약어이기 때문에 대부분 `su -`로 사용한다
+
+user가 지정되지 않으면 superuser로 로그인되는데, 그래서 `su -`가 superuser login임. (`su -l root`와 같은말)
+
+`-c` option으로 특정 명령어만 실행시킬 수도 있다.
+
+```
+$ su -c 'less /etc/shadow'
+Password:
+```
+
+#### `sudo`: Execute a command as another user
+
+`sudo`는 `su`와 비슷하지만 더 중요한 기능들을 포함하고 있음
+
+- 관리자가 일반 유저들이 `sudo`로 사용할 수 있는 명령어를 컨트롤 가능하다.
+- `sudo` 명령어를 사용할 때 superuser의 비밀번호가 필요 없음 (사용중인 해당 유저의 password만 있으면됨)
+- `sudo`는 `su`와 다르게 새로운 shell을 시작하지 않고, 다른 유저의 환경얼 불러오지도 않는다.
+
+### chown: change file owner and group
+
+```
+chown [owner][:[group]] file...
+```
+
+## 10. Process
+
+모던 os 는 보통 multitasking이다: 빠르게 프로그램을 스위칭하면서 한 가지보다 더 많은 일을 하고 있게 환상을 만드는 것
+
+커널은 이를 `process`를 통해 관리: 프로세스는 리눅스가 CPU에서 다른 프로그램을 해당 순서까지 기다리게 관리해줌.
+
+시스템이 시작되면 커널은 `init`이라는 프로그램을 실행시키는 프로세스를 시작함. (`/etc`에 있는 몇몇의 init script들을 실행)
+
+대부분의 서비스들은 `daemon program` (유저 인터페이스 없이 백그라운드에서 실행되는 프로그램)
+
+다른 프로그램을 실행시킬 수 있는 프로그램 (`parent process`가 `child process`를 생성함)
+
+커널은 각각의 프로세스들이 정렬되게 정보를 유지함. ex) 각각의 프로세스는 process ID (PID)라고 불리는 번호를 순서대로 부여받는다. (`init`이 항상 PID 1)
+
+### Viewing process
+
+ps를 보는 가장 흔한 방법은 `ps` 명령어.
+
+```
+[ec2-user@ip-172-31-5-10 ~]$ ps
+  PID TTY          TIME CMD
+ 3357 pts/0    00:00:00 bash
+ 3426 pts/0    00:00:00 ps
+```
+
+default로 ps는 현재 터미널 세션에 관련된 프로세스들만 보여준다.
+
+`TTY`는 "teletype"의 줄임말로 process의 controlling terminal을 나타낸다. `TIME`은 해당 프로세스가 사용한 CPU time을 나타냄.
+
+옵션을 사용하면 시스템이 뭘 하고있는지 더 자세히 볼 수 있다.
+
+`x` option은 터미널과 관계 없이 모든 프로세스를 보여주라는 명령어이다. TTY에 `?`는 controlling terminal이 없다는 뜻. 이 명령어로 우리가 사용중인 모든 프로세스를 보여준다.
+
+시스템이 많은 프로세스를 실행하고 있기 때문에 `ps`는 긴 리스트를 반환한다.
+
+또한 `STAT`이라는 새로운 열이 생기는데, 이는 `state`의 줄임말이다
+
+- `R`: Running
+- `S`: Sleeping
+- `D`: Uninterruptible sleep (disk drive처럼 I/O를 기다리는중)
+- `T`: Stopped
+- `Z`: zombie 프로세스. 이미 종료되었지만 parent로부터 정리되지 않은 child process 등
+- `<`: 우선순위가 높은 프로세스. 프로세스에 중요도를 줘서 더 많은 CPU time을 할당할 수 있다. 이 속성을 `niceness`라고 부름
+- `N`: 우선순위가 낮은 프로세스
+
+또 자주 쓰이는 옵션은 `aux` 옵션이다.
+
+```
+$ ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0 191708  3172 ?        Ss   Oct13   2:17 /usr/lib/systemd/systemd --switched-root --system --dese
+root         2  0.0  0.0      0     0 ?        S    Oct13   0:01 [kthreadd]
+root         4  0.0  0.0      0     0 ?        S<   Oct13   0:00 [kworker/0:0H]
+root         5  0.0  0.0      0     0 ?        S    Oct13   0:01 [kworker/u96:0]
+root         6  0.0  0.0      0     0 ?        S    Oct13  17:41 [ksoftirqd/0]
+root         7  0.0  0.0      0     0 ?        S    Oct13   0:07 [migration/0]
+root         8  0.0  0.0      0     0 ?        S    Oct13   0:00 [rcu_bh]
+root         9  0.0  0.0      0     0 ?        S    Oct13  46:49 [rcu_sched]
+...
+```
+
+이 옵션은 모든 유저의 process를 보여준다. (BSD 스타일)
+
+### view process dynamically with top
+
+`top` 명령어는 기계의 현재 상태를 더 동적으로 보여준다.
+
+(기본으로) 매 초마다 상태를 업데이트해준다.
+
+> `top` 명령어의 유래는 주로 시스템의 "top" 프로세스를 보기 위해 사용되는 것으로부터 유래
+
+크게 두가지로 나뉨
+- system summary
+- table of processes
+```
+top - 18:43:04 up 23:09,  0 users,  load average: 0.08, 0.12, 0.15
+Tasks:   2 total,   1 running,   1 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  1.2 us,  4.7 sy,  0.0 ni, 94.1 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   1990.8 total,     84.1 free,    848.0 used,   1058.7 buff/cache
+MiB Swap:   1024.0 total,    998.9 free,     25.1 used.   1047.8 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+      1 root      20   0    4112   3428   2984 S   0.0   0.2   0:00.03 bash
+      9 root      20   0    6120   3232   2748 R   0.0   0.2   0:00.00 top
+...
+```
+
+system summary는 아주 많은 정보를 보여준다.
+
+- top; 프로그램 이름
+- 18:43:04; 현재 시간
+- up 23:09; `uptime`이라고 불림. boot되고 지금까지의 시간
+- users; 현재 로그인 된 유저 수
+- load average; 실행되기를 기다리는 프로세스의 수. 첫번째 값은 평균 60초, 두번째는 5분, 세번째는 15분. 1.0 척도이다.
+- Tasks; process stat에 따른 프로세스 수 요약
+- CPU(s);
+  - 1.2 us; CPU의 1.2%가 user process (커널 밖에서 실행되는)
+  - 4.7 sy; CPU의 4.7%가 시스템 (커널) 프로세스
+  - 0.0 ni; CPU의 0.0%가 낮은 우선순위의 프로세스 (nice)
+  - 94.1 id; CPU의 94.1%가 놀고있음 (idle)
+  - 0.0 wa; CPU의 0.0퍼센트가 I/O를 기다리고 있음
+
+
+`top` 프로그램은 몇몇 키보드 명령어를 받을 수 있음. help text인 `h`와 종료하는 `q`가 가장 많이 쓰일듯.
+
+```
+Help for Interactive Commands - procps-ng version 3.3.10
+Window 1:Def: Cumulative mode Off.  System: Delay 3.0 secs; Secure mode Off.
+
+  Z,B,E,e   Global: 'Z' colors; 'B' bold; 'E'/'e' summary/task memory scale
+  l,t,m     Toggle Summary: 'l' load avg; 't' task/cpu stats; 'm' memory info
+  0,1,2,3,I Toggle: '0' zeros; '1/2/3' cpus or numa node views; 'I' Irix mode
+  f,F,X     Fields: 'f'/'F' add/remove/order/sort; 'X' increase fixed-width
+
+  L,&,<,> . Locate: 'L'/'&' find/again; Move sort column: '<'/'>' left/right
+  R,H,V,J . Toggle: 'R' Sort; 'H' Threads; 'V' Forest view; 'J' Num justify
+  c,i,S,j . Toggle: 'c' Cmd name/line; 'i' Idle; 'S' Time; 'j' Str justify
+  x,y     . Toggle highlights: 'x' sort field; 'y' running tasks
+  z,b     . Toggle: 'z' color/mono; 'b' bold/reverse (only if 'x' or 'y')
+  u,U,o,O . Filter by: 'u'/'U' effective/any user; 'o'/'O' other criteria
+  n,#,^O  . Set: 'n'/'#' max tasks displayed; Show: Ctrl+'O' other filter(s)
+  C,...   . Toggle scroll coordinates msg for: up,down,left,right,home,end
+
+  k,r       Manipulate tasks: 'k' kill; 'r' renice
+  d or s    Set update interval
+  W,Y       Write configuration file 'W'; Inspect other output 'Y'
+  q         Quit
+          ( commands shown with '.' require a visible task display window )
+Press 'h' or '?' for help with Windows,
+Type 'q' or <Esc> to continue
+```
+
+> mac 의 top은 조금 다르다. `?`를 입력하거나 `man top`으로 문서를 볼 수 있다.
+
+### Controlling process
+
+대부분의 터미널에서 실행되고 있는 프로그램들은 `CTRL-C`로 interrupt 가능하다. 이는 프로그램에게 종료할 것을 공손하게 요청하는 것.
+
+반면 process를 background에서 실행할수도 있다. 
+
+```
+[sckim@localhost ~]$ vi &
+[1] 29500
+[sckim@localhost ~]$
+```
+
+ps 명령어로 떠 있는 것을 볼 수 있다.
+
+```
+[sckim@localhost ~]$ ps
+  PID TTY          TIME CMD
+29001 pts/0    00:00:00 bash
+29500 pts/0    00:00:00 vim
+29501 pts/0    00:00:00 ps
+```
+
+`jobs` 명령어로 현재 터미널에서 실행중인 job들을 볼 수도 있다.
+
+```
+[1]+  Stopped                 vim
+[sckim@localhost ~]$ jobs
+[1]+  Stopped                 vim
+```
+
+이를 다시 foreground로 불러오려면 `fg` 명령어를 사용하면 된다.
+
+```
+[sckim@localhost ~]$ fg %1
+```
+
+vim 창이 켜지는 것을 볼 수 있다.
+
+
+잠시 프로그램을 멈출 수도 있다. 보통 foreground를 background로 보내는 것. `CTRL-Z`로 background로 보낼 수 있다.
+
+### SIGNALS

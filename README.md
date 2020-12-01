@@ -8,6 +8,8 @@
 - [kubecon europe](./kubernetes/kubecon-2020-europe.md)
 - [kubectl alpha debug command](./kubernetes/kubectl-alpha-debug-command.md)
 - [Update minikube and k8s version](./kubernetes/Update-minikube-and-k8s-version.md)
+- [CKA lecutre orelly](./kubernetes/CKA-lecutre-orelly.md)
+- [kubernetes the hard way](./kubernetes/kubernetes-the-hard-way.md)
 
 ## Docker
 
@@ -50,6 +52,9 @@
 ## etc
 
 - [happy hacking hybrid tips](./etc/happy-hacking-hybrid-tips.md)
+- [gcloud use multiple configuration account](./etc/gcloud-use-multiple-configuration-account.md)
+- [tmux set syncronize pane typing](./etc/tmux-set-syncronize-pane-typing.md)
+- [kafka setup for ec2 server](./etc/kafka-setup-for-ec2-server.md)
 
 ## BOOKS
 

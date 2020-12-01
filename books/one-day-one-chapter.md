@@ -259,4 +259,7 @@ Don't read much books from 2020-09 ~ 2020-10
 - [x] 11/25: The Linux Command Line: ~ 1.6 Redirection
 - [x] 11/26: The Linux Command Line: ~ 1.7. Seeing the world as the shell sees it
 - [x] 11/27: The Linux Command Line: ~ 1.8. Advanced keyboard tricks
+- [x] 11/28: The Linux Command Line: ~ 1.9. permission (ing)
+- [x] 11/29: The Linux Command Line: ~ 1.9. permission (done)
+- [x] 11/30: The Linux Command Line: ~ 1.10. process (ing)
 - 
