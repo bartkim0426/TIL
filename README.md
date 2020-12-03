@@ -25,6 +25,7 @@
 - [type hinting multiple return type union](./python/type-hinting-multiple-return-type-union.md)
 - python-IO-stream-and-buffer
 - [import requirements txt to poetry](./python/import-requirements-txt-to-poetry.md)
+- [singleton pattern in python](./python/singleton-pattern-in-python.md)
 
 ## Vim
 
@@ -42,6 +43,7 @@
 
 - [find command usage](./linux/find-command-usage.md)
 - [count files in linux](./linux/count-files-in-linux.md)
+- [turn off swap memory](./linux/turn-off-swap-memory.md)
 
 ## ML
 

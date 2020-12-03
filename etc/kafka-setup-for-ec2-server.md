@@ -12,7 +12,6 @@
 
 - AWS ec2 instance에 kafka server 띄우기
 - cli를 통해 producer, consumer 개념 이해하기
-- python client로 실제 메세지 처리하기
 
 이다.
 
@@ -236,8 +235,3 @@ testgroup       test            0          0               6               6    
 testgroup       test            2          0               8               8               -               -               -
 ```
 
-## Kafka client 사용해보기
-
-
-```
-```

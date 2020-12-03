@@ -828,7 +828,7 @@ chown [owner][:[group]] file...
 ps를 보는 가장 흔한 방법은 `ps` 명령어.
 
 ```
-[ec2-user@ip-172-31-5-10 ~]$ ps
+[ec2-user@ip-xxx.xx.xx.xx ~]$ ps
   PID TTY          TIME CMD
  3357 pts/0    00:00:00 bash
  3426 pts/0    00:00:00 ps
@@ -985,3 +985,274 @@ vim 창이 켜지는 것을 볼 수 있다.
 잠시 프로그램을 멈출 수도 있다. 보통 foreground를 background로 보내는 것. `CTRL-Z`로 background로 보낼 수 있다.
 
 ### SIGNALS
+
+`kill` 명령어는 이름처럼 프로세스를 제거하는 명령어.
+
+하지만 실제로 프로세스를 죽이는게 아니라 프로세스에 `signals`를 보낸다. 시그널은 os가 프로그램과 커뮤니케이션 하는 방식 중 하나이다.
+
+위에서 썼던 `CTRL-C`, `CTRL-Z` 명령어도 사실은 각각 `INT`(interrupt), `TSTP`(Termianl stop) signal을 프로세스에 보낸 것.
+
+kill 명령어는 option으로 시그널을 선택해서 보낼 수 있다.
+
+```
+kill -signal PID...
+```
+
+주로 사용되는 kill signal 종류는 다음과 같다.
+
+> 맨날 의미도 잘 모르고 `kill -9`만 썼던 나 자신을 반성..
+
+- 1 (`HUP`): Hang up. 모뎀이나 전화에 물려서 remote computer에 연결되었던 시절의 유산. daemon 프로그램이 reinitialization 할 때 쓰인다 (ex. nginx)
+- 2 (`INT`): Interrupt. `CTRL-C`와 같은 효과. 보통 프로그램을 종료시킨다.
+- 9 (`KILL`): 특별한 시그널. 타겟 프로그램에게 신호를 보내지 않고 커널이 즉각적으로 프로그램을 종료. 이렇게 종료하면 clean up 할 기회가 없기 때문에 다른 종료 시그널이 실패했을 때 마지막 방법으로 쓰는것이 좋다.
+- 18 (`TERM`): Terminate. kill 명령어에 옵션을 주지 않으면 default로 보내지는 시그널이다.
+- 19 (`STOP`): Stop. 종료하지 않고 프로세스를 정지시킨다. `-9` (KILL) 시그널과 마찬가지로 타겟 프로세스에 보내지지 않기 때문에 무시되지 않는다.
+- 20 (`TSTP`): Terminal stop. `CTRL-Z`와 같은 효과. STOP과 비슷한 효과지만 프로그램에게 보내지기 때문에 프로그램이 무시하기로 선택할 수 있음.
+
+
+```
+root@6d1b96b09793:/# vi &
+[1] 611
+root@6d1b96b09793:/# kill -1 611
+
+[1]+  Stopped                 vi
+```
+
+`killall vi`처럼 해당 프로그램을 전부 kill 시킬수도 있다.
+
+### 다양한 명령어들
+
+- reboot
+- shutdown
+- pstree: tree-like 패턴으로 관계된 프로세스를 보여줌
+- vmstat: 시스템 리소스를 보여줌. `vmstat -5`처럼 5초마다 업데이트도 가능
+
+## 11. The environment
+
+shell은 세션의 정보를 `environment`로 유지한다.
+
+이는 크게 두가지로 나눌 수 있는데, `environment variable`과 `shell variable`
+
+`bash`에 의해서 만들어진 데이터를 `shell variable`이라고 부르고 나머지 전부는 `environment variable`이다.
+
+이와 더불어 몇몇 정보는 `aliases`와 `shell functions`에도 저장한다. shell function은 책의 나중에 다룰 예정 (shell scripting)
+
+env를 보는 방법은 `printenv`, `set`이 있다.
+
+`printenv`는 environment variable을 모두 보여주고 `set` 명령어는 shell과 env 변수를 모두 보여준다.
+
+### 어떻게 environment가 세팅되는지
+
+로그인시, `bash` 프로그램은 `startup files`라고 불리는 몇몇 설정 스크립트를 읽는다.
+
+보통 shell 세션은 두가지 방법으로 시작되는데,
+
+- login shell session: prompt에 username, password를 입력하고 로그인하는 방식. 보통 virtual console (ssh) 세션을 시작하면 이렇게 시작된다. (대부분의 서버)
+- non-login shell session: 보통 gui에서 터미널을 열면 이렇게 시작된다. (대부분의 pc)
+
+시작되는 방법에 따라 읽는 startup file이 다르다.
+
+로그인 세션은 다음 파일들을 읽는다
+- `/etc/profile`: 모든 유저에게 적용되는 global configuration script
+- `~/.bash_profile`: 유저의 개인적인 startup file. global configuration script를 덮어씌울때 사용된다.
+- `~/.bash_login`: ~`/.bash_profile`이 없으면 읽으려고 시도
+- `~/.profile`: ~/.bash_profile, ~/.bash_login이 둘 다 없으면 읽기 시도. 몇몇 debian 기반 배포판에서 기본
+
+non-login 세션은 다음 파일을 읽는다.
+- `/etc/bash.bashrc`: global configuration script
+- `~/.bashrc`: 유저의 개인적인 startup file.
+
+`~/.bashrc`가 대부분 읽히기 때문에 유저의 관점에서는 아마 가장 중요한 startup file일 듯. non-login shell은 이를 기본으로 읽고, login shell 도 대부분의 startup file 안에서 ~/.bashrc를 읽는다.
+
+`~/.bash_profile`을 열어보자.
+
+
+```
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+export PATH
+```
+
+
+위에 `~/.bashrc` 파일이 있으면 읽는 코드가 있기 때문에 대부분의 서버에서 login shell에서도 `~/.bashrc`가 적용되는 것.
+
+그 다음은 `PATH`. 명령줄에서 실행 파일을 실행시키면 shell이 명령어를 찾아내는 방식.
+
+shell은 명령어를 입력 받으면 `PATH` 변수에 있는 디렉토리 리스트에서 해당 명령어를 찾는다.
+
+> `PATH` 변수는 대부분의 경우 `/etc/profile` startup file에서 다음 코드로 설정된다.
+
+```
+PATH=$PATH:$HOME/bin
+```
+
+이는 parameter expansion을 사용한 구문으로 아래 예시를 따라해보면 이해가 쉽다.
+
+```
+root@d44964688ad2:/# foo="this is some "
+root@d44964688ad2:/# echo $foo
+this is some
+root@d44964688ad2:/# foo=$foo"text."
+root@d44964688ad2:/# echo $foo
+this is some text.
+```
+
+이 테크닉을 사용하여 variable의 내용의 끝에 새로운 텍스트를 추가할 수 있다.
+
+위에 `$PATH`에 `:$HOME/bin`이 추가되어 홈 디렉토리의 `~/bin` 안의 실행파일이 실행되는 것.
+
+
+> 어떤 파일을 수정해야할까?
+
+> 서버에서는 ~/.bash_profile을, 로컬에서는 ~/.bashrc (주로 ~/.zshrc)를 수정하기 일쑤였는데, 책에서는 `PATH`를 추가하거나 새로운 환경변수를 정의할 때에는 ~/.bash_profile을, 나머지 다른 것들은 .bashrc에 추가하라고 한다.
+
+
+## 13. Customizing the prompt
+
+가장 기본적인 prompt는 다음처럼 생겼다.
+
+```
+[ec2-user@ip-xxx.xx.xx.xx ~]$
+```
+
+prompt는 전에 살펴봤던 것처럼 `PS1`이라는 환경변수로 정의되어 있다. (Prompt String 1의 줄임말)
+
+```
+[ec2-user@ip-xxx.xx.xx.xx ~]$ echo $PS1
+[\u@\h \W]\$
+```
+이 backslashed-escaped special character들은 bash가 prompt string에서 특별하게 사용한다.
+
+- \a: ASCII bell. computer beep 소리를 낸다 (?)
+- \d: current date (Mon May 26)
+- \h: hostname
+- \H: full hostname
+- \j: 현재 shell 세션에서 실행중인 job 개수
+- \l: 현재 터미널 기기의 이름
+- \n: newline (줄바꿈)
+- \r: carrage return
+- \s: shell 프로그램 이름
+- \t: 현재 시간 (24시간 기준) HH:mm:ss 포멧
+- \T: 12시간 기준 현재시간
+- \@: 21시간 기준 + AM/PM 포멧
+- \A: 24시간 기준 현재시간 HH:mm 포멧
+- \u: 현재 유저명
+- \v: shell 버전명
+- \w: 현재 working directory
+- \W: 현재 working directory의 마지막 경로
+- \!: 현재 명령어의 히스토리 넘버
+- \#: 현재 쉘 세션에서 입력되었던 명령어 수
+- `\$`: `$`캐릭터를 표시. superuser 권한일 떄에는 #
+- \[: non-printing 캐릭터를 나타내는 시그널 시작
+- \]: non-printing 캐릭터를 나타내는 시그널 시작
+
+
+### Prompt 디자인 변경해보기
+
+```
+[ec2-user@ip-xxx.xx.xx.xx ~]$ ps1_old="$PS1"
+[ec2-user@ip-xxx.xx.xx.xx ~]$ echo $ps1_old
+[\u@\h \W]\$
+
+# 나중이 이렇게 복구할 수 있다.
+[ec2-user@ip-172-31-5-10 ~]$ PS1="$ps1_old"
+```
+
+일단 모두 제거해보자.
+
+```
+[ec2-user@ip-172-31-5-10 ~]$ PS1=
+
+```
+
+아무것도 표시되지 않는 것을 볼 수 있다.  이제 달러 사인($)만 줘보자.
+
+```
+[ec2-user@ip-172-31-5-10 ~]$ PS1="\$ "
+$
+```
+
+이제 적어도 어디에 있는지 정도는 볼 수 있다.
+
+시간과 hostname을 표시해보자.
+
+```
+$ PS1="\A \h \$ "
+15:25 ip-xxx-xx-xx-xx $
+```
+
+기존 방식과 거의 흡사하게 만들어보자.
+
+```
+15:26 ip-172-31-5-10 $ PS1="<\u@\h \W>\$ "
+<ec2-user@ip-172-31-5-10 ~>$ ls
+```
+
+### 색깔 변경
+
+캐릭터 색깔은 ANSI escape code로 터미널 에뮬레이터에 보내진다.
+
+```
+# red prompt
+<ec2-user@ip-172-31-5-10 ~>$ PS1="\[\033[0;31m\]<\u@\h \W>\$ "
+
+# 기존 색상으로 돌아가라는 신호
+<ec2-user@ip-172-31-5-10 ~>$ PS1="\[\033[0;31m\]<\u@\h \W>\$\[\033[0m\] "
+
+# red background color
+<ec2-user@ip-172-31-5-10 ~>$ PS1="\[\033[0;41m\]<\u@\h \W>\$\[\033[0m\] "
+```
+
+ANSI 는 `\033[X;XXm` 형태로 이루어진다.
+
+세미콜론으로 나누어진 첫번째 숫자는 특별한 뜻을 갖고, 숫자는 30부터 시작된다.
+
+- 0이 기본, 1은 bold, 4는 italic, 5는 밑줄 등이다.
+- 각 숫자 번호는 [ANSI escape code 위키피디아](https://en.wikipedia.org/wiki/ANSI_escape_code)에서도 볼 수 있다.
+- 0;30 은 기본 블랙 -> `\033[0;30m` 이 그래서 검정색이다.
+
+- `\033[0;30m`: black
+- `\033[0;31m`: red
+- `\033[0;32m`: green
+
+백그라운드 컬러는 40으로 시작한다.
+
+- `\033[0;40m`: black
+- `\033[0;41m`: red
+- `\033[0;42m`: green
+
+### 커서 이동
+
+escape code로 커서의 위치도 조정할 수 있다. 보통 시계나 특별한 정보를 스크린의 위치에 고정할 때 쓰인다.
+
+구체적인 sequence는 따로 정리하지 않겠다.
+
+다음은 스크린의 맨 위에 빨간 시계를 고정시키는 prompt.
+
+```
+PS1="\[\033[s\033[0;0H\033[0;41m\033[K\033[1;33m\t\033[0m\033[u\]<\u@\h \W>\$ "
+```
+
+> 이걸 활용하면 zsh를 조금 더 깔끔하게 만들 수 있을듯.
+
+> 한번 더 보고 실제로 많은 정보를 표시해주는 shell을 만들어보자.
+
+
+###  prompt 저장
+
+`.bashrc` 파일에 두줄을 추가하면 된다.
+
+```
+PS1="\[\033[s\033[0;0H\033[0;41m\033[K\033[1;33m\t\033[0m\033[u\]<\u@\h \W>\$ "
+
+export PS1
+```

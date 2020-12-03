@@ -262,4 +262,10 @@ Don't read much books from 2020-09 ~ 2020-10
 - [x] 11/28: The Linux Command Line: ~ 1.9. permission (ing)
 - [x] 11/29: The Linux Command Line: ~ 1.9. permission (done)
 - [x] 11/30: The Linux Command Line: ~ 1.10. process (ing)
+
+## 2020-12
+
+- [x] 12/1: The Linux Command Line: 1.10. process (done), 1.11. the environment (ing)
+- [x] 12/2: The Linux Command Line: 1.11. the environment (done)
+- [x] 12/3: The Linux Command Line: 1.12. A gentle introduction to vi, 1.13. Customizing the prompt
 - 
