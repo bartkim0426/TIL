@@ -26,6 +26,7 @@
 - python-IO-stream-and-buffer
 - [import requirements txt to poetry](./python/import-requirements-txt-to-poetry.md)
 - [singleton pattern in python](./python/singleton-pattern-in-python.md)
+- [kafka python usage](./python/kafka-python-usage.md)
 
 ## Vim
 
@@ -57,6 +58,7 @@
 - [gcloud use multiple configuration account](./etc/gcloud-use-multiple-configuration-account.md)
 - [tmux set syncronize pane typing](./etc/tmux-set-syncronize-pane-typing.md)
 - [kafka setup for ec2 server](./etc/kafka-setup-for-ec2-server.md)
+- [tmux shortcuts for remember](./etc/tmux-shortcuts-for-remember.md)
 
 ## BOOKS
 

@@ -1256,3 +1256,134 @@ PS1="\[\033[s\033[0;0H\033[0;41m\033[K\033[1;33m\t\033[0m\033[u\]<\u@\h \W>\$ "
 
 export PS1
 ```
+
+## 14. Package management
+
+package management는 시스템에서 소프트웨어를 설치하고 관리하는 시스템.
+
+요즘엔 대부분의 사람들이 각 linux distributor의 패키지들을 설치한다.
+
+> 이는 소스코드를 받아서 컴파일하는 초기의 리눅스에 반대되는 것이지만, 소스코드를 받아서 쓰는 방식도 여전히 널리 사용되는 방식이다. 이는 이후 챕터에서 다룰예정
+
+### Packaging syswtem
+
+일반적으로 다른 배포판은 다른 패키징 시스템을 갖는다.
+
+대부분의 배포판은 크게 두가지로 나뉜다
+
+- Debian: .deb (Debian, Ubuntu, Linux Mint, Raspbian)
+- Red hat: .rpm (Fedora, CentOS, Red hat Enterprise Linux, OpenSUSE)
+
+### 패키지 시스템이 작동하는법
+
+디스크 등으로 설치되는 윈도우와 다르게 모든 리눅스 시스템의 소프트웨어는 인터넷에서 찾을 수 있다.
+
+대부분은 `package file`의 형태로 distribution vendor에 의해서 제공된다.
+
+소프트웨어 패키징의 기본 유닛은 `package file`이다. 이는 소프트웨어 패키지를 구성하는 파일의 콜렉션.
+
+배포판은 소프트웨어 개발 라이프사이클에 따라 몇몇 다른 레파지토리를 유지한다. 보통은 testing, development 등...
+
+
+### High and Low level package tool
+
+package management system은 대개는 두가지 타입의 툴로 구성된다.
+
+- Low level tools: 패키지 파일을 설치하거나 제거
+- High level tools: 메타데이터를 찾거나 디펜던시 해결
+
+| distribution            | Low-level | High-level             |
+| Debian                  | dpkg      | apt-get, apt, aptitute |
+| Redhat (Fedora, Centos) | Low-level | yum, dnf               |
+
+
+> 그래서 서버에 따라서 어떤 서버는 yum을, 어떤 서버는 apt-get을 사용하는 것
+
+### 흔한 패키지 관리 명령어들
+
+패키지 검색
+
+```
+# debian
+apt-get update
+apt-cache search search_string
+
+# redhat
+yum search search_string
+```
+
+
+패키지 설치 및 제거
+
+```
+# debian
+apt-get update
+apt-cache install package_name
+
+## 파일로 설치
+dpkg -i package_file
+
+## 제거
+apt-get remove package_name
+
+
+# redhat
+yum insatll package_name
+
+## 파일로 설치
+rpm -i package_file
+## 제거
+yum erase package_name
+```
+
+레파지토리에서 패키지 업데이트
+
+```
+# debian
+apt-get update
+apt-get upgrade
+# upgrade from file
+dpkg -i package_file
+
+# redhat
+yum update
+# upgrade from file
+rpm -U package_file
+```
+
+설치된 패키지 리스팅 및 정보 확인
+
+```
+# debian
+dpkg -l
+## 해당 패키지가 설치되었는지 확인
+dpkg -s package_name
+## 설치된 패키지 정보 확인
+apt-cache show package_name
+
+# redhat
+rpm -qa
+## 해당 패키지가 설치되었는지 확인
+rpm -q package_name
+## 설치된 패키지 정보 확인
+yum info package_name
+```
+
+해당 파일이 어떤 패키지로 설치되었는지 확인
+
+
+```
+# debian
+dpkg -S file_name
+
+# redhat
+rpm -qf file_name
+```
+
+ex. vim이 어떻게 설치되었는지
+
+```
+rpm -qf $(which vim)
+```
+
+
