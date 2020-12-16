@@ -1386,4 +1386,329 @@ ex. vim이 어떻게 설치되었는지
 rpm -qf $(which vim)
 ```
 
+## 17. Searching for files
+
+### locate
+
+database를 바탕으로 주어진 substring과 맞는 파일을 탐색.
+
+> `updatedb`라는 프로그램이 정기적으로 cron job으로 파일 데이터베이스를 업데이트한다.
+
+### find
+
+`locate`가 파일을 이름으로만 찾았다면 `find` 프로그램은 특정 디렉토리에서 다양한 옵션과 특성으로 파일을 찾을 수 있다.
+
+```
+find ~
+
+# wordcount
+find ~ | wc -l  
+```
+
+#### Options (Test)
+find에는 다양한 옵션 (test라고 부름)이 존재한다.
+
+대표적인 옵션은 `-type`.
+
+```
+# directory만 찾기
+find ~ -type d | wc -l
+
+# file 찾기
+find ~ -type f | wc -l
+
+# size option
+find ~ -type f -name "*.JPG" -size +1M | wc -l
+```
+
+그 외 옵션들은 man page에서 확인 가능하다.
+
+#### Operators
+
+`-or` `and`, `not`, `()` (그룹)과 같은 operator도 사용 가능하다.
+
+operator를 사용하지 않고 옵션을 연달아서 쓰면 `-and`가 생략된것
+
+#### actions
+
+`-delete`, `-ls`, `-print`와 같은 미리 정의된 액션이 있음.
+
+```
+find ~ -type f -name '*.bak' -delete
+```
+
+> `-delete` 옵션을 쓰기 전에는 `-print`로 확인하는 것이 좋음
+
+#### User-defined action
+
+위에서 미리 정의된 액션 이외에도 `-exec` 를 사용하여 원하는 액션을 수행시킬 수 있다
+
+```
+-exec command '{}' ';'
+```
+
+`-delete`와 같은 액션은 다음과 같다.
+
+```
+-exec rm '{}' ';'
+```
+
+> 중괄호와 세미콜론은 쉘에서 특수하게 처리됨으로 quoted나 escaped 되어야한다.
+
+`exec` 대신 `-ok`를 사용하면 interactive하게 사용 (명령어 실행 전에 prompt로 띄워줌)
+
+```
+find ~ -type f -name 'foo*' -ok ls -l '{}' ';'
+< ls ... /home/me/bin/foo > ? y
+-rwxr-xr-x 1 me   me 224 2007-10-29 18:44 /home/me/bin/foo
+< ls ... /home/me/foo.txt > ? y
+-rw-r--r-- 1 me   me   0 2016-09-19 12:53 /home/me/foo.txt
+```
+
+#### Improving efficiency
+
+위에서는 파일 두개가 찾아졌기 때문에 `ls -l` 명령어가 두 번 실행된다.
+
+하지만 `ls -l file1 file2` 처럼 파일 두 개를 한 번의 명령어에서 사용할 수 있는데, 이런 경우 다음과 같이 사용 가능.
+
+```
+find ~ -type f -name 'foo*' -exec ls -l '{}' +
+```
+
+#### xargs
+
+`xargs`는 standard input으로 intput을 받고, 이를 특정 커맨드의 argument로 넘겨준다.
+
+이를 find와 사용하면 아주 좋음
+
+```
+find ~ -type f -name 'foo*' -print | xargs ls -l
+```
+
+#### 실제 사용 예시
+
+```
+# 테스트용 파일 생성
+root@3c28bc830cb6:~# mkdir -p playground/dir-{001..100}
+root@3c28bc830cb6:~# touch playground/dir-{001..100}/file-{A..Z}
+
+# file-A 파일 개수 확인
+root@3c28bc830cb6:~# find playground -type f -name 'file-A' | wc -l
+100
+```
+
+권한을 일괄 확인 후 수정해보자. 파일인 경우 600, 디렉토리인 경우 700이 아니면 수정하는 명령어.
+
+```
+# permission이 600, 700이 아닌 개수 확인
+root@3c28bc830cb6:~# find playground \( -type f -not -perm 600 \) -or \( -type d -not -perm 700 \) | wc -l
+2701
+
+# 해당 파일을 600, 700으로 수정
+root@3c28bc830cb6:~# find playground \( -type f -not -perm 600 -exec chmod 600 '{}' ';' \) -or \( -type d -not
+-perm 700 -exec chmod 700 '{}' ';' \)
+
+# 다시 개수 확인
+root@3c28bc830cb6:~# find playground \( -type f -not -perm 600 \) -or \( -type d -not -perm 700 \) | wc -l
+0
+```
+
+> 괄호 사이에는 띄어쓰기가 필수
+
+## 18. Archiving and backup
+
+- gzip, bzip2, tar, zip, rsync
+
+### Compressing files
+
+압축은 데이터의 과잉(redundancy)를 줄이는 것.
+- lossless: 데이터를 원본 그대로 압축하는것
+- lossy: 데이터를 제거하여 압축하는것 (JPEG, MP3 등)
+
+### GZIP
+
+```
+root@3c28bc830cb6:~# ls -l foo.txt
+-rw-r--r-- 1 root root 3680 Dec 12 03:37 foo.txt
+root@3c28bc830cb6:~# gzip foo.txt
+root@3c28bc830cb6:~# ls -l foo.*
+-rw-r--r-- 1 root root 821 Dec 12 03:37 foo.txt.gz
+root@3c28bc830cb6:~# ls -l foo.*^C
+root@3c28bc830cb6:~# gunzip foo.txt.gz
+root@3c28bc830cb6:~# ls -l foo.txt
+-rw-r--r-- 1 root root 3680 Dec 12 03:37 foo.txt
+```
+
+다양한 옵션이 있음
+- `-d`: --decompress, --uncompress
+- `-f`: --force
+- `-l`: --list
+- `-r`: --recursive
+- `-t`: --test. 압축 파일의 integrity를 테스트
+- `-v`: --vervose
+
+```
+# 압축 파일 테스트
+$ gzip -tv foo.txt.gz
+foo.txt.gz:    OK
+```
+
+압축 파일의 내용을 보려면 여러가지 명령어로 가능
+
+```
+# standard output
+$ gunzip -c foo.txt | less
+
+# gunzip -c와 동일한 zcat도 있음
+$ zcat foo.txt.gz | less
+
+# zcat | less와 동일한 zless도 있음
+$ zless too.txt.gz
+```
+
+bzip도 리눅스에서는 많이 쓰인다.
+
+```
+root@3c28bc830cb6:~# ls -l /etc > foo.txt
+root@3c28bc830cb6:~# ls -l foo.txt
+-rw-r--r-- 1 root root 3680 Dec 12 03:47 foo.txt
+root@3c28bc830cb6:~# bzip2 foo.txt
+root@3c28bc830cb6:~# ls -l foo.txt.bz2
+-rw-r--r-- 1 root root 869 Dec 12 03:47 foo.txt.bz2
+root@3c28bc830cb6:~# bunzip2 foo.txt.bz2
+```
+
+### Archiving files
+
+압축과 많이 쓰이는 방식은 archiving: 많은 파일을 모아서 하나의 큰 파일로 번들링하는 프로세스
+
+#### tar
+
+예전에 백업 테이프를 만들 때 쓰이는 `tape archive`의 줄임말인 `tar`가 많이 쓰인다.
+
+일반 아카이빙인 `.tar`와 압축된 아카이브인 `.tgz` extension이 쓰인다.
+
+```
+tar mode[options] pathname...
+```
+
+모드는 4가지가 있다.
+
+- `c`: Create an archive. 아카이브 생성
+- `x`: Extract an archive. 아카이브 추출
+- `r`: append to the end of an archive. 아카이브의 맨 끝에 추가
+- `t`: list the contents of an archive. 아카이브 리스팅
+
+`tar`는 옵션 사용법이 조금 특이하다. (모드 뒤에 연달아 붙이는 방식)
+
+```
+$ mkdir -p playground/dir-{001..100}
+$ touch playground/dir-{001..100}/file-{A..Z}
+
+# 전체 디렉토리를 아카이빙
+$ tar cf playground.tar playground
+```
+
+`c` 모드 (생성 모드)에 `f`옵션 (이름 부여)을 주고 `playground.tar`를 만들었다.
+
+```
+# 해당 파일 리스팅
+$ tar tf playground.tar
+
+# verbose option (상세내용) 리스팅
+$ tar tvf playground.tar
+```
+
+이제 `x` option으로 extract 해보자.
+
+```
+$ tar xf playground.tar
+$ ls
+playground
+```
+
+> tar의 기본 pathname은 절대 경로가 아니라 상대경로를 사용한다.
+
+tar는 보통 아카이브 할 파일을 찾기 위해 `find`와 함께 사용된다.
+
+```
+# 기존 playground.tar에 file-A 파일을 찾아서 append
+$ find playground -name 'file-A' -exec tar rf playground.tar '{}' '+'
+```
+
+뿐만 아니라 standard input, output으로도 사용 가능하다
+
+`file-A`를 찾아서 아카이빙, 압축하여 `playground.tgz`로 만드는 명령어
+
+```
+$ find playground -name 'file-A' | tar cf - --files-from=- | gzip > playground.tgz
+```
+
+`-`는 standard input이나 output을 지칭한다. (대부분의 프로그램에서도 그럼)
+
+위의 명령어를 더 쉽게 사용하기 위해 tar는 `z` (gzip)와 `j`(bzip2) 옵션을 제공한다.
+
+```
+$ find playground -name 'file-A' | tar czf playground.tgz -T -
+```
+
+> `-T` 옵션은 `--files-from`과 동일하다. 위 예시에서는 standard input으로 들어온 내용인 `-`를 사용
+
+또 자주 사용되는 방식은 네트워크간에 파일을 주고받을 때.
+
+```
+# remote-sys 서버에 접속하여 Documents 디렉토리를 아카이빙한 뒤 현재 로컬 클라어인트에 다시 추출
+$ ssh remote-sys 'tar cf - Documents' | tar xf -
+```
+
+## 19. Regular expression
+
+```
+^\(?[0-9][0-9][0-9]\)? [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]$
+```
+
+```
+[[:upper:]][[:upper:][:lower:] ]*\.
+```
+
+```
+^([[:alpha:]]+ ?)+$
+```
+
+```
+^\(?[0-9]{3}\)? [0-9]{3}-[0-9]{4}$
+```
+
+
+```
+# 미국 전화번호 : (xxx) xxx-xxxx
+$ for i in {1..100}; do echo "(${RANDOM:0:3}) ${RANDOM:0:3}-${RANDOM:0:4}" >> phonelist.txt; done
+
+# 한국버전: 010-xxxx-xxxx
+$ for i in {1..100}; do echo "010-${RANDOM:0:4}-${RANDOM:0:4}" >> phonelist_kor.txt; done
+```
+
+```
+$ grep -Ev "^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$" phonelist.txt
+
+# 한국버전
+$ grep -Ev "^010-[0-9]{4}-[0-9]{4}$" phonelist_kor.txt
+```
+
+```
+$ touch "invalid test file"
+$ find . -regex '.*[^-_./0-9a-zA-Z].*'
+```
+
+
+```
+locate --regex 'bin/(bz|gz|zip)'
+```
+
+```
+cd /usr/share/man/man1
+zgrep -El 'regex|regular expression' *gz
+```
+
+
 

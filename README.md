@@ -10,12 +10,15 @@
 - [Update minikube and k8s version](./kubernetes/Update-minikube-and-k8s-version.md)
 - [CKA lecutre orelly](./kubernetes/CKA-lecutre-orelly.md)
 - [kubernetes the hard way](./kubernetes/kubernetes-the-hard-way.md)
+- [troubleshooting kubernetes](./kubernetes/troubleshooting-kubernetes.md)
+- [deploy eks in codepieline](./kubernetes/deploy-eks-in-codepieline.md)
 
 ## Docker
 
 - [Docker run override entrypoint](./docker/docker-run-override-entrypoint.md)
 - [Why docker and container](./docker/why-docker-and-container.md)
 - [difference between cmd and entrypoint](./docker/difference-between-cmd-and-entrypoint.md)
+- [got permission denied problem in linux for docker](./docker/got-permission-denied-problem-in-linux-for-docker.md)
 
 ## Python
 

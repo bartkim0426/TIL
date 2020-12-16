@@ -256,17 +256,33 @@ Don't read much books from 2020-09 ~ 2020-10
 - [x] 11/20: 모두의 인공지능 기초수학: 01 ~ 06 (기초수학)
 - [x] 11/23: The Linux Command Line: 1-1 ~ 1-3 (exploring the system)
 - [x] 11/24: The Linux Command Line: ~ 1-5 (Working with commnads)
-- [x] 11/25: The Linux Command Line: ~ 1.6 Redirection
-- [x] 11/26: The Linux Command Line: ~ 1.7. Seeing the world as the shell sees it
-- [x] 11/27: The Linux Command Line: ~ 1.8. Advanced keyboard tricks
-- [x] 11/28: The Linux Command Line: ~ 1.9. permission (ing)
-- [x] 11/29: The Linux Command Line: ~ 1.9. permission (done)
-- [x] 11/30: The Linux Command Line: ~ 1.10. process (ing)
+- [x] 11/25: The Linux Command Line: ~ 6 Redirection
+- [x] 11/26: The Linux Command Line: ~ 7. Seeing the world as the shell sees it
+- [x] 11/27: The Linux Command Line: ~ 8. Advanced keyboard tricks
+- [x] 11/28: The Linux Command Line: ~ 9. permission (ing)
+- [x] 11/29: The Linux Command Line: ~ 9. permission (done)
+- [x] 11/30: The Linux Command Line: ~ 10. process (ing)
 
 ## 2020-12
 
-- [x] 12/1: The Linux Command Line: 1.10. process (done), 1.11. the environment (ing)
-- [x] 12/2: The Linux Command Line: 1.11. the environment (done)
-- [x] 12/3: The Linux Command Line: 1.12. A gentle introduction to vi, 1.13. Customizing the prompt
-- [x] 12/4: The Linux Command Line: 1.14. package management
-- [ ]
+> [모두의 네트워크](http://www.yes24.com/Product/Goods/61794014)
+
+> [수학 없이 배우는 데이터 과학과 알고리즘](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791161750798&orderClick=LEA&Kc=)
+> [The Linux Command Line](http://www.linuxcommand.org/tlcl.php)
+
+> [Terraofm: Up & Running](https://www.terraformupandrunning.com/)
+
+- [x] 12/1: The Linux Command Line: 10. process (done), 11. the environment (ing)
+- [x] 12/2: The Linux Command Line: 11. the environment (done)
+- [x] 12/3: The Linux Command Line: 12. A gentle introduction to vi, 13. Customizing the prompt
+- [x] 12/4: The Linux Command Line: 14. package management
+- [x] 12/5: 모두의 네트워크 (done)
+- [x] 12/6: The Linux Command Line: 15. Storage media (ing)
+- [x] 12/7: The Linux Command Line: 15. Storage media (done), 16 Networking (done)
+- [x] 12/10: The Linux Command Line: 17. Searching for files (ing)
+- [x] 12/11: The Linux Command Line: 17. Searching for files (done)
+- [x] 12/12: The Linux Command Line: 18. Archiving and backup (done)
+- [x] 12/13: The Linux Command Line: 19. Regular expression
+- [x] 12/14: 수학 없이 배우는 데이터 과학과 알고리즘: 1장
+- [x] 12/15: The Linux Command Line: 20. Text processing (ing)
+- [x] 12/16: Terraform: Up & Running: 1. Why terraform
