@@ -286,3 +286,5 @@ Don't read much books from 2020-09 ~ 2020-10
 - [x] 12/14: 수학 없이 배우는 데이터 과학과 알고리즘: 1장
 - [x] 12/15: The Linux Command Line: 20. Text processing (ing)
 - [x] 12/16: Terraform: Up & Running: 1. Why terraform
+- [x] 12/17: Terraform: Up & Running: 2. Getting started with terraform (ing)
+- [x] 12/18: Terraform: Up & Running: 2. Getting started with terraform (done), 3. How to manage terraform state (ing)

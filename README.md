@@ -42,6 +42,7 @@
 - [Use vim in shell](./vim/Use-vim-in-shell.md)
 - [What is vimgrep and how to use it](./vim/What-is-vimgrep-and-how-to-use-it.md)
 - [Use vim for read man page](./vim/Use-vim-for-read-man-page.md)
+- [vim kubernetes yaml support with coc vim](./vim/vim-kubernetes-yaml-support-with-coc-vim.md)
 
 ## Linux
 
