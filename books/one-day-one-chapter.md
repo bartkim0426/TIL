@@ -288,3 +288,4 @@ Don't read much books from 2020-09 ~ 2020-10
 - [x] 12/16: Terraform: Up & Running: 1. Why terraform
 - [x] 12/17: Terraform: Up & Running: 2. Getting started with terraform (ing)
 - [x] 12/18: Terraform: Up & Running: 2. Getting started with terraform (done), 3. How to manage terraform state (ing)
+- [x] 12/20: The Linux Command Line: 20. (ing)

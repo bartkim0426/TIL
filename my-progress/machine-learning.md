@@ -1,4 +1,6 @@
 # Machine Learning
+- 목적
+
 
 - 책: [deep learning with python](../books/deep-learning-with-python.md)
   - 2020-08-08~
