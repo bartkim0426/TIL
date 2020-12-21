@@ -1711,4 +1711,303 @@ zgrep -El 'regex|regular expression' *gz
 ```
 
 
+## 20. Text Processing
 
+- cat
+- sort
+- uniq
+- cut, paste, join
+- comm, diff, patch
+- tr sed, aspell
+
+### sort
+
+다양한 옵션이 있음
+- `-f`: ignore case
+- `-n`: numeric sort
+- `-r`: reverse
+- `-k`: key. 아래에서 더 자세히 설명
+- `-o`: output file
+- `-t`: field seporator. default는 space나 tab
+
+```
+du -s /usr/share/* | sort -nr | head
+```
+
+**key를 사용하는 법**
+
+sort는 tabular data 형태로 작동한다.
+
+아래 예시는 /usr/bin 디렉토리의 파일을 크기순으로 정렬 후 10개만 보여줌.
+
+각각의 열은 필드처럼 작동하여 이 필드를 key로 사용할 수 있다.
+
+아래 예제에서는 5번째 field인 파일 크기를 key로 사용하여 이를 numeric sort 하였음.
+
+```
+ls -l /usr/bin | sort -nrk 5 | head
+-rwxr-xr-x    1 root root    113973984 Dec  9 05:05 kubelet
+-rwxr-xr-x    1 root root    102131240 Sep 17 02:03 dockerd
+-rwxr-xr-x    1 root root     84977456 Sep 17 02:04 docker
+-rwxr-xr-x    1 root root     66751208 Jan  8  2019 ffmpeg-10bit
+-rwxr-xr-x    1 root root     53221576 Sep 10 03:33 containerd
+-rwxr-xr-x    1 root root     40228064 Dec  9 05:05 kubectl
+-rwxr-xr-x    1 root root     39219040 Dec  9 05:05 kubeadm
+-rwxr-xr-x    1 root root     26958888 Sep 10 03:33 ctr
+-rwxr-xr-x    1 root root     22021168 Jul  9  2019 crictl
+-rwxr-xr-x    1 root root     12893816 Sep 10 03:33 runc
+```
+
+
+예시 파일을 사용하여 또 다른 key의 예제를 확인해보자.
+
+아래는 linux 배포판의 버전과 날짜를 적은 파일.
+
+```
+SUSE      10.2        12/07/2006
+Fedora    10          11/25/2008
+SUSE      11.0        06/19/2008
+Ubuntu    8.04        04/24/2008
+Fedora    8           11/08/2007
+SUSE      10.3        10/04/2007
+Ubuntu    6.10        10/26/2006
+Fedora    7           05/31/2007
+Ubuntu    7.10        10/18/2007
+Ubuntu    7.04        04/19/2007
+SUSE      10.1        05/11/2006
+Fedora    6           10/24/2006
+Fedora    9           05/13/2008
+Ubuntu    6.06        06/01/2006
+Ubuntu    8.10        10/30/2008
+Fedora    5           03/20/2006
+```
+
+이를 `distros.txt`로 저장하고 sort로 분류해보자.
+
+```
+$ sort distros.txt
+Fedora  10      11/25/2008
+Fedora  5       03/20/2006
+Fedora  6       10/24/2006
+Fedora  7       05/31/2007
+Fedora  8       11/08/2007
+Fedora  9       05/13/2008
+SUSE    10.1    05/11/2006
+SUSE    10.2    12/07/2006
+SUSE    10.3    10/04/2007
+SUSE    11.0    06/19/2008
+Ubuntu  6.06    06/01/2006
+Ubuntu  6.10    10/26/2006
+Ubuntu  7.04    04/19/2007
+Ubuntu  7.10    10/18/2007
+Ubuntu  8.04    04/24/2008
+Ubuntu  8.10    10/30/2008
+```
+
+어느 정도 잘 작동하는것 같지만 10이 작동하지 않는다. 버전을 number로 인식하지 않았기 때문.
+
+이를 해결하기 위해서 multiple key를 사용할 수 있다. 첫 번째 열인 배포판은 문자로, 두 번째 열인 버전은 숫자로 정렬하면 됨.
+
+```
+$ sort --key=1,1 --key=2n distros.txt
+Fedora  5       03/20/2006
+Fedora  6       10/24/2006
+Fedora  7       05/31/2007
+Fedora  8       11/08/2007
+Fedora  9       05/13/2008
+Fedora  10      11/25/2008
+SUSE    10.1    05/11/2006
+SUSE    10.2    12/07/2006
+SUSE    10.3    10/04/2007
+SUSE    11.0    06/19/2008
+Ubuntu  6.06    06/01/2006
+Ubuntu  6.10    10/26/2006
+Ubuntu  7.04    04/19/2007
+Ubuntu  7.10    10/18/2007
+Ubuntu  8.04    04/24/2008
+Ubuntu  8.10    10/30/2008
+```
+
+`1,1`은 첫번째 sort를 1열에서 시작해서 1열에서 끝내라는 의미. 두번째 key인 2n은 두 번째 열부터 numberic sort를 적용하라는 의미이다.
+
+주로 사용하는 `YYYY-MM-DD` 형태가 아니기 때문에 날짜 정렬도 되지 않는다. 이 또한 key를 사용하여 정렬이 가능하다.
+
+```
+$ sort --key=3.7nbr --key=3.1nbr --key=3.4nbr distros.txt
+Fedora  10      11/25/2008
+Ubuntu  8.10    10/30/2008
+SUSE    11.0    06/19/2008
+Fedora  9       05/13/2008
+Ubuntu  8.04    04/24/2008
+Fedora  8       11/08/2007
+Ubuntu  7.10    10/18/2007
+SUSE    10.3    10/04/2007
+Fedora  7       05/31/2007
+Ubuntu  7.04    04/19/2007
+SUSE    10.2    12/07/2006
+Ubuntu  6.10    10/26/2006
+Fedora  6       10/24/2006
+Ubuntu  6.06    06/01/2006
+SUSE    10.1    05/11/2006
+Fedora  5       03/20/2006
+```
+
+`3.7`은 3번째 열 (날짜 열)의 연도가 시작하는 7번째 캐릭터에서부터 정렬하라는 의미.
+
+`n`은 numeric sort, `r`은 reverse, `b`는 leading space를 무시하는 옵션이다 (숫자의 위치가 띄어쓰기로 인해서 행마다 위치가 달라질 수 있기 때문에 space를 제외하고 sort해야 정확하다)
+
+`-t` 옵션으로 seperator를 지정할 수도 있다.
+
+```
+# /etc/passwd를 :로 구분하여 7번째 행인 shell name으로 분류
+$ sort -t ':' -k 7 /etc/passwd | head
+```
+
+### sed
+
+sed는 `streaming editor`의 줄임말이다.
+
+> 여기저기서 sed가 자주 쓰이는것을 보았는데 항상 의미를 알기 어려웠는데 이번 기회에 잘 배워두면 사용할 일이 많을 듯 하다.
+
+
+```
+# input에서 front를 찾아서 back으로 변환한 후 stdout
+$ echo "front" | sed 's/front/back/'
+back
+
+# address를 명시적으로 지정할수도 있다. 1줄밖에 없기 때문에 1로 지정
+$ echo "front" | sed '1s/front/back/'
+back
+
+# 2로 지정하면 back으로 substitute 되지 않아 front가 print된다.
+$ echo "front" | sed '2s/front/back/'
+front
+```
+
+
+다양한 주소 옵션이 있다
+- n: 숫자를 그냥 입력하면 해당 줄만 적용
+- `$`: 마지막 줄
+- `|regex|`: POSIX regex도 적용할 수 있다.
+- `n,m`: n부터 m까지. (아래 예시에서 1,5)
+- `n,+m`: n부터 m개 줄
+- `n!`: n 줄을 제외한 나머지
+
+
+sed는 기본적으로 모든 줄을 print 하기 때문에 filter를 하려면 `-n` (not auto print) 옵션을 주어야한다.
+
+```
+# n,m: 위에서 만든 distros.txt의 1~5 줄만 print
+$ sed -n '1,5p' distros.txt
+
+# regex: distros.txt에서 SUSE만 찾아서 print
+$ sed -n '/SUSE/p' distros.txt
+SUSE    10.2    12/07/2006
+SUSE    11.0    06/19/2008
+SUSE    10.3    10/04/2007
+SUSE    10.1    05/11/2006
+
+# !로 SUSE가 아닌것들만 찾아서 print
+$ sed -n '/SUSE/!p' distros.txt
+Fedora  10      11/25/2008
+Ubuntu  8.04    04/24/2008
+Fedora  8       11/08/2007
+Ubuntu  6.10    10/26/2006
+Fedora  7       05/31/2007
+Ubuntu  7.10    10/18/2007
+Ubuntu  7.04    04/19/2007
+Fedora  6       10/24/2006
+Fedora  9       05/13/2008
+Ubuntu  6.06    06/01/2006
+Ubuntu  8.10    10/30/2008
+Fedora  5       03/20/2006
+```
+
+print(`p`) 커맨드 말고도 다양한 커맨드가 있다.
+
+- `a`: append text after current line
+- `d`: delete line
+- `i`: insert text in front of the current line
+- `p`: print current line. (기본으로 모든 줄을 프린트하기 때문에 특정 줄만 print 하려면 `-n` 옵션 사용)
+- `s/regexp/replacement/`: regexp를 replacement로 replace.
+
+위의 `s` 명령어를 사용해서 distros.txt의 날짜 양식을 `YYYY/MM/DD`에서 `YYYY-MM-DD`로 변경해보자.
+
+```
+$ sed 's/\([0-9]\{2\}\)\/\([0-9]\{2\}\)\/\([0-9]\{4\}\)$/\3-\1-\2/' distros.txt
+SUSE    10.2    2006-12-07
+Fedora  10      2008-11-25
+SUSE    11.0    2008-06-19
+Ubuntu  8.04    2008-04-24
+Fedora  8       2007-11-08
+SUSE    10.3    2007-10-04
+Ubuntu  6.10    2006-10-26
+Fedora  7       2007-05-31
+Ubuntu  7.10    2007-10-18
+Ubuntu  7.04    2007-04-19
+SUSE    10.1    2006-05-11
+Fedora  6       2006-10-24
+Fedora  9       2008-05-13
+Ubuntu  6.06    2006-06-01
+Ubuntu  8.10    2008-10-30
+Fedora  5       2006-03-20
+```
+
+복잡해 보이지만 escaping을 위해 사용한 역슬래쉬를 제외하면 아래와 같은 단순한 정규표현식이다.
+
+```
+([0-9]{2})/([0-9]{2})/([0-9]{4})$
+```
+
+replacement에는 BRE라는 back reference를 사용하였다. 위의 정규표현식의 그룹 (괄호로 묶인)을 각각 `\1`, `\2`, `\3`으로 사용 가능하다.
+
+연도(`\3`), 월(`\1`), 일(`\2`)을 대쉬(-)로 연결
+
+```
+\3-\1-\2
+```
+
+이 명령어들을 sed script로 만들어서 `-f` 옵션으로 사용할 수도 있다.
+
+```
+# sed script to produce Linux distributions report
+
+1 i\
+\
+Linux Distributions Report\
+
+s/\([0-9]\{2\}\)\/\([0-9]\{2\}\)\/\([0-9]\{4\}\)$/\3-\1-\2/
+y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/
+```
+
+첫번째 줄은 주석.
+
+세번째부터 다섯번째 줄은 텍스트를 입력하는 스크립트. `1 i\`는 첫번째 줄에 insert하라는 의미이고 `\`를 사용하여 escape carriage return (줄변환)
+
+7번째 줄은 사용할 명령어.
+
+8번째 줄은 소문자를 대문자로 변환하는 transliteration이다. (tr 명령어와 다르게 POSIX나 `[a-z]`와 같은 형태를 지원하지 않는다.)
+
+
+```
+$ sed -f distros.sed distros.txt
+
+Linux Distributions Report
+
+SUSE    10.2    2006-12-07
+Fedora  10      2008-11-25
+SUSE    11.0    2008-06-19
+Ubuntu  8.04    2008-04-24
+Fedora  8       2007-11-08
+SUSE    10.3    2007-10-04
+Ubuntu  6.10    2006-10-26
+Fedora  7       2007-05-31
+Ubuntu  7.10    2007-10-18
+Ubuntu  7.04    2007-04-19
+SUSE    10.1    2006-05-11
+Fedora  6       2006-10-24
+Fedora  9       2008-05-13
+Ubuntu  6.06    2006-06-01
+Ubuntu  8.10    2008-10-30
+Fedora  5       2006-03-20
+```

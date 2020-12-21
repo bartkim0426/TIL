@@ -5,7 +5,6 @@
 - [Install argo cd](./kubernetes/install-argo-cd.md)
 - [Apply configmap to pod without restart pod](./kubernetes/apply-configmap-to-pod-without-restart-pod.md)
 - [K8s custom resource definition crd](./kubernetes/k8s-custom-resource-definition-crd)
-- [kubecon europe](./kubernetes/kubecon-2020-europe.md)
 - [kubectl alpha debug command](./kubernetes/kubectl-alpha-debug-command.md)
 - [Update minikube and k8s version](./kubernetes/Update-minikube-and-k8s-version.md)
 - [CKA lecutre orelly](./kubernetes/CKA-lecutre-orelly.md)
