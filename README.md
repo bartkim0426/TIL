@@ -1,5 +1,10 @@
 # TIL (Today I Learn)
 
+## Algorithm
+
+- [greedy](./algorithm/greedy.md)
+
+
 ## Kubernetes
 
 - [Install argo cd](./kubernetes/install-argo-cd.md)
@@ -49,6 +54,7 @@
 - [Use vim for read man page](./vim/Use-vim-for-read-man-page.md)
 - [vim kubernetes yaml support with coc vim](./vim/vim-kubernetes-yaml-support-with-coc-vim.md)
 - [vim terraform autocomplete with coc vim](./vim/vim-terraform-autocomplete-with-coc-vim.md)
+- [query from bigquery in vim](./vim/query-from-bigquery-in-vim.md)
 
 ## Linux
 

@@ -290,3 +290,9 @@ Don't read much books from 2020-09 ~ 2020-10
 - [x] 12/18: Terraform: Up & Running: 2. Getting started with terraform (done), 3. How to manage terraform state (ing)
 - [x] 12/20: The Linux Command Line: 20. Text processing (ing)
 - [x] 12/21: The Linux Command Line: 20. Text processing (done)
+- [x] 12/22: The Linux Command Line: 21. Formatting out, 22. Printing
+- [x] 12/30: The Linux Command Line: 23. Compiling programs (ing)
+
+## 2021-01
+
+- [ ] 1/8: 
