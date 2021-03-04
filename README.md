@@ -3,6 +3,7 @@
 ## Algorithm
 
 - [greedy](./algorithm/greedy.md)
+- [binary search](./algorithm/binary-search.md)
 
 
 ## Kubernetes
