@@ -4,6 +4,7 @@
 
 - [greedy](./algorithm/greedy.md)
 - [binary search](./algorithm/binary-search.md)
+- [Implementation](./algorithm/Implementation.md)
 
 
 ## Kubernetes
@@ -29,6 +30,9 @@
 
 - [terraform view graph with dot](./terraform/terraform-view-graph-with-dot.md)
 - [move remote backend state from terraform cloud to s3](./terraform/move-remote-backend-state-from-terraform-cloud-to-s3.md)
+- [terraform version error refreshing state](./terraform/terrafor-version-error-refreshing-state.md)
+- [terraform use environment variable to var name](./terraform/terraform-use-environment-variable-to-var-name.md)
+- [terraform with specific resources](./terraform/terraform-with-specific-resources.md)
 
 
 ## Python
@@ -41,6 +45,9 @@
 - [import requirements txt to poetry](./python/import-requirements-txt-to-poetry.md)
 - [singleton pattern in python](./python/singleton-pattern-in-python.md)
 - [kafka python usage](./python/kafka-python-usage.md)
+
+## Django
+- [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
 
 ## Vim
 
@@ -56,6 +63,7 @@
 - [vim kubernetes yaml support with coc vim](./vim/vim-kubernetes-yaml-support-with-coc-vim.md)
 - [vim terraform autocomplete with coc vim](./vim/vim-terraform-autocomplete-with-coc-vim.md)
 - [query from bigquery in vim](./vim/query-from-bigquery-in-vim.md)
+- [redirect command stdout to vim](./vim//redirect-command-stdout-to-vim.md)
 
 ## Linux
 
@@ -76,6 +84,10 @@
 - [tmux set syncronize pane typing](./etc/tmux-set-syncronize-pane-typing.md)
 - [kafka setup for ec2 server](./etc/kafka-setup-for-ec2-server.md)
 - [tmux shortcuts for remember](./etc/tmux-shortcuts-for-remember.md)
+- [aws certificate](./etc/aws-certificate.md)
+
+## nand2tetris
+- [nand2tetris project](./nand2tetris/nand2tetris.md)
 
 ## BOOKS
 

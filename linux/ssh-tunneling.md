@@ -1,0 +1,5 @@
+# ssh tunneling
+
+```
+ssh -L [LOCAL_IP:]LOCAL_PORT:DESTINATION:DESTINATION_PORT [USER@]SSH_SERVER
+```
