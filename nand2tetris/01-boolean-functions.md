@@ -450,3 +450,19 @@ CHIP And16 {
 Given: Nand
 
 Goal: Build 15 gates
+
+
+---
+
+## project 1
+
+### Mux
+
+
+
+
+(a And Not(sel))
+Nand
+(b And sel)
+
+Not((a And Not(sel)) and (b And sel))
