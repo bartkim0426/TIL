@@ -1,8 +1,6 @@
 # 01. boolean functions and gate logic
 
-![Uploading image.png…]()
-
-
+![image](https://user-images.githubusercontent.com/23415251/111754356-3dbddb00-88db-11eb-9b8c-5f7d347b1ba1.png)
 
 
 ## 1.1 boolean logic
