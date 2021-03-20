@@ -1,8 +1,5 @@
 # 01. boolean functions and gate logic
 
-![image](https://user-images.githubusercontent.com/23415251/111749111-b1a8b500-88d4-11eb-8de3-eab50f03c5b6.png)
-
-
 
 ## 1.1 boolean logic
 

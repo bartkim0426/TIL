@@ -77,6 +77,9 @@
 - [softmax function](./ML/softmax-function.md)
 - [machine learning from blank paper](./ML/machine-learning-from-blank-paper.md)
 
+## Javscript
+- [typescript basics](./javascript/typescript-basics.md)
+
 ## etc
 
 - [happy hacking hybrid tips](./etc/happy-hacking-hybrid-tips.md)
