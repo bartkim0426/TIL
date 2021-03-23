@@ -141,4 +141,191 @@ ex. 4의 음수인 -4를 구하려면?
 
 ### The Hack ALU
 
+- Operators on 2 16-bit 2's complement values
+- Outputs: 16-bit 2's complement values
+- Which function to compute: six 1-bit bit
+- Compute one out of a family of 18 functions
+- Also output two 1-bit values (`zr`, `ng`) -> 이후에 설명할 에정
 
+ALU가 함수를 실행시키게 하려면 control bit를 정해진 binary combination에 맞게 세팅하면 됨.
+
+![image](https://user-images.githubusercontent.com/23415251/112174059-73472900-8c39-11eb-90ad-981dd665ff69.png)
+
+> 완전한 진리표는 2의 6승인 64개이지만 위 truth table은 자주 쓰이는 18개만 표시
+
+### The Hack ALU operation
+
+pre-setting the x input
+- zx: if zx then x = 0
+- nx: if nx then x = !x
+
+pre-setting the y input
+- zy: if zy then y = 0
+- ny: if ny then y = !y
+
+selecting between computing + or &
+- f: if f then out=x+y else out=x&y
+
+post-setting the output
+- no: if no then out=!out
+
+위의 6가지 operation을 실행시키면 out이 나옴
+
+ex 1) `!x`
+
+```
+zx = 0
+nx = 0
+zy = 1
+ny = 1
+f = 0
+no = 1
+```
+
+위 operation은 `!x` out이 되는데, 이를 직접 해보면 다음과 같음
+
+**Input**:
+
+- x: 1 1 0 0
+- y: 1 0 1 1
+
+**Following pre-settings**:
+
+- x: zx, nx가 모두 0이기 때문에 x는 그대로 `1 1 0 0`
+- y: zy, ny가 모두 1이기 때문에 y는 모두 !0인 `1 1 1 1`
+
+**Computing and post-setting**:
+- f = 0 이기 때문에 `x&y` -> `1 1 0 0`
+- no = 1 이기 떄문에 위에서 !(x&y)가 되어 -> `0 0 1 1`
+
+결과적으로 `!x`와 같은 값이 나온다
+
+
+ex2) `y-x`
+
+```
+zx = 0
+nx = 0
+zy = 0
+ny = 1
+f = 1
+no = 1
+```
+
+**Input:**
+
+- x: 0 0 1 0 (2)
+- y: 0 1 1 1 (7)
+
+
+**Following pre-settings**:
+
+- x: zx, nx가 모두 0이기 때문에 x는 그대로 `0 0 1 0`
+- y: zy=0, ny=1이기 때문에 y는 !y -> `1 0 0 0`
+
+**Computing and post-setting**:
+
+- f = 1이기 때문에 `x+y` -> `0 0 1 0 + 1 0 0 0 = 1 0 1 0`
+- no = 1이기 때문에 !(x+y) -> `0 1 0 1`(5)
+- 결론적으로 `y-x`(7-2)인 5(`0 1 0 1`)가 나온다
+
+
+ex3) 위 18개 진리표에 나오지 않은 로직의 결과는?
+
+```
+zx = 1
+nx = 0
+zy = 1
+ny = 1
+f = 1
+no = 1
+```
+
+- x: 0 0 1 1 (3)
+- y: 0 1 1 0 (6)
+
+
+- x: zx=1, nx=0 -> x = `0 0 0 0`
+- y: zy=1, ny=1 -> y = !0 = `1 1 1 1`
+- f=1 -> x+y -> `1 1 1 1`
+- no=1 -> !(x+y) -> `0 0 0 0`
+
+-> 위 로직 조합은 `0`의 결과가 나옴
+
+### The Hack ALU output control bits
+
+#### zr, ng
+
+if out == 0 then zr = 1, else zr = 0
+if out < 0 then ng = 1, else ng = 0
+
+왜 위 두 비트가 필요한지?
+
+### Perspective
+
+The Hack ALU is
+- simple
+- elegant
+- easy to implement
+  - set 16-bit value to 0000000000000000
+  - set 16-bit value to 1111111111111111
+  - Negate 16-bit value (bit-wise)
+  - Compute + or & on two 16-bit values
+  - That's all!
+
+## Project 2 overview
+
+- Given: project 1에서 만든 칩들
+- Goal: 다음 칩들을 제작
+  - HalfAdder
+  - FullAdder
+  - Add16
+  - Inc16
+  - ALU
+
+
+### HalfAdder
+- input: a, b
+- out: sum, carry
+
+Tip: 두개의 기초적인 게이트로 구현 가능
+- sum: xor
+- carry: and
+
+![image](https://user-images.githubusercontent.com/23415251/112183039-32531280-8c41-11eb-8b18-d26bd99b67f6.png)
+
+
+### FullAdder
+- input: a, b, c
+- out: sum, carry
+
+Tip: 두개의 half-adder로 구현 가능
+
+![image](https://user-images.githubusercontent.com/23415251/112183115-4bf45a00-8c41-11eb-95bd-320d9f24e7e5.png)
+
+
+### 16-bit adder
+
+- input: a[16], b[16]
+- out: out[16]
+
+Tip
+- 16 full adder의 sequence로 이뤄짐
+- carry bit는 right to left로 "piped"됨
+- overflow는 무시하면 됨
+
+
+### 16-bit incrementor
+1을 증가시켜주는 칩. overflow는 무시
+
+- input: a[16]
+- out: out[16]
+
+Tip:
+- single-bit 0, 1도 hdl로 구현 가능? (true, false)
+
+### ALU
+
+Tip:
+- Building blocks: Add16과 project 1에서 만든 칩들
+- 20줄 이하의 HDL 코드로 만들 수 있음..!
