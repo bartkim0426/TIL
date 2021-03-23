@@ -2012,3 +2012,239 @@ Ubuntu  8.10    2008-10-30
 Fedora  5       2006-03-20
 ```
 
+## 23. compiling program
+
+What is Compiling?
+
+> Compiling is the process of translating source code into the native language of the computer’s processor.
+
+- compiler
+- linker
+
+
+### Compiling a C program
+
+시작 전에 컴일러, 링커, `make` 명령어 등의 툴이 필요하다.
+
+```
+$ which gcc
+/usr/bin/gcc
+```
+
+소스 코드는 `diction`이라 불리는 GNU Project의 프로그램을 컴파일 해보자.
+
+```
+$ mkdir src
+$ cd src
+$ ftp ftp.gnu.org
+
+Connected to ftp.gnu.org.
+220 GNU FTP server ready.
+Name (ftp.gnu.org:seulchankim): anonymous
+230-NOTICE (Updated October 13 2017):
+...
+230 Login successful.
+ftp> cd gnu/diction
+250 Directory successfully changed.
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+-rw-r--r--    1 3003     65534       68940 Aug 28  1998 diction-0.7.tar.gz
+-rw-r--r--    1 3003     65534       90957 Mar 04  2002 diction-1.02.tar.gz
+-rw-r--r--    1 3003     65534      141062 Sep 17  2007 diction-1.11.tar.gz
+-rw-r--r--    1 3003     65534         189 Sep 17  2007 diction-1.11.tar.gz.sig
+226 Directory send OK.
+ftp> get diction-1.11.tar.gz
+200 PORT command successful. Consider using PASV.
+150 Opening BINARY mode data connection for diction-1.11.tar.gz (141062 bytes).
+WARNING! 554 bare linefeeds received in ASCII mode
+File may not have transferred correctly.
+226 Transfer complete.
+141062 bytes received in 0.725 seconds (190 kbytes/s)
+ftp> bye
+```
+
+
+> 만약 Mac os에 ftp가 설치되지 않았으면 다음 명령어로 설치
+```
+brew install inetutils
+```
+
+ftp를 사용하지 않고 httpㄴ로 다운받을 수도 있다.
+
+```
+$ wget https://ftp.gnu.org/gnu/diction/diction-1.11.tar.gz
+```
+
+이제 받은 파일의 압축을 풀어주자.
+
+```
+$ tar xzf diction-1.11.tar.gz
+$ ls
+diction-1.11        diction-1.11.tar.gz
+
+$ cd diction-1.11
+$ ls
+COPYING         NEWS            config.h.in     configure.in    diction.1.in    diction.spec    en              getopt.c        getopt_int.h    misc.h          sentence.c      style.c
+INSTALL         README          config.sub      de              diction.c       diction.spec.in en_GB           getopt.h        install-sh      nl              sentence.h      test
+Makefile.in     config.guess    configure       de.po           diction.pot     diction.texi.in en_GB.po        getopt1.c       misc.c          nl.po           style.1.in
+```
+
+`.c` 와 `.h` 파일을 볼 수 있다.
+
+`.c` 파일은 C 프로그래밍 언어로 작성된 파일.
+
+```
+$ less diction.c
+
+#include "config.h"
+
+#include <sys/types.h>
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <locale.h>
+#ifdef HAVE_GETTEXT
+#include <libintl.h>
+#define _(String) gettext(String)
+#else
+#define _(String) String
+#endif
+#include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "getopt.h"
+...
+```
+
+`.h` 파일은 `header files`로도 알려져 있는데, 소스코드나 라이브러리에 포함된 routines에 대한 정보를 담고 있다.
+
+`include "getopt.h"`가 실행되기 전에 있는 header file들은 현재 소스트리 바깥의 프로그램을 참조한다.
+
+`/usr/include` 등의 디렉토리를 살펴보면 확인할 수 있다.
+
+```
+#include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+```
+
+### 프로그램 빌드하기
+
+대부분의 프로그램의 빌드는 간단한 두 명령어 조합으로 이뤄진다.
+
+```
+./configure
+make
+```
+
+`.configure`는 build 환경을 분석하는 역할을 한다.
+
+대부분의 소스 코드는 portable하게 디자인 된다. 이는 한가지 이상의 unix system에서 빌드될 것을 상정하고 만들어지는 것.
+
+`configure`는 필요한 외부 툴과 컴포넌트들이 설치되었는지 확인해주는 역할을 한다.
+
+```
+$ ./configure
+checking build system type... i386-apple-darwin19.6.0
+checking host system type... i386-apple-darwin19.6.0
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for strerror... yes
+checking for library containing regcomp... none required
+checking for broken realloc... no
+checking for msgfmt... yes
+checking how to run the C preprocessor... gcc -E
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+```
+
+여기서 중요한것은 에러메세지가 나타나지 않는 것이다.
+
+configure 프로그램은 몇몇 새로운 파일을 만들어주는데 가장 중요한 것은 `makefile`이다.
+
+makefile은 `make` 명령어가 어떻게 프로그램을 빌드할지 가이드해주는 configuration 파일이다.
+
+이 파일도 일반적인 테스트 파일이기 때문에 확인해볼 수 있다.
+
+```
+$ less Makefile
+```
+
+makefile의 첫 부분은 파일의 후반부에서 쓰이는 변수들을 정의한다.
+
+```
+CC=             gcc
+```
+
+
+C 컴파일러를 gcc로 정의하고, 이후의 파일들에서 이를 `$(CC)` 형태로 참조해서 사용한다.
+
+대부분의 makefile은 `target`을 정의하는 줄들로 구성된다. (우리의 경우에는 `diction` 파일과 이의 디펜던시들)
+
+```
+diction.o:      diction.c config.h getopt.h misc.h sentence.h
+getopt.o:       getopt.c getopt.h getopt_int.h
+getopt1.o:      getopt1.c getopt.h getopt_int.h
+misc.o:         misc.c config.h misc.h
+sentence.o:     sentence.c config.h misc.h sentence.h
+style.o:        style.c config.h getopt.h misc.h sentence.h
+```
+
+
+이제 실제 `make` 명령어를 실행해보자.
+
+```
+$ make
+```
+
+명령어가 완료되면 위의 target 파일들이 모두 생긴 것을 볼 수 있다.
+
+한 번 더 실행하면 다음 메세지가 나온다.
+
+```
+$ make
+make: Nothing to be done for `all'.
+```
+
+현재의 `target`을 바탕으로 `make`는 해야할 일을 결정하기 때문.
+
+한 파일을 제거하고 다시 make 해보자.
+
+```
+$ rm getopt.o
+$ make
+```
+
+make가 사라진 모듈 때문에 다시 빌드하고 링크되는 것을 볼 수 있다.
+
+위 기능 덕분에 make 명령어는 target을 최신 상태로 유지할 수 있다.
+
+
+### Install the program
+
+잘 만들어진 소스 코드는 `install`이라고 불리는 `make` target을 제공하기도 한다.
+
+이 타겟은 시스템 디렉토리에 최종 결과물을 설치해준다. (보통 `/usr/local/bin`)
+
+```
+$ sudo make install
+$ which diction
+/usr/local/bin/diction
+$ man diction
+```
+
