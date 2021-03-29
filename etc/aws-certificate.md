@@ -1,7 +1,6 @@
 # aws certificate
 
 
-
 정보:
 - 실기는 없음.
 
@@ -19,4 +18,6 @@
 - exam digital elcture
 
 
+[developer associate](./etc/developer-associate.md)
 
+## whitepapers

@@ -64,12 +64,15 @@
 - [vim terraform autocomplete with coc vim](./vim/vim-terraform-autocomplete-with-coc-vim.md)
 - [query from bigquery in vim](./vim/query-from-bigquery-in-vim.md)
 - [redirect command stdout to vim](./vim//redirect-command-stdout-to-vim.md)
+- [ ] [auto save when text chanegd in vim](./vim/auto-save-when-text-chanegd-in-vim.md)
+
 
 ## Linux
 
 - [find command usage](./linux/find-command-usage.md)
 - [count files in linux](./linux/count-files-in-linux.md)
 - [turn off swap memory](./linux/turn-off-swap-memory.md)
+- [ ] [maximum limits in os](./linux/maximum-limits-in-os.md)
 
 ## ML
 
@@ -80,6 +83,9 @@
 ## Javscript
 - [typescript basics](./javascript/typescript-basics.md)
 
+## Web
+- [ ] [RESTFul API](./web/RESTFul-API.md)
+
 ## etc
 
 - [happy hacking hybrid tips](./etc/happy-hacking-hybrid-tips.md)
@@ -88,6 +94,7 @@
 - [kafka setup for ec2 server](./etc/kafka-setup-for-ec2-server.md)
 - [tmux shortcuts for remember](./etc/tmux-shortcuts-for-remember.md)
 - [aws certificate](./etc/aws-certificate.md)
+- [ ] [XSS and CSRF](./etc/cxx-and-csrf.md)
 
 ## nand2tetris
 - [nand2tetris project](./nand2tetris/nand2tetris.md)
