@@ -18,6 +18,4 @@
 - exam digital elcture
 
 
-[developer associate](./etc/developer-associate.md)
-
-## whitepapers
+[developer associate](../etc/developer-associate.md)

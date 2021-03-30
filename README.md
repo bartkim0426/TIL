@@ -45,6 +45,7 @@
 - [import requirements txt to poetry](./python/import-requirements-txt-to-poetry.md)
 - [singleton pattern in python](./python/singleton-pattern-in-python.md)
 - [kafka python usage](./python/kafka-python-usage.md)
+- [ ] [isolated environment with pipx](./python/isolated-environment-with-pipx.md)
 
 ## Django
 - [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
@@ -95,6 +96,7 @@
 - [tmux shortcuts for remember](./etc/tmux-shortcuts-for-remember.md)
 - [aws certificate](./etc/aws-certificate.md)
 - [ ] [XSS and CSRF](./etc/cxx-and-csrf.md)
+- [ ] [about online advertising](./etc/about-online-advertising.md)
 
 ## nand2tetris
 - [nand2tetris project](./nand2tetris/nand2tetris.md)
