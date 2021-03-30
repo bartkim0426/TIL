@@ -73,7 +73,7 @@ Clock
 - single input, single output
 - 이전 input을 반환함: out[t] = in[t-1]
 
-[image](https://i.imgur.com/3XTPMlU.png)
+![image](https://i.imgur.com/3XTPMlU.png)
 
 
 ### Implementation of the D Fip Flop
@@ -86,9 +86,9 @@ Clock
 
 if load(t-1) then out(t) = int(t-1) else out(t) = out(t-1)
 
-[image](https://i.imgur.com/03FCtWU.png)
+![image](https://i.imgur.com/03FCtWU.png)
 
-[image](https://i.imgur.com/e2sk1pY.png)
+![image](https://i.imgur.com/e2sk1pY.png)
 
 ## 3.3 Memory units
 
@@ -147,7 +147,7 @@ set load = 1
 
 프로젝트에서 만들 칩은 16-bit RAM chips
 
-[image](https://i.imgur.com/SHdLbmd.png)
+![image](https://i.imgur.com/SHdLbmd.png)
 
 
 ## 3.4 Counters
@@ -175,7 +175,7 @@ else if (load(t) == 1) out[t+1] = in[t]   // setting counter = value
     else out[t+1] = out[t]
 ```
 
-[image](https://i.imgur.com/5kxkKFL.png)
+![image](https://i.imgur.com/5kxkKFL.png)
 
 
 ## 3.5 Project 3 Overview
@@ -215,11 +215,11 @@ tips:
 
 ### 8-Register RAM
 
-[image](https://i.imgur.com/s8nTTjf.png)
+![image](https://i.imgur.com/s8nTTjf.png)
 
 ### other rams
 
-[image](https://i.imgur.com/hCbwBm9.png)
+![image](https://i.imgur.com/hCbwBm9.png)
 
 ### Program Counter
 
