@@ -66,6 +66,7 @@
 - [query from bigquery in vim](./vim/query-from-bigquery-in-vim.md)
 - [redirect command stdout to vim](./vim//redirect-command-stdout-to-vim.md)
 - [ ] [auto save when text chanegd in vim](./vim/auto-save-when-text-chanegd-in-vim.md)
+- [ ] [incrementing selected numbers in vim](./vim/incrementing-selected-numbers-in-vim.md)
 
 
 ## Linux
