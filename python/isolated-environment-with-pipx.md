@@ -86,3 +86,10 @@ pipx run pycowsay
 which pycowsay
 /Users/username/.local/bin/pycowsay
 ```
+
+
+### Personal usage
+
+Personally, I use pipx for `awscli`. It's totally useful for use awscli without pythone environment.
+
+

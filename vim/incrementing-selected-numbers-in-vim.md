@@ -3,13 +3,13 @@
 Vim command for incrementing numbers sequentially.
 
 ```
-my_array[0] = 0;
-my_array[0] = 0;
-my_array[0] = 0;
-my_array[0] = 0;
-my_array[0] = 0;
-my_array[0] = 0;
-my_array[0] = 0;
+my_array[1] = 0;
+my_array[2] = 0;
+my_array[3] = 0;
+my_array[4] = 0;
+my_array[5] = 0;
+my_array[6] = 0;
+my_array[7] = 0;
 ```
 
 If you want to increment numbers inside my_array
