@@ -248,3 +248,206 @@ tips:
 
 
 
+## Project 3 result
+
+
+## Bit
+
+```
+/**
+ * 1-bit register:
+ * If load[t] == 1 then out[t+1] = in[t]
+ *                 else out does not change (out[t+1] = out[t])
+ * DFF: in[t] = out[t-1]
+ */
+
+CHIP Bit {
+    IN in, load;
+    OUT out;
+
+    PARTS:
+    Mux(a=prevout, b=in, sel=load, out=muxout);
+    DFF(in=muxout, out=prevout, out=out);
+}
+```
+
+### Register
+
+```
+/**
+ * 16-bit register:
+ * If load[t] == 1 then out[t+1] = in[t]
+ * else out does not change
+ */
+
+CHIP Register {
+    IN in[16], load;
+    OUT out[16];
+
+    PARTS:
+    Bit(in=in[0], load=load, out=out[0]);
+    Bit(in=in[1], load=load, out=out[1]);
+    Bit(in=in[2], load=load, out=out[2]);
+    Bit(in=in[3], load=load, out=out[3]);
+    Bit(in=in[4], load=load, out=out[4]);
+    Bit(in=in[5], load=load, out=out[5]);
+    Bit(in=in[6], load=load, out=out[6]);
+    Bit(in=in[7], load=load, out=out[7]);
+    Bit(in=in[8], load=load, out=out[8]);
+    Bit(in=in[9], load=load, out=out[9]);
+    Bit(in=in[10], load=load, out=out[10]);
+    Bit(in=in[11], load=load, out=out[11]);
+    Bit(in=in[12], load=load, out=out[12]);
+    Bit(in=in[13], load=load, out=out[13]);
+    Bit(in=in[14], load=load, out=out[14]);
+    Bit(in=in[15], load=load, out=out[15]);
+}
+```
+
+### RAM8
+
+```
+/**
+ * Memory of 8 registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+CHIP RAM8 {
+    IN in[16], load, address[3];
+    OUT out[16];
+
+    PARTS:
+    // demux? in -> 8 way
+    // a ~ h중 address인 값만 true (1)
+    DMux8Way(in=load, sel=address, a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h);
+
+    // register에 위에서 얻은 a~h를 load에 넣어줌
+    // address에 해당하는 값만 1이고 나머지는 0이기 때문에
+    // 해당 레지스터만 값 변함
+    Register(in=in, load=a, out=add000);
+    Register(in=in, load=b, out=add001);
+    Register(in=in, load=c, out=add010);
+    Register(in=in, load=d, out=add011);
+    Register(in=in, load=e, out=add100);
+    Register(in=in, load=f, out=add101);
+    Register(in=in, load=g, out=add110);
+    Register(in=in, load=h, out=add111);
+
+    // 다음 cycle부터 address 의 값에 따라 위 register 선택
+    // register의 out은 이미 DFF에 따라 되기 때문에 그냥 out 시키면 됨
+    Mux8Way16(a=add000, b=add001, c=add010, d=add011, e=add100, f=add101, g=add110, h=add111, sel=address, out=out);
+}
+```
+
+### RAM64
+
+RAM512 ~ RAM16K는 반복적이라 제외
+
+```
+/**
+ * Memory of 64 registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+CHIP RAM64 {
+    IN in[16], load, address[6];
+    OUT out[16];
+
+    PARTS:
+    // ram8개가 순차 나열 -> register로 따지면 8/8/8/8/8/8/8/8
+    // 6자리 주소 (000000 ~ 111111) 중에 뒤에 3자리는 register를 고르는데 쓰임
+    // 앞 3자리는 ram 칩을 고르는데 쓰임
+    // address[3..5] -> select ram chip
+    // 선택한 칩에만 load 넣어줘야됨
+    DMux8Way(in=load, sel=address[3..5], a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h);
+
+    // address[0..2] -> select register inside ram
+    RAM8(in=in, load=a, address=address[0..2], out=out1);
+    RAM8(in=in, load=b, address=address[0..2], out=out2);
+    RAM8(in=in, load=c, address=address[0..2], out=out3);
+    RAM8(in=in, load=d, address=address[0..2], out=out4);
+    RAM8(in=in, load=e, address=address[0..2], out=out5);
+    RAM8(in=in, load=f, address=address[0..2], out=out6);
+    RAM8(in=in, load=g, address=address[0..2], out=out7);
+    RAM8(in=in, load=h, address=address[0..2], out=out8);
+
+    Mux8Way16(a=out1, b=out2, c=out3, d=out4, e=out5, f=out6, g=out7, h=out8, sel=address[3..5], out=out);
+}
+```
+
+### PC (Counter)
+
+- increase, reset, load를 순차적으로 계산하여 register에 넣는 방법을 사용하였다.
+
+- 이전 값에서 increase 계산
+- reset 값에 따라서 increase, reset 선택
+- 실제로 load 하는지 결정 (reset하면 load 하지 않기 때문: `Not(reset) AND load`)
+- 마지막에 register에 등록 여부에 따라 최종 결과 load
+
+```
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    // inc
+    Inc16(in=regout, out=incOut);
+
+    // reset == 1 then 0 else incOut
+    Mux16(a=incOut, b[0]=false, sel=reset, out=resetOut);
+
+    // real load: reset=0인 경우 load 무시해야됨
+    Not(in=reset, out=notreset);
+    And(a=notreset, b=load, out=realload);
+    // laod; load == 0 then in, else resetOut
+    Mux16(a=resetOut, b=in, sel=realload, out=loadOut);
+
+    // register load
+    Or(a=inc, b=reset, out=tmpload);
+    Or(a=tmpload, b=load, out=registerLoad);
+    Register(in=loadOut, load=registerLoad, out=regout, out=out);
+}
+```
+
+더 깔끔한 방법이 있는거같아서 기록해둠.
+
+- reset 계산
+- reset / load 비교해서 register in 계산
+- register 등록할 값 계산
+- increase는 나중에 계산
+
+```
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    // Reset
+    Mux16(a=in, b=false, sel=reset, out=resetOrLoad);
+    
+    // load or reset
+    // loadOrReset == 0 then IncOrNotOut else resetOrLoad (reset or load output)
+    Or(a=load, b=reset, out=loadOrReset);
+    Mux16(a=IncOrNotOut, b=resetOrLoad, sel=loadOrReset, out=regin);
+    
+    // register: load or reset or inc
+    Or(a=loadOrReset, b=inc, out=regload);
+    Register(in=regin, load=regload, out=regout, out=out);
+    
+    // increase: incOut, inc 값이 있으면 +1 아니면 그대로
+    Inc16(in=regout, out=incOut);
+    Mux16(a=regout, b=incOut, sel=inc, out=IncOrNotOut);
+}
+```

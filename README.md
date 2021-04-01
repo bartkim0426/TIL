@@ -98,6 +98,7 @@
 - [aws certificate](./etc/aws-certificate.md)
 - [ ] [XSS and CSRF](./etc/cxx-and-csrf.md)
 - [ ] [about online advertising](./etc/about-online-advertising.md)
+- [ ] [aws cdk for deploy](./etc/aws-cdk-for-deploy.md)
 
 ## nand2tetris
 - [nand2tetris project](./nand2tetris/nand2tetris.md)
