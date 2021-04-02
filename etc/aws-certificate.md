@@ -18,4 +18,6 @@
 - exam digital elcture
 
 
-[developer associate](../etc/developer-associate.md)
+## [developer associate](../etc/developer-associate.md)
+
+## [Solutions architect associate](../etc/Solutions-architect-associate.md)
