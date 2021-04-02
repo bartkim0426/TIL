@@ -138,9 +138,7 @@ downtime을 피하고 workload를 handle할수있는 방법은?
 c/c
 - b, c 고민됨. immediately peak이라서 c 고름 (반응이 느릴거같음)
 
-### 8. 
-
-:warning:
+### 8.  :warning:
 
 multi-tier web application. EC2 (ALB), auto scaling (multi zone), Aurora db.
 
