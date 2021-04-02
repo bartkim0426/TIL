@@ -1,5 +1,8 @@
 # TIL (Today I Learn)
 
+## Data structure
+- [data structure with python](./data-structure/data-structure-with-python.md)
+
 ## Algorithm
 
 - [greedy](./algorithm/greedy.md)
@@ -46,6 +49,7 @@
 - [singleton pattern in python](./python/singleton-pattern-in-python.md)
 - [kafka python usage](./python/kafka-python-usage.md)
 - [ ] [isolated environment with pipx](./python/isolated-environment-with-pipx.md)
+- [ ] [how to evaluate performance and time complextiy in python](./python/how-to-evaluate-performance-and-time-complextiy-in-python.md)
 
 ## Django
 - [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
