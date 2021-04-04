@@ -2248,3 +2248,153 @@ $ which diction
 $ man diction
 ```
 
+
+## 24. Writing your first script
+
+지금까지는 command line의 tools들을 사용하였다. 이는 많은 컴퓨팅 문제를 해결해주긴 하지만, 이들만으로 해결하기 힘든 문제들도 있다.
+
+이 다양한 툴들을 사용하여 자신만의 프로그램을 작성한다면, shell에서 더 복잡한 태스크들도 실행시킬 수 있는데 이를 `shell scripts`라고 부른다.
+
+### shell script란?
+
+간단하게, 쉘 스크립트는 "여러 명령어들을 담은 파일"이다. 쉘은 이 파일을 읽고 명령어를 실행시켜 준다.
+
+
+### 쉘 스크립트는 어떻게 동작할까
+
+쉘 스크립트를 만들고 실행하기 위해서, 세가지 단계를 해야한다.
+
+1. Write a script: shell scipt는 text file이다. syntax highlighting이 지원되는 에디터에서 쓰면 더 좋다.
+2. Make the script executable: 시스템은 기본적으로 텍스트 파일을 프로그램으로 취급하기 않기 때문에 execution 권한을 주어야 한다.
+3. Put the script somewhere the shell can find it: 쉘은 특정 pathname을 지정하지 않았다면 executable file을 찾기 위해 특정 디렉토리를 자동으로 찾는다. 편리하게 사용하기 위해 만든 스크립트를 해당 디렉토리에 넣어준다. 
+
+#### script file format
+
+전통적인 "Helo World"를 출력하는 간단한 스크립트를 만들어 보자.
+
+```
+#!/bin/bash
+
+# This is our first script.
+
+echo 'Hello World!'
+```
+
+가장 아랫줄은 익숙한 `echo` 명령어이다. 두번째 줄도 많은 configuration 파일에서 본 주석이다.
+
+첫줄은 조금 미스테리하다. 이는 `#`으로 시작하기 때문에 주석처럼 보이지만, 뭔가 목적이 있어 보인다.
+
+`#!` 캐릭터는 `shebang`이라는 특수한 존재이다. shebang은 이 스크립트를 실행시킬 때 사용할 interpreter의 이름을 커널에게 알려준다. 모든 쉘스크립트는 이를 첫줄에 가지고 있어야 한다.
+
+#### Executable permission
+
+이제 위 스크립트를 실행시켜보자.
+
+실행 가능하게 만들기 위해서는, `chmod` 명령어를 사용하면 된다.
+
+```
+$ ls -l helloworld
+-rw-r--r--  1 me  me  0  4  4 14:58 helloworld
+$ chmod 755 helloworld
+$ ls -l helloworld
+-rwxr-xr-x  1 me  me  0  4  4 14:58 helloworld
+```
+
+보통 두가지 권한을 사용한다. 755는 모두가 사용할 수 있게, 700은 owner만 사용할 수 있게 해 준다.
+
+#### Script file location
+
+permission을 세팅했기 때문에 파일을 실행시킬 수 있다.
+
+```
+$ ./helloworld
+
+Hello World!
+```
+
+하지만 이를 실행시키려면 명시적인 경로 (`./`)가 필요하다. 이를 지정하지 않으면 에러가 난다.
+
+```
+$ helloworld
+bash: command not found: helloworld
+```
+
+이는 프로그램의 문제가 아닌 경로의 문제이다. 이전에 다뤘던 `PATH` 환경변수에서 본 것 처럼, 시스템은 특정한 디렉토리들에서 executable program을 찾는다.
+
+`/bin` 디렉토리가 시스템이 기본으로 찾는 디렉토리이기 때문에 여기에 들어있는 `ls` 명령어를 그냥 실행할 수 있는 것.
+
+이 디렉토리들의 목록은 `PATH`라는 환경변수가 가지고 있다.
+
+```
+$ echo $PATH
+/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/username/.local/bin:/home/username/bin
+```
+
+마지막 디렉토리가 `/home/username/bin`인 것을 보자. 대부분의 리눅스 배포판은 `PATH` 변수에 유저의 home directory 안의 `bin` 디렉토리를 가지고 있다. 이 디렉토리를 만들고 위에서 만든 파일을 옮겨보자.
+
+```
+$ mkdir ~/bin
+$ mv helloworld ~/bin
+$ helloworld
+Hello World!
+```
+
+만약 만든 `~/bin` 디렉토리가 PATH 변수에 등록되어 있지 않으면 이를 추가해주자. `.bashrc` 파일에 아래 명령어를 넣고 새 터미널 세션을 열어서 진행하면 된다. (아니면 shell이 .basrh  파일을 읽게 해도 된다.)
+
+```
+export PATH=~/bin:"$PATH"
+```
+
+#### Good location for script
+
+`~/bin`은 개인적으로 사용할 스크립트를 두기 좋은 디렉토리이다. 하지만 모든 시스템에서 사용하는 프로그램은 전통적으로 `/usr/local/bin`에 둔다.
+
+시스템 관리자가 사용할 스크립트들은 보통 `/usr/local/sbin`에 둔다.
+
+대부분의 경우, 로컬에서 지원하는 프로그램들은 `/bin/`이나 `usr/bin`에 두지 않고 `/usr/local` 하위에 둔다. `/bin/`, `/usr/bin/`은 리눅스 디스트리뷰터들이 제공하고 관리하는 파일을 위한 디렉토리이다.
+
+
+### Formatting tricks
+
+좋은 스크립트를 작성하는 목표 중 하나는 쉽게 관리하고 유지보수하는 것이다. 이를 위해 몇몇 팁을 소개.
+
+#### Long option names
+
+많은 명령어들은 짧고 긴 옵션 이름을 둘 다 제공한다. `ls` 명령어를 예를 들어보면
+
+```
+# short option
+$ ls -al
+
+# long option
+$ ls --all --directory
+```
+
+타이핑을 줄이는 것도 중요하지만, 스크립트를 쓸 때에는 가독성을 위해 long option을 사용하는게 좋다.
+
+#### Indentation and continuation
+
+긴 명령어의 경우 여러 줄로 나눠주는 것이 좋다. 긴 find 명령어 예시를 보자
+
+```
+$ find playground \( -type f -not -perm 0600 -exec chmod 0600 '{}' ';' \) -or \( -type d -not -perm 0700 -exec chmod 0700 '{}' ';' \)
+```
+
+이는 한눈에 알아보기 어렵다. 아래 처럼 indentation을 함께 쓰면 더 읽기가 쉬워진다.
+
+```
+find playground \
+     \( \
+          -type f \
+          -not -perm 0600 \
+          -exec chmod 0600 '{}' ';' \
+     \) \
+     -or \
+     \( \
+          -type d \
+          -not -perm 0700 \
+          -exec chmod 0700 '{}' ';' \
+     \)
+```
+
+백슬래쉬 (`\`)를 사용한 줄바꿈과 indentation을 써서 더 읽기 좋아진 것을 볼 수 있다.

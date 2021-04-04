@@ -48,11 +48,11 @@
 - [import requirements txt to poetry](./python/import-requirements-txt-to-poetry.md)
 - [singleton pattern in python](./python/singleton-pattern-in-python.md)
 - [kafka python usage](./python/kafka-python-usage.md)
-- [ ] [isolated environment with pipx](./python/isolated-environment-with-pipx.md)
+- [isolated environment with pipx](./python/isolated-environment-with-pipx.md)
 - [ ] [how to evaluate performance and time complextiy in python](./python/how-to-evaluate-performance-and-time-complextiy-in-python.md)
 
 ## Django
-- [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
+- [ ] [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
 
 ## Vim
 
@@ -68,7 +68,7 @@
 - [vim kubernetes yaml support with coc vim](./vim/vim-kubernetes-yaml-support-with-coc-vim.md)
 - [vim terraform autocomplete with coc vim](./vim/vim-terraform-autocomplete-with-coc-vim.md)
 - [query from bigquery in vim](./vim/query-from-bigquery-in-vim.md)
-- [redirect command stdout to vim](./vim//redirect-command-stdout-to-vim.md)
+- [ ] [redirect command stdout to vim](./vim//redirect-command-stdout-to-vim.md)
 - [ ] [auto save when text chanegd in vim](./vim/auto-save-when-text-chanegd-in-vim.md)
 - [incrementing selected numbers in vim](./vim/incrementing-selected-numbers-in-vim.md)
 
@@ -78,7 +78,7 @@
 - [find command usage](./linux/find-command-usage.md)
 - [count files in linux](./linux/count-files-in-linux.md)
 - [turn off swap memory](./linux/turn-off-swap-memory.md)
-- [ ] [maximum limits in os](./linux/maximum-limits-in-os.md)
+- [maximum limits in os](./linux/maximum-limits-in-os.md)
 
 ## ML
 
@@ -88,9 +88,6 @@
 
 ## Javscript
 - [typescript basics](./javascript/typescript-basics.md)
-
-## Web
-- [ ] [RESTFul API](./web/RESTFul-API.md)
 
 ## etc
 

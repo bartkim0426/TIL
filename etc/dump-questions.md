@@ -10,9 +10,16 @@
   - stream
   - analysis
 - AWS Global accelerator
+- RDS
+  - read replicas
+- Aurora
+  - multi-az standby instance
+- Direct Connect: AWS로 전용 네트워크 연결을 쉽게 설정할 수 있는 클라우드 서비스 솔루션
+- Site-to-site VPN
+- Snowball
 
 
-## 1. O
+## 1. :white_check_mark:
 
 route53 & ALB: backup static error page를 효율적으로 붙이는 방법
 - a. cloudfront? 굳이 쓸필요 없음
@@ -27,9 +34,7 @@ b/b
 - active-passive failover
   - primary resource or group이 unavailable 해졌을 경우에 second group에게 넘김
 
-### 2. O
-
-:warning:
+### 2. :warning:
 
 EC2에 HPC (high performance computing)
 - need to communicate each other frequently
@@ -50,9 +55,7 @@ EC2
   - EC2 instance를 런칭하면 기본적으로는 correlated failures를 최소화하기 위해 instance를 spread out 하려고 함
   - placement groups을 사용하여 연관된 인스턴스를 묶을 수 있음
 
-### 3. X 
-
-:x:
+### 3. :x:
 
 [ ] 논의
 
@@ -70,7 +73,7 @@ a/c
 - discussion 보니 a, c 갈리는듯.
 - 한번 논의해보면 좋을듯. 잘 모르겠다
 
-### 4 O
+### 4 :white_check_mark:
 
 윈도우 파일서버인 DFSR (distributed file system replication)을 대체해야됨
 - a. EFS
@@ -86,7 +89,7 @@ b/b
 - FSx: File System
   - FSx with AWS DataSync로 migrate 가능
 
-### 5. O
+### 5. :white_check_mark:
 
 레거시 application. 2번쨰가 첫번째보다 오래걸림. scale independently하게 two microservice로 만들기. integrate 하는 방법은?
 - api gateway, sqs, sns정도?
@@ -105,8 +108,7 @@ d/d
 - SNS; simple notification service
 - Kinesis data firehose: 데이트 스트리밍 (data lake, data store)
 
-### 6. X
-:x:
+### 6. :x:
 
 여러 웹에서 clickstream data -> batch analysis -> redshift.
 
@@ -124,7 +126,7 @@ c,d/bd
 - 역시 처음 생각했던 lambda가 맞음.. ㅠㅠ
 - redshift 사용중이라 warehouse는 필요없다고함
 
-### 7. O
+### 7. :white_check_mark:
 
 ALB 안에 EC2 (auto scaling in multiple zones) month-end에 batch가 돌아서 느려짐 (cpu 100%)
 
@@ -162,7 +164,33 @@ d,e/d,e
   - Global Accelerator directs user traffic to the application endpoint 
   - cdn이랑 다른건 뭔지?
 
-### 9.
+### 9.  :warning:
+
+Aurora multi-az deployment db. read -> high I/O. read/write request 분리하는 방법?
+
+- A. Enable read-through caching on the Amazon Aurora database. -> X
+- B. Update the application to read from the Multi-AZ standby instance.
+- C. Create a read replica and modify the application to use the appropriate endpoint.
+- D. Create a second Amazon Aurora database and link it to the primary database as a read replica. -> X
+
+c/c
+- aurora를 안써봐서 잘 모르겠음
+- a가 가장 적절해보이지만, 분리가 되지 않음. d는 무조건 아님
+- b, c중에? multi-az standby instance가 뭔지 모르겠음.
 
 
+### 10.  :x:
+
+migrate to cloud multiple applications within a month. each 50TB to be transferred. secure network & consistent throughput for data center. must one-time data migrations and ongoing network connect
+
+- a. direct connect for initial transfer and ongoing connectivity
+- b. site-to-site vpn for inital transfer and ongoing connectivity
+- c. snowball for initial transfer and direct connect to ongoing
+- d. snwoball for initla and site-to-site vpn for ongoing
+
+d/c
+- 전체적으로 모르는 개념
+- transfer에는 snowball이 맞을거같음
+- direct connect vs site-to-site vpn? 기존 앱들이 연결되어야하니 site-to-site가 맞을듯
+- direct connect에 대해서 공부해야함:  AWS로 전용 네트워크 연결을 쉽게 설정할 수 있는 클라우드 서비스 솔루션
 
