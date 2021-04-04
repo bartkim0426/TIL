@@ -9,6 +9,7 @@
 - [binary search](./algorithm/binary-search.md)
 - [Implementation](./algorithm/Implementation.md)
 
+- [pramp](./algorithm/pramp.md)
 
 ## Kubernetes
 
@@ -50,6 +51,7 @@
 - [kafka python usage](./python/kafka-python-usage.md)
 - [isolated environment with pipx](./python/isolated-environment-with-pipx.md)
 - [ ] [how to evaluate performance and time complextiy in python](./python/how-to-evaluate-performance-and-time-complextiy-in-python.md)
+- [ ] [time complexity and implementation of python data structure](./python/time-complexity-and-implementation-of-python-data-structure.md)
 
 ## Django
 - [ ] [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)

@@ -2,7 +2,14 @@
 
 ## 모르는개념
 
+- Lambda
+  - pattern: "API gateway + unpredictable request pattern => Lambda"
+- EC2
+  - instance store: provide temporary block-level storage for insatnces.
 - S3
+  - S3 glacier
+  - standard-IA
+  - CRR(corss-region replication): used to copy objects across s3 in different region
 - SNS
 - FSx
 - Kinesis data
@@ -17,6 +24,11 @@
 - Direct Connect: AWS로 전용 네트워크 연결을 쉽게 설정할 수 있는 클라우드 서비스 솔루션
 - Site-to-site VPN
 - Snowball
+- Cloudfront
+  - geo restriction
+- amazon Elasitc File System (EFS): NFS file system
+- Route53
+  - geoproximity feature: Use when you want to route traffic based on the location of your users.
 
 
 ## 1. :white_check_mark:
@@ -193,4 +205,115 @@ d/c
 - transfer에는 snowball이 맞을거같음
 - direct connect vs site-to-site vpn? 기존 앱들이 연결되어야하니 site-to-site가 맞을듯
 - direct connect에 대해서 공부해야함:  AWS로 전용 네트워크 연결을 쉽게 설정할 수 있는 클라우드 서비스 솔루션
+
+
+### 11. :x:
+
+worldwild, EC2 in private subnet ALB. block access from countries
+
+- a. ALB security group -> O
+- b. sg in EC2 -> X
+- c. Cloudfront -> 흠.. 
+- d. ALB listeners rule -> 잘 모름
+
+a/c
+- cloudfront로 막을 수 있는지 잘 모르겠음
+- ALB listeners rule을 잘 모르겠음
+- cloudfront의 geo restriction을 활용해야한다고 함
+- network, sg등에 대해 기본기를 쌓아야할듯
+
+개념: geo restriction
+
+### 12. :x:
+
+store large data. analyzed hourly, modified by EC2. more space needed grow for 6 month
+
+- a. EBS volume; mount volume to application instance
+- b. EFS; mount file system on instance
+- c. S3 glacier; update valut policy to allow access
+- d. S3 standard-Infrequenent Access; update bucket policy
+
+a/b
+
+- 전체적으로 모르겠음
+- hourly 분석이니 d는 아닌거같음
+- b file system은 적절하지 않아보임
+- S3 glacier, standard IA는 모르겠음
+- > 아닐거라고 생각헀던 b 가 답
+
+개념;
+- amazon Elasitc File System (EFS)
+- S3 glacier, standard-IA
+
+### 13. :warning:
+
+3-tier app. MySQL db. poor performance when create. (generating real-time reports during work hours)
+
+- a. DynamoDB
+- b. database in EC2 -> X
+- c. Aurora mysql with read replicas -> create라서 X
+- d. Aurora mysql, report endpoint로 backup instance
+
+c/c
+- c, d중 하나일거같음
+- dynamo를 사용하게 해도 될거같긴 한데..
+- c인거같음. backupd instance는 왜 써야하는지 잘 몰겠음
+- Q) generating인데 왜 read replica 생성하는게 답인지??
+
+### 14. :x:
+distributed db on multiple EC2. requires block storage to several million transactions per second per server
+
+- a. EBS
+- b. EC2 instance store -> X
+- c. EFS -> X
+- d. S3 -> X
+
+a/b
+- 당연히 a일듯
+- EC2 instance store라는게 있는줄 몰랐음
+- EBS도 사용 가능하지만, 64K i/o ps라서 아닌듯
+- EC2 -> local storage이기 때문에 less latency
+
+### 15. :warning:
+
+daily reports in static html. millions of views from world. file is in S3. efficient & effective?
+
+- a. presigned URLs
+- b. corss-Region replication
+- c. geoproximity feature of Route53
+- d. cloudfront
+
+d/d
+- 얼핏 d가 맞아 보이긴 함
+- geoproximity feature, cross-region replication이 뭔지 모르겠음
+- a도 은근 맞을거같기도.. 하지만 static serving에 적합하지 않아보임
+
+개념;
+- geoproximity feature: Use when you want to route traffic based on the location of your users.
+  - 이경우 다른곳으로 routing 할 필요가 없기 때문에 X
+- CRR(corss-region replication): used to copy objects across s3 in different region
+  - 전혀 다름
+
+### 16. :x:
+
+API Gateway. unpredictable reequests, suddenly 0 to 500 ps, data size persisted to 1GB, quried key-value (chose 2)
+
+- a. Fargate
+- b. Lambda
+- c. DynamoDB -> O
+- d. EC2 Auto scailing
+- e. MySQL-compatible Aurora -> X (key-value)
+
+
+c,d/b,c
+- 일단 key-value -> e는 아니고 c가 적합
+- 나머지 한개는 갑자기 증가 -> d?
+- Fargate는 잘 모르겠음
+- -> lambda가 정답: 왜?
+  - "API gateway + unpredictable request pattern => Lambda" 라고 함
+  - lambda autoscale은 500 ps까지 손쉽게 확장 가능
+  - EC2 autoscale은 그만큼 빠르게 스케일링 되지 않는다고 함
+
+### 17.
+
 
