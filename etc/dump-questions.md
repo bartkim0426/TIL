@@ -6,21 +6,76 @@
   - pattern: "API gateway + unpredictable request pattern => Lambda"
 - EC2
   - instance store: provide temporary block-level storage for insatnces.
+  - ENI: Elastic Network Interface
+    - VPC에서 가상 네트워크 카드를 나타내는 논리적 네트워킹 구성 요서
+    - private IPv4, public IPv4, IPv6, MAC address, Security Groups ... 등이 포하
+  - spot block instance
+    - 온디맨드 가격보다 저렴하게 사용 할 수 있는 미사용 EC2 인스턴스
+    - 애플리케이션 시간을 유연하게 조정할 수 있고 애플리케이션을 중단할 수 있는 경우에 선택
+      - 데이터 분석, 배치 작업, 백그라운드 프로세싱 및 선택적 작업
+  - on-demand instance: 보통의 instance (사용한만큼)
+  - reserved instance
+    - 예약 인스턴스. 온디맨드보다 훨씬 저렴 
+    - 할인된 시간당 요금과 용량 예약(선택)을 제공
+    - EC2 인스턴스 사용 속성이 활성 RI의 속성과 일치하면 할인 요금을 적용
+    - Standard RIs (표준 RI)
+      - 사용량이 꾸준한 경우에 적합
+      - 가장 큰 할인
+    - Convertible RIs (컨버터블 RI)
+      - RI 속성 변경 가능
+      - 꾸준한 경우에 적합
+    - Scheduled RIs: scheduled reserved instance (scheduled instance)
+        - daily, weekly, monthly basis로 capacity reservation을 가능하게 해줌
+        - 특정 시간과 기간에 1년 단위로 예약 가능. 그 시간동안에는 사용 안해도 비용청구
+        - 정기적인 스케쥴로 돌아가는, not continuous 한 작업에 적합함
 - S3
-  - S3 glacier
-  - standard-IA
+  - S3 standard-IA: 일반적인 S3
+  - S3 Glacier: 데이터 아카이빙 및 백업을 위한 스토리지
+  - S3 Intelligent-Tiering: 데이터 엑세스 패턴이 변경될 때 스토리지 비용을 자동으로 최적화
+    - frequent access / infrequent access 간에 티어 변경
+  - S3 One Zone-Infrequent Access: 엑세시 빈도가 낮은 데이터 + 다중 가용 영역 데이터 복원 모델 X
+    - 낮은 복원 기능으로 비용 절감
   - CRR(corss-region replication): used to copy objects across s3 in different region
+  - S3 interface, S3 gateway endpoint: 둘 다 PrivateLink라는 기능으로 제공됨
+    - PrivateLink: VPC에서 endpoint를 프로비저닝해서 다른 애플리케이션에서 엑세스 가능
+    - gateway endpoint: VPC -> aws network -> S3 (요금 미청구)
+    - interface endpoint: VPC/on premise -> private IP address -> S3 (요금 청구됨)
+      - 다른 region, on premise 서버에서 쓸려면 interface endpoint 사용
+- VPC
+  - route table이 정확히 뭐지?
+    - 서브넷 또는 게이트웨이의 네트워크 트래픽이 전송되는 위치를 결정하는데 사용되는 라우팅 규칙
+  - SG (security group); 방화벽
+  - Gateway VPC endopints
+    - route table에서 트래픽이 어떤 서비스로 갈지 결정해줌
+    - S3, DynamoDB 사용 가능
+  - alb cross-region vpc
+    - 다른 리전의 aws 리소스가 private ip로 통신 가능하게 함
 - SNS
 - FSx
+  - FSx lustre: fast and scalable shared storage -> HPC 등에 적합
 - Kinesis data
   - firehose
   - stream
   - analysis
-- AWS Global accelerator
+- AWS Global accelerator: 글로벌 네트워크 인프라로 트래픽 전송하여 성능 개선
+  - Endpoints in global accelerator: NLB, ALB, EC2, elastic ip 뭐든지 가능
 - RDS
   - read replicas
-- Aurora
-  - multi-az standby instance
+  - encrypt RDS snapshot
+    - MySQL, Oracle, SQL Server, PostgreSQL, MariaDB 지원
+    - Auroua: unencrypted snapshot을 restore 할 때 KMS key를 지정해줘야됨
+    - Amazon RDS DB 인스턴스에 대한 암호화는 암호화를 생성할 때에만 활성화할 수 있으며 DB 인스턴스가 생성된 후에는 불가능합니다.
+      - not encrypted RDS에서 바로 encryption 할 수 없음
+      - not encrypted RDS <-> not encrypted Snapshot
+      - encrypted RDS <-> encrypted Snapshot
+      - not encrypted snapshot <-> encrypted snapshot
+      - 암호화된 DB 인스턴스의 스냅샷은 DB 인스턴스와 동일한 CMK를 사용하여 암호화해야 합니다.
+      - 암호화되지 않은 DB 인스턴스의 암호화된 읽기 전용 복제본이나 암호화된 DB 인스턴스의 암호화되지 않은 읽기 전용 복제본은 보유할 수 없습니다.
+  - 암호화된 스냅샷을 한 AWS 리전에서 다른 리전으로 복사하려면 대상 AWS 리전에 CMK를 지정해야 합니다. 이는 CMK가 생성된 AWS 리전에만 해당하기 때문입니다.
+  - failover: 장애 조치. 
+    - 보통 multi-AZ를 활성화하면 장애시 다른 가용 영역의 복제본으로 전환해줌 (60-120초)
+  - Aurora
+    - multi-az standby instance
 - Direct Connect: AWS로 전용 네트워크 연결을 쉽게 설정할 수 있는 클라우드 서비스 솔루션
 - Site-to-site VPN
 - Snowball
@@ -29,6 +84,25 @@
 - amazon Elasitc File System (EFS): NFS file system
 - Route53
   - geoproximity feature: Use when you want to route traffic based on the location of your users.
+  - latency-based route53: 지연 속도 기반 라우팅
+    - routing시 request의 지역 기반으로 더 지연이 낮은 리전의 주소 반환
+  - route53 policy; 레코드를 생성할 떄 선택. route53이 쿼리에 응답하는 방식을 결정
+    - simple routing; 도메인에 대해 특정 기능을 수행하는 하나의 리소스만 있는 경우
+    - failover routing: active-passive 장애 조치 구성
+      - 리소스가 정상일 경우 해당 리소스로 라우팅
+      - 비정상일 경우 다른 리소스로 라우팅
+    - geolocation routing
+      - 사용자 위치 (DNS 쿼리가 발생한 위치의 IP) 기반으로 트래픽 제공하려는 리소스 선택 가능
+    - geoproximity routing
+      - 리소스 위치 기반으로 트래픽 라우팅.
+      - traffic flow를 사용해야됨
+    - latency-based routing; 여러 리전에 리소스가 있고 최상의 지연 시간을 제공하는 리전으로 라우팅
+    - multivalue answer routing; 무작위로 선택된 최대 8개의 정상 레코드로 응답
+    - weighted routing; 사용자가 정한 비율에 따라 여러 소스로 라우팅
+- WAF: Web Application Firewall
+  - 웹 공격으로부터 application을 보호하는 방화벽
+  - ALB에 붙여야됨
+    - CLB에는 붙일 수 없음
 
 
 ## 1. :white_check_mark:
@@ -209,7 +283,7 @@ d/c
 
 ### 11. :x:
 
-worldwild, EC2 in private subnet ALB. block access from countries
+wordwide, EC2 in private subnet ALB. block access from countries
 
 - a. ALB security group -> O
 - b. sg in EC2 -> X
@@ -314,6 +388,444 @@ c,d/b,c
   - lambda autoscale은 500 ps까지 손쉽게 확장 가능
   - EC2 autoscale은 그만큼 빠르게 스케일링 되지 않는다고 함
 
-### 17.
+### 17. :warning:
+
+us-east-1 EC2 (multi region ALB), grow in us-west-1 -> low latency, high availablity
+
+- a. network load balancer to cross-region load balancing
+- b. load balancer distribute traffic based on location
+- c. global accelerator
+- d. route53
+
+c/c
+- 전체적으로 잘 모르겠음
+- load balancer configuration 필요한지?
+- a; 이미 cross-region 되고 있어서 아닌듯
+- b; distribute도 이미 하고있을듯? ALB를 만들필요는 없음
+- c; global accelerator가 뭐하는지
+- d; route53에서 나눌필요는 없어보임
+
+### 18. :white_check_mark:
+
+access a catalog and customize image, API gateway, received link. MOST cost-effective
+
+- a. EC2, S3, ELB -> high cost
+- b. Lambda, S3, cloudfront
+- c. Lambda, S3, DynamoDB, ELB, EC2
+- d. EC2, S3, Dynamodb, cloudfront
+
+b/b
+- lambda 쓰는게 맞아보임 -> b, c
+- s3에 manipulated image 저장 가능? metadata는 저장할 필요 없으니깐
+
+### 19. 
+migrate busniess-critical dataset to S3, us-east-1 single bucket -> multiple regions
+
+c/c
+- cross-region replication vs CORS -> cross-region
+- bucket with vs without versioning -> with (지금 versioning 되어있으니깐?)
+
+### 20. :warning:
+
+EC2 in VPC, S3 API to store and read, restrict internet-bound traffic.
+
+- a. S3 interface
+- b. S3 gateway
+- c. S3 bucket in private subnet
+- d. S3 bucket in same region -> X
+
+b/b
+- interface, gateway를 잘 모르겠음. gateway가 더 맞는듯?
+- private subnet에 s3 bucket을 만들수 있나? 상관 없음
+개념;
+- S3 interface, S3 gateway endpoint: 둘 다 PrivateLink라는 기능으로 제공됨
+  - PrivateLink: VPC에서 endpoint를 프로비저닝해서 다른 애플리케이션에서 엑세스 가능
+  - gateway endpoint: VPC -> aws network -> S3 (요금 미청구)
+  - interface endpoint: VPC/on premise -> private IP address -> S3 (요금 청구됨)
+    - 다른 region, on premise 서버에서 쓸려면 interface endpoint 사용
+
+### 21. :white_check_mark:
+
+RDS postgres db, large query in every start of month, minimize impact to web application, LEAST amount of effort?
+
+- a. read replica
+- b. multi-AZ database -> X
+- c. cross-region read replica
+- d. redshift -> X
+
+a/a
+- d -> X
+
+### 22. :warning:
+
+on-premise HPC application and data to AWS, tiered storage(?), hot parallel storage during run, cold strage for hold data when not running.
+
+- a. S3 for cold
+- b. EFS for cold
+- c. S3 for high -> X
+- d. FSx for Lustre for high
+- e. FSx for windows for high
+
+a,d/ad
+- S3 vs EFS -> 둘다 가능해보이는데, S3가 더 저렴?
+- FSx Lustre vs windows -> Lustre가 뭔지 모르겠음
+
+### 23. :x:
+
+EC2 single Region, deployed second region when disaster occured.
+
+- a. detach volume on EC2 and copy it to S3
+- b. Ec2 from AMI
+- c. EC2 in new region and copy volume for S3 -> x
+- d. copy AMI and specify different region
+- e. copy EBS from S3 and launce EC2 -> x
 
 
+a,d/b,d
+- AMI 가 들어가긴 해야할듯
+- can be deployed니깐 지금 ec2 배포할필요는 없음?
+- volume 고려해야하나?
+- d에 런칭이 포함된줄 알았는데 아니였네;; 이런 경우 a-z를 고려해야될듯
+
+### 24. :x:
+
+call api to DynamoDB from EC2 in VPC (do not traverse the internet)
+
+- a. route table entry for endpoint
+- b. gateway endopint for dynamodb
+- c. new table -> x
+- d. ENI for the endpoint in each subnets of VPC 
+- e. SG entry in default SG to privide access
+
+a,d/a,b
+- network쪽은 잘 모르겠음
+- endpoint + vpc 작업일듯: a or b / d or e
+- ENI 뭔지 전혀 모르겠음
+- endpoint가 꼭 생성되어야하는지도 잘 모르겠음.
+개념;
+- VPC endpoint 는 PrivateLink 기능을 통해 internet gateway 없이 연결 가능
+- route table이 정확히 뭐지?
+  - 서브넷 또는 게이트웨이의 네트워크 트래픽이 전송되는 위치를 결정하는데 사용되는 라우팅 규칙
+- gateway endopints: route table에서 트래픽이 어떤 서비스로 갈지 결정해줌
+  - S3, DynamoDB 사용 가능
+- SG; 방화벽
+- ENI: Elastic Network Interface
+
+### 25. :white_check_mark:
+
+RDS MySQL without encryption -> encrypted
+
+- a. data to S3 server-side encryption -> x
+- b. RDS Multi-AZ with encryption -> failover
+- c. snapshot -> encrypted copy of it -> restore
+- d. rds read replica -> promote master and switch
+
+c/c
+- S3는 말이 안됨
+- failover가 뭔지 잘 모르겠음
+- read replica도 이상한방법
+개념;
+- encrypt RDS snapshot
+  - MySQL, Oracle, SQL Server, PostgreSQL, MariaDB 지원
+  - Auroua: unencrypted snapshot을 restore 할 때 KMS key를 지정해줘야됨
+- failover: 장애 조치. 
+  - 보통 multi-AZ를 활성화하면 장애시 다른 가용 영역의 복제본으로 전환해줌 (60-120초)
+
+### 26. :warning:
+
+implement predictive maintenance on its machinery equipment, IoT sensors -> real-time send data to AWS,
+- receive event ordered manner for each asset, data is saved
+- MOST efficient?
+
+
+a/a
+- realtime events: Kinesis data stream vs SQS vs SQS FIFO
+- save data: kinesis firehose to S3/EBS vs Lambda to EFS/S3
+- 다 가능한데 효율적인 방법을 찾아야됨
+  - EFS, EBS보다 S3가 가성비
+  - order -> SQS FIFO, 센서가 많아서 비용이 높을듯
+  - kinesis도 순서를 지켜주는지?
+    - partition 안에서는 유지
+개념;
+- SQS FIFO는 IOT에 연결 못한다고함
+- Kinbesis는 EBS와 사용 못함
+
+### 27. :x:
+
+EC2 in ALB, dynamic + static content, slow website, wordwide
+
+- a. cloudfront, route53
+- b. latency-based route53 for ALB, large CE2
+- c. dfferent region Ec2, cross-region VPC
+- d. S3 bucket -> X
+
+d/a
+- dynamic이기 때문에 d는 아님
+- a; route53에서 cloudfront 바라볼수있나? 맞을거같은데. dynamic도 걱정
+- b: latency-based route53은 잘 모름, large EC2가 의미가 있을지?
+  - users around the globe: 전체적으로 느리기때문에 서버 증설도 효과가 있을듯
+  - latency-based; 느려질때 처리하는거같아서 아닐듯
+- c: ec2 증설 + alb cross-region -> 효과있을듯
+
+- 함정문제인줄 알고 너무 많이 생각함
+개념;
+- 다른건 왜 안되는지?
+- latency-based route53: 지연 속도 기반 라우팅
+  - routing시 더 지연이 낮은 리전의 주소 반환
+  - alb가 그대로라서 의미가 없는듯
+- alb cross-region vpc
+  - 다른 리전의 aws 리소스가 private ip로 통신 가능하게 함
+  - 웹과는 맞지 않음
+
+### 28.  :white_check_mark:
+
+analytics data in RDS, users to access data using API, not cold but could bursts.
+
+- a. ECS
+- b. Elastic Beanstalk
+- c. Lambda
+- d. EC2
+
+c/c
+- 당연히 lambda
+
+### 29. :warning:
+
+every month beginning, 20 EC2 instances, runs 7 days, cannot interrupped, minimize cost
+
+- a. reserved instance
+- b. spot block
+- c. on-demand
+- d. scheduled reserved
+
+d/d
+- 들어는 봤는데 뭔지 잘 모르겠음
+- spot이 제일 싼데 interrupped 될수있어서 안됨
+- reserved는 비쌀듯
+- on-demnad, sceduled-reserved는 잘 모르겠음, 이름에 따라서 d인거같음
+개념;
+- spot block instance
+  - 온디맨드 가격보다 저렴하게 사용 할 수 있는 미사용 EC2 인스턴스
+  - 애플리케이션 시간을 유연하게 조정할 수 있고 애플리케이션을 중단할 수 있는 경우에 선택
+    - 데이터 분석, 배치 작업, 백그라운드 프로세싱 및 선택적 작업
+- on-demand instance: 보통의 instance (사용한만큼)
+- reserved instance
+  - 예약 인스턴스. 온디맨드보다 훨씬 저렴 
+  - 할인된 시간당 요금과 용량 예약(선택)을 제공
+  - EC2 인스턴스 사용 속성이 활성 RI의 속성과 일치하면 할인 요금을 적용
+  - Standard RIs (표준 RI)
+    - 사용량이 꾸준한 경우에 적합
+    - 가장 큰 할인
+  - Convertible RIs (컨버터블 RI)
+    - RI 속성 변경 가능
+    - 꾸준한 경우에 적합
+  - Scheduled RIs: scheduled reserved instance (scheduled instance)
+      - daily, weekly, monthly basis로 capacity reservation을 가능하게 해줌
+      - 특정 시간과 기간에 1년 단위로 예약 가능. 그 시간동안에는 사용 안해도 비용청구
+      - 정기적인 스케쥴로 돌아가는, not continuous 한 작업에 적합함
+
+### 30. :warning:
+
+multiple EC2 in single AZ, multiplayer game, communicate with Layer 4, HA, cost-effeciive
+
+- a. increase EC2
+- b. decrease EC2
+- c. NLB
+- d. ALB
+- e. configure Auto Scaling group in multi-AZ
+
+c,e/c,e
+- Layer 4? network 레이어를 말하는건지.. 잘 모르겠음
+- multiplayer game, 실시간 communicate?
+- increase는 비용떄문에 아닐듯
+- decrease + auto scaling? e를 하면 자동으로 감소할거라서 x
+- NLB/ALB중 하나 붙이고 auto scaling? -> NLB가 맞는듯 (layer 4라서)
+개념;
+- Elastic Load Balancer는 둘 이상의 가용 영역에서 EC2 인스턴스, 컨테이너, IP 주소 등 여러 대상에 걸쳐 수신되는 트래픽을 자동으로 분산
+  - ALB, NLB, Gateway Load Balancer, Classic Load Balancer 등 지원
+- Network Load Balancer
+  - NLB 자체가 OSI 모델의 layer 4
+  - OSI(Open Systme Interconnection) 모델의 네번째 계층에서 작동
+- OSI 모델에 대해서 다시 공부..
+  - OS
+
+### 31. :x:
+
+RDS mysql, backup daily, not encrypted -> encrypted.
+
+- a. enbale default encryption for S3 -> X
+- b. backup section in rds config (Enable encryption)
+- c. snaption -> encrypted snapshot -> restore
+- d. encrypted read replica -> primary
+
+b/c
+- 잘 모르겠음.. backup 지우기 전에 one encrypted backup 만들어야되는게 핵심인듯
+- rds 바로 encryption 만들수 있는지? 그럼 b
+- snapshot -> backup 만들어주지는 못함
+- replica?
+개념;
+- Amazon RDS DB 인스턴스에 대한 암호화는 암호화를 생성할 때에만 활성화할 수 있으며 DB 인스턴스가 생성된 후에는 불가능합니다.
+  - not encrypted RDS에서 바로 encryption 할 수 없음
+  - not encrypted RDS <-> not encrypted Snapshot
+  - encrypted RDS <-> encrypted Snapshot
+  - not encrypted snapshot <-> encrypted snapshot
+  - 암호화된 DB 인스턴스의 스냅샷은 DB 인스턴스와 동일한 CMK를 사용하여 암호화해야 합니다.
+  - 암호화되지 않은 DB 인스턴스의 암호화된 읽기 전용 복제본이나 암호화된 DB 인스턴스의 암호화되지 않은 읽기 전용 복제본은 보유할 수 없습니다.
+  - 암호화된 스냅샷을 한 AWS 리전에서 다른 리전으로 복사하려면 대상 AWS 리전에 CMK를 지정해야 합니다. 이는 CMK가 생성된 AWS 리전에만 해당하기 때문입니다.
+
+
+### 32. :warning:
+
+multple ALB, worldwide, different distribution right. serve correct content per region.
+
+- a. cloudfront with WAF
+- b. ALB with WAF
+- c. Route53 with geolocation policy
+- d. Route53 with geoproximity routing policy
+
+c/c
+- WAF 모르겠음. World ...?
+- route53이나 cloudfront에서 하는게 맞아보임
+- route53 option도 잘 모르겠음. c가 맞아보임
+개념;
+- WAF: Web Application Firewall
+  - 웹 공격으로부터 application을 보호하는 방화벽
+- route53 policy; 레코드를 생성할 떄 선택. route53이 쿼리에 응답하는 방식을 결정
+  - simple routing; 도메인에 대해 특정 기능을 수행하는 하나의 리소스만 있는 경우
+  - failover routing: active-passive 장애 조치 구성
+    - 리소스가 정상일 경우 해당 리소스로 라우팅
+    - 비정상일 경우 다른 리소스로 라우팅
+  - geolocation routing
+    - 사용자 위치 (DNS 쿼리가 발생한 위치의 IP) 기반으로 트래픽 제공하려는 리소스 선택 가능
+  - geoproximity routing
+    - 리소스 위치 기반으로 트래픽 라우팅.
+    - traffic flow를 사용해야됨
+  - latency-based routing; 여러 리전에 리소스가 있고 최상의 지연 시간을 제공하는 리전으로 라우팅
+  - multivalue answer routing; 무작위로 선택된 최대 8개의 정상 레코드로 응답
+  - weighted routing; 사용자가 정한 비율에 따라 여러 소스로 라우팅
+
+### 33. :x:
+
+aws account, secure root access
+
+- a. strong password
+- b. multi-factor auth for root
+- c. access key to s3
+- d. add to group admin permission
+- c.required permission with inline policy
+
+b,e/a,b
+- 애매한 문제.. account -> root 권한을 막는 문제인가? 문제가 잘 이해 안됨
+- b는 맞는듯
+- c는 아닌거같음. 
+- d, e도 아닌거같은데.. 더 권한 줄게 있나.. e?
+- 너무 당연해보여서 a 안했는데 함정문제였음
+
+
+### 34. :warning:
+
+log data to S3, don't know frequency, low cost
+
+- a. S3 Glacier
+- b. S3 Intelligent-Tiering
+- c. S3 Standard-Infrequent Access (S3 Standard-IA)
+- d. S3 One Zone-Infrequent Access (S3 One Zone-IA)
+
+b/b
+- 개념을 잘 모르겠음. c는 아닌듯
+- 얼마나 쓸지 모른다 -> 사용량에 따라서 티어 매기는 b?
+
+개념; 
+- S3 Intelligent-Tiering: 데이터 엑세스 패턴이 변경될 때 스토리지 비용을 자동으로 최적화
+  - frequent access / infrequent access 간에 티어 변경
+- S3 Glacier: 데이터 아카이빙 및 백업을 위한 스토리지
+- S3 One Zone-Infrequent Access: 엑세시 빈도가 낮은 데이터 + 다중 가용 영역 데이터 복원 모델 X
+  - 낮은 복원 기능으로 비용 절감
+  - 이것도 답이 될 수 있지만 얼마나 쓸지 모르므로 나중에 변경하는게 좋음
+
+
+### 35. :warning:
+
+EC2, Auto scaling, ALB. Cloudfront, WAF. malicious IP need to blocked
+
+- a. network ACL in cloudfront
+- b. configure WAF
+- c. ACL in EC2 -> x
+- d. SG in Ec2 -> x
+
+b/b
+- a 아니면 b
+- WAF가 언제 작동하는지 잘 모르겠음. b가 더 적절해보임
+개념;
+- NACL is within the VPC; with WAF, block IP before it reach VPC
+- cloudfront: 적합하지 않음
+
+### 36. :white_check_mark:
+
+2-step order process. 1: synchronous + little latency, 2: long, separate component. exactly once.
+
+- a. SQS FIFO -> o
+- b. Lambda + SQS standard
+- c. SNS + SQS Fifo -> o
+- d. SNS + SQS standard
+
+c/c
+- fifo 필요. sns는 필요할까? 두개 이어주려면 필요해보임
+
+
+### 37. :white_check_mark:
+
+2-tier architecture: web + database, web is vulnerable to XSS
+
+- a. CLB. WAF
+- b. NLB, WAF -> x
+- c. ALB, WAF
+- d. ALB, sheld
+
+c/c
+- WAF 쓰는건 맞음. ALB vs CLB?
+- clb 요즘도 쓰나? ALB로 할듯
+개념;
+- WAF는 CLB에는 붙일 수 없음
+
+### 38. :white_check_mark:
+
+RDS mysql multi-az, transaction + batch, batch -> slow down.
+
+d/d
+- read replica가 답일듯
+
+### 39. :x:
+
+EC2 multiple zone, Auto Scaling group (ALB), CPU 40%일때 best
+
+- a. simple scaling policy
+- b. target tracking policy
+- c. lambda to update? -> x
+- d. scheduled scaling action -> x
+
+a/b
+- a,b중 하나. 그냥 cpu로 scaling 되는데 a 아닐까?
+- target tracking policdy가 뭔지 모르겠음
+개념;
+- scaling policy types (dynamic scaling)
+  - target tracking scaling: 특정 지표의 목표 값을 기준으로. 온도조절기
+  - step scaling: 일련의 조정 조절에 따라 늘리거나 줄임
+  - simple scaling: 단일 조정 조절에 따라 늘리거나 줄임(?)
+- target tracking policy: 조정 지표를 선택하고 대상 값 설정
+
+### 40. :warning:
+
+EC2 (ALB), Auto scaling multi-az. work hours-20, overnight-2, mid-morning에 스케쥴드 되어도 매우 느림.
+keep cost to minimum.
+
+- a. scheduled action
+- b. step scaling. deecrese cooldown period
+- c. target tracking. decrease cooldown period -> x
+- d. scheduled action. minimum 20 before open
+
+a/a
+- 다 맞아보임. c는 안됨
+- b는 step이라서 느릴거라 의미 없을듯
+- a, d중에 더 효율적인건? desired capacity vs minimum capacity 차이를 모르겠음. a가 맞을듯?
+- 정답이 갈리는거같음

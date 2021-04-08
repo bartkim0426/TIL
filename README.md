@@ -8,6 +8,7 @@
 - [greedy](./algorithm/greedy.md)
 - [binary search](./algorithm/binary-search.md)
 - [Implementation](./algorithm/Implementation.md)
+- [search](./algorithm/search.md)
 
 - [pramp](./algorithm/pramp.md)
 
@@ -123,6 +124,7 @@
 - [Deep learning from scratch](./books/deep-learning-from-scratch.md)
 - [밑바닥부터 시작하는 딥러닝](./books/밑바닥부터-시작하는-딥러닝.md)
 - [The Linux Command Line](./books/The-Linux-Command-Line.md)
+- [fluent python](./books/fluent-python.md)
 
 
 ## My progress

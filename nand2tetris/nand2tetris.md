@@ -3,4 +3,5 @@
 ## [01 boolean functions](../nand2tetris/01-boolean-functions.md)
 ## [02 boolean arthmetic and the alu](../nand2tetris/02-boolean-arthmetic-and-the-alu.md)
 ## [03. Memory](../nand2tetris/03-memory.md)
+## [04. Machine Languages](../nand2tetris/04-Machine-Languages.md)
 
