@@ -447,6 +447,77 @@ Low-level 접근법:
 display unit: (256 by 512, b/2)
 - memory map: 8k 16 bits -> 120,000 pixels -> mapping screen memory map
 - 어떤 bit이 어떤 pixel이 매핑되는지 정해야됨: bit = 1 dimension, pixel: 2 dimension
-- 
+- 16384부터 시작하는 총 8200개의 16bit register로 구성
 
+(row, col) 의 스크린을 키려면
+- word = Screen[23*row + col/16] = RAM[16384 + 32*row + col/16]
+- word의 (col % 16)th번째 bit를 0에서 1로 만들어줌
+- commit word to the RAM
+
+![image](https://i.imgur.com/ZjXnVuM.png)
+
+### Input
+
+screen과 흡사하게 Keyboard memory map
+
+- single 16 memory bit
+- 현재 눌러지고 있는 키가 뭔지 체크
+	- key가 입력되면 이미 정해진 스캔 코드(바이너리)가 키보드 메모리 맵에 나타남
+	- Hack computer: RAM[24576] 사용
+
+아래는 hack computer에서 사용할 셋
+
+![image](https://i.imgur.com/XGRVwiY.png)
+
+## 4.6. Hack Programming: Part 1
+
+Hack Programming은 다음 일들을 함
+- working with register and memory
+- branching
+- variables
+- iterations
+- pointers
+- input/output
+
+4.6장에서는 working with register and memory를 다룸
+
+### Working with register and memory
+
+- D: data register
+- A: address/data register (상황에 따라)
+- M: the currently selected memory register, M = RAM[A]
+
+typical operations:
+
+```
+// D = 10
+// 절대 direct로 할 수 없음
+@10  // set A register to 10
+D=A  // set D register to A (10)
+
+// D++
+D=D+1
+
+// D=RAM[17]
+@17  // set A register to 17 -> M register automatically set to RAM[17]
+D=M
+
+// RAM[17]=0
+@17  // set A register to 17 -> M registert set to RAM[17]
+M=0
+
+// RAM[17] = 10
+@10  // A register to 10, M register is RAM[10]
+D=A  // D register to 10
+@17 // set A register to 17, M register is RAM[17]
+M=D
+
+// RAM[5] = RAM[3]
+@3  // A register to 3, M register is RAM[3]
+D=M // D register = RAM[3]
+@5  // A register to 5, M register is RAM[5]
+M=D // M (RAM[5]) = D (RAM[3])
+
+
+```
 

@@ -41,6 +41,8 @@
     - gateway endpoint: VPC -> aws network -> S3 (요금 미청구)
     - interface endpoint: VPC/on premise -> private IP address -> S3 (요금 청구됨)
       - 다른 region, on premise 서버에서 쓸려면 interface endpoint 사용
+  - S3 data는 versioning이 되어있으면 recover 가능
+    - MFA delete(CLI나 API로 제거), file delete에서 보호 가능
 - VPC
   - route table이 정확히 뭐지?
     - 서브넷 또는 게이트웨이의 네트워크 트래픽이 전송되는 위치를 결정하는데 사용되는 라우팅 규칙
@@ -71,11 +73,12 @@
       - not encrypted snapshot <-> encrypted snapshot
       - 암호화된 DB 인스턴스의 스냅샷은 DB 인스턴스와 동일한 CMK를 사용하여 암호화해야 합니다.
       - 암호화되지 않은 DB 인스턴스의 암호화된 읽기 전용 복제본이나 암호화된 DB 인스턴스의 암호화되지 않은 읽기 전용 복제본은 보유할 수 없습니다.
-  - 암호화된 스냅샷을 한 AWS 리전에서 다른 리전으로 복사하려면 대상 AWS 리전에 CMK를 지정해야 합니다. 이는 CMK가 생성된 AWS 리전에만 해당하기 때문입니다.
-  - failover: 장애 조치. 
-    - 보통 multi-AZ를 활성화하면 장애시 다른 가용 영역의 복제본으로 전환해줌 (60-120초)
-  - Aurora
-    - multi-az standby instance
+    - 암호화된 스냅샷을 한 AWS 리전에서 다른 리전으로 복사하려면 대상 AWS 리전에 CMK를 지정해야 합니다. 이는 CMK가 생성된 AWS 리전에만 해당하기 때문입니다.
+    - failover: 장애 조치. 
+      - 보통 multi-AZ를 활성화하면 장애시 다른 가용 영역의 복제본으로 전환해줌 (60-120초)
+    - Aurora
+      - multi-az standby instance
+  - RDS read replica가 multi-az deployment 제공한다고 함
 - Direct Connect: AWS로 전용 네트워크 연결을 쉽게 설정할 수 있는 클라우드 서비스 솔루션
 - Site-to-site VPN
 - Snowball
@@ -103,7 +106,12 @@
   - 웹 공격으로부터 application을 보호하는 방화벽
   - ALB에 붙여야됨
     - CLB에는 붙일 수 없음
-
+- AWS Storage Gateway: 클라우드 스토리지에 대한 온프레미스 권한을 제공하는 하이브리드 클라우드 스토리지
+  - File Gateway: file interface to S3, accessible via NFS or SMB
+  - Volume Gateway: 온프레미스 서버에서 iSCSI 장치로 탑재할 수 있도록 스토리지 볼륨 제공(?)
+- AWS Orgranizations
+  - Service Control Policy (SCP, 서비스 제어 정책)
+    - 조직의 권한을 관리하는데 사용할수 있는 조직 정책 유형
 
 ## 1. :white_check_mark:
 
@@ -829,3 +837,145 @@ a/a
 - b는 step이라서 느릴거라 의미 없을듯
 - a, d중에 더 효율적인건? desired capacity vs minimum capacity 차이를 모르겠음. a가 맞을듯?
 - 정답이 갈리는거같음
+
+
+### 41. :x:
+
+US, Europe. db/web, Mysql in us-east-1, route53 geoproximity routing, EU user performance low
+
+- a. RDS Multi-AZ
+- b. DynamoDB -> x
+- c. MySQL region, ALB
+- d. 3. :white_check_mark:
+
+HPC
+
+b/b
+
+
+### 44. :x:
+
+EC2, Microsoft Active Directory domain control(?), imporve security & minimize adminitrative demand
+
+- a. AWS Direct Service to managed Active Directory
+- b. 
+- c. 
+- d. 
+
+c/a
+- Active Directory 처음 들어봄.
+- d는 아님 (public)
+개념;
+- AWS Managed Microsoft Active Directory:
+  - Microsoft AD를 managed로 관리
+  - domain controller를 VPC에 연결 가능
+- Active Directory? window 기반의 compute 인증과 데이터베이스를 사용하여 다양한 네트워크 서비스를 제공
+  - windows 기반의 중앙집중관리 서비스
+  - user, policy, connection 등 service 제공
+
+### 45. :x:
+
+static web, S3, data recover for accident
+
+- a. S3 versioning
+- b. S3 intelligent tiering
+- c. S3 polisy
+- d.S3 repilcation
+
+d/a
+
+개념;
+- S3 data는 versioning이 되어있으면 recover 가능
+- MFA delete(CLI나 API로 제거), file delete에서 보호 가능
+
+### 46. :white_check_mark:
+
+OLTP (online transaction processing) on RDS Mysql. new tool access data -> to not impact production
+
+- a. snapshots -> x
+- b. multi-az rds read replica
+- c. multiple rds read replica + Auto Scaling group
+- d. Single-AZ rds replica -> replica
+
+b/b
+- 그냥 b일거같은데.. read reploica를 여러개 만들 이유가 있나?
+개념;
+- RDS read replica가 multi-az deployment 제공한다고 함
+
+### 47. :x:
+
+app data in NFS volume, daily offsite backup needed
+
+- a. storage gateway file gateay
+- b. 
+- c. 
+- d. 
+
+c/b
+- Storage Gateway file gateway vs volume gateway: 잘 모름
+- 그냥 c같음. NFS도 뭔지 헷갈린다
+-> 잘 모르겠음
+개념;
+- AWS Storage Gateway: 클라우드 스토리지에 대한 온프레미스 권한을 제공하는 하이브리드 클라우드 스토리지
+  - File Gateway: file interface to S3, accessible via NFS or SMB
+  - Volume Gateway: 온프레미스 서버에서 iSCSI 장치로 탑재할 수 있도록 스토리지 볼륨 제공(?)
+- NFS: network file system
+
+### 48.:warning:
+
+multiple EC2, data in EBS volumes, increase resiliency + storage (atomicity, consistency, isolation and durability - ACID)
+
+- a. EC2, EBS (x)
+- b. ALB + instance store
+- c. ALB + EFS
+- d. ALB + S3 (One zone-ia)
+
+c/c
+- resiliency는 ALB
+- ACID는?
+  - instance store는 뭔지 모르겠음
+  - S3는 아닐거같음
+  - EFS? instance store?
+개념;
+- EFS with EC2
+  - VPC 안에 EC2에 file system mount
+  - 각 availability zone에 mount target 생성 (subnet이 여러개여도 하나에만 생성)
+
+### 49. :x:
+
+security team, maintain permission in single point.
+
+- a. ACL
+- b. security group
+- c. cross-account role
+- d. service control policy
+
+c/d
+- 전혀 모르겠음
+- sg, ACL은 이 개념이 아닌듯?
+- cross-account role vs service control policy
+- 원래 root는 다 갖고있으니깐 c?
+개념;
+- Service Control Policy (SCP, 서비스 제어 정책)
+  - 조직의 권한을 관리하는데 사용할수 있는 조직 정책 유형
+
+### 50. :x:
+
+nightly log processing. size & number unknow, will persist 24 hours only. cost-effecitve?
+
+- a. S3 Glacier - x
+- b. S3 standard - x
+- c. S3 intelligent-tiering
+- d. S3 one zone-infrequent access
+
+d/b
+- c아니면 d
+- 모든 파일에 접속하는지 여부에 따라 c/d
+- log processing: d
+개념;
+- 왜 b인지 잘 모르겠음
+
+### 51.
+
+single EC2, user-upload document to EBS,
+
