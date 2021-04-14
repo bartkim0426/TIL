@@ -8,3 +8,4 @@
 # FAQ
 
 - [amazon sqs faq](../etc/amazon-sqs-faq.md)
+- [Lambda faq](../etc/Lambda-faq.md)

@@ -975,7 +975,174 @@ d/b
 개념;
 - 왜 b인지 잘 모르겠음
 
-### 51.
+### 51. :white_check_mark:
 
-single EC2, user-upload document to EBS,
+EC2, EBS -> another availability zone + ALB. 서로 EBS에서 보이지 않는 문제.
+
+- a. copy data -> x
+- b. ALB to server documents
+- c. copy EBS to EFS, serve from EFS
+- d. ALB both server -> x
+
+c/c
+- c 말고 다른애들은 문제해결 못해줌
+
+### 52. :white_check_mark:
+
+S3, encrypted, don't want manage key
+
+d/d
+- 관리 안하려면 kms managed key 쓰면 됨
+개념;
+- SSE-S3: S3-Managed key
+  - S3가 데이터와 master encryption key 관리.
+- SSE-C: Customer-Provied Keys
+  - customer가 직접 encryption key 관리
+- SSE-KMS: KMS-Managed Keys
+  - AWS KMS에서 CMK 관리
+
+### 53. :x:
+
+ecommerce EC2, stateless web, min 10 instance, peak 250 instance. 50 instance for 80% of time. minimize cost.
+
+- a. reserved 250
+- b. reserved 80, spot to remain
+- c. on-demaind 40, spot to remain -> x
+- d. reserved 50, on-demand and spot to remain
+
+a/d
+- spot -> 중단될수 있어서 안쓰는게 나아보이는데..
+- reserved; peak time 예측할수 있으면 그냥 a로 해도 될듯?
+- 대부분의 시간: reserved, 나머지: ondemand
+
+- 답은 d. spot fleet (ondemand + spot)라는게 있다고 함
+- 가격 저렴 -> 무조건 reserved or spot 생각하면 될듯
+
+### 54. :warning:
+
+API in VPC, ALB. client app in private subnet behind NAT. NAT cost higher. ALB to be internal, reduce cost.
+
+- a. VPC peering. API using private address
+- b. AWS Direct Connect. private address
+- c. ClassicLink
+- d. PrivateLink
+- e. Resource Access Manager. private address
+
+d,e/d,e
+- 문제: internet connection이라 비싼듯?
+- ClassicLink, PrivateLink 모르겠음
+- e는 필요해보임 (account가 다르니깐)
+- b, c, d중에 하나 하면 될듯 -> direct connect는 다른 계정 안될거같은데
+- 정답 분분해보임. 어려움
+  - q) vpc peering -> 다른 계정간에 가능?
+  - 
+개념;
+- Resource Access Manager: 다른 계정이나 orgranizations간에 자원 공유하게 해주는 기능
+- ClassicLink: 같은 리전 내의 VPC에 인스턴스 연결
+- PrivateLink: 퍼블릭 인터넷에 트래픽을 노출하지 않고 VPC, 온프레미스 네트워크 간에 비공개 연결 제공
+  - Network Load Balancer needed
+- 어려움..
+
+### 55.:warning:
+
+transferrign 750 TB, S3 glacier. 
+
+- a. 
+- b. 
+- c. 
+- d. 
+
+d
+- 잘 모르겠음. snowball 사용이 맞아보임.
+개념;
+- snowball
+
+### 56. :x:
+
+public/private subnet. EC2 -public, database - private.
+
+b,e
+
+### 57. :white_check_mark:
+
+s3, 문서 검토 application. 삭제 방지, versioning.
+b,d/b,d
+
+### 58. :white_check_mark:
+
+c/c
+
+
+### 59. :x:
+
+2 layer appilication. public subnet EC2, database private subnet (EC2, SQL server)
+
+b,e/ac
+
+### 60.  :x:
+
+개발자가 다른 보안 정책 우회
+
+d
+
+### 61. :x:
+
+ABL, auto scaling. 
+
+d/b
+
+### 62. :white_check_mark:
+
+d
+
+### 63. :x:
+
+d/c
+
+### 64. :white_check_mark:
+
+ALB, EC2.DNS, SSL, HTTPS, worldwide
+
+a/a
+
+### 65.:warning:
+
+process: parallel while ...
+
+c/c
+
+### 66. :x:
+
+S3 csv, EC2에서 권한
+
+b/c
+
+### 67. :white_check_mark:
+
+a/a
+
+### 68. :x:
+
+c/b
+
+### 69. :x:
+
+SQS -> RDS
+
+c/d
+
+### 70. :x:
+
+a/c
+
+### 71.
+
+a
+
+### 72. :x:
+
+3 layers: EC2 / frontend EC2 / MySQL
+
+a/d
+
 

@@ -9,6 +9,7 @@
 - [binary search](./algorithm/binary-search.md)
 - [Implementation](./algorithm/Implementation.md)
 - [search](./algorithm/search.md)
+- [dynamic algorithm](./algorithm/dynamic-algorithm.md)
 
 - [pramp](./algorithm/pramp.md)
 
@@ -102,7 +103,9 @@
 - [aws certificate](./etc/aws-certificate.md)
 - [ ] [XSS and CSRF](./etc/cxx-and-csrf.md)
 - [ ] [about online advertising](./etc/about-online-advertising.md)
-- [ ] [aws cdk for deploy](./etc/aws-cdk-for-deploy.md)
+- [aws cdk for deploy](./etc/aws-cdk-for-deploy.md)
+- [ ] [collapsible section in github markdown](./etc/collapsible-section-in-github-markdown.md)
+- [ ] [aws cdk multiple environment with context](./etc/aws-cdk-multiple-environment-with-context.md)
 
 ## nand2tetris
 - [nand2tetris project](./nand2tetris/nand2tetris.md)

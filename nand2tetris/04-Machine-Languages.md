@@ -517,7 +517,542 @@ M=D
 D=M // D register = RAM[3]
 @5  // A register to 5, M register is RAM[5]
 M=D // M (RAM[5]) = D (RAM[3])
+```
+
+### example: Add two numbers
+
+```
+/// Program: Add2.asm
+// Computes: RAM[2] = RAM[0] + RAM[1]
+// Usage: put values in RAM[0], RAM[1]
+
+@0    // M = RAM[0]
+D=M   // D register = RAM[0]
+
+@1    // M = RAM[1]
+D=D+M // D = D(RAM[0]) + M(RAM[1])
+
+@2    // M register = RAM[2]
+M=D   // RAM[2] = D (RAM[0] + RAM[1])
+```
+
+when tranlate and load to ROM
+- white space is ignored
+- symbolic view -> binary view
+
+### How to terminate a program properly?
+
+따로 명령어를 입력하지 않으면 명령어가 없어도 프로그램이 계속됨
+- infinite loop를 만들 수 있음
+- 이후에 의도하지 않거나 malicious한 명령어를 실행시키지 않을 수 있음
+
+```
+...
+@0
+D=M
+@1
+D=D+M
+@2
+M=D
+@6
+0;JMP
+```
+
+### Built-in symbols
+
+#### Virtual registers
+R0, R1 .. R15
+- 0 ~ 15
+- "virtual registers"
+
+```
+@15   // A (data register)
+D=A
+
+@5    // A (address register)
+M=D
+```
+
+이렇게 사용했을 때 문제
+- 완전 다른 내용임에도 불구하고 (data, address) 같은 코드 (@)를 사용
+- A instruction만 읽었을 때 무슨 역할을 하는지 알 수 없음
+
+이를 해결하기 위해 첫 16 register를 읽을 때에는 label convention을 사용
+
+```
+@15
+D=A
+
+@R5   // much more readable
+M=D
+```
+
+> Hack is case-sensitive: R5와 r5는 다른 symbol. 대부분의 machine language는 case-sensitive 임.
+
+
+#### Screen, keyboard
+
+- SCREEN: 16384
+- KBD: 24576
+
+그리고 이번 코스에서 사용하지 않는 6가지 symbol이 있음
+
+
+정리하면
+
+- R0, R1, ..R15: "virtual registers"
+- `SCREEN`, `KBD`: base address of I/O memory maps
+- SP, LCL, ARG, THIS, THAT: part 2에서 사용
+
+
+## 4.7. Hack Programing, Part 2
+
+- working with register and memory
+- branching
+- variables
+- iterations
+- pointers
+- input/output
+
+저번 장에서는 working with register and memory를 다룸. 이번 장에서는 branching과 variables
+
+### Branching
+
+machine language에서는 보통 한가지의 branching만 가짐. `GO to`
+
+예시: R0이 0일 경우에 R1에 1을 할당하고 아니면 0을 할당 (특정 값이 0인지 아닌지 확인하는 프로그램)
+- low level programming에서는 이를 바로 표현할 수 없음
+- 이를 위해 goto를 사용
+
+(아래 예시의 옆에 번호 0, 1,..는 실제로 ROM이 읽는 line number이다)
+```
+// Program: Signum.asm
+// Computes: if R0>0
+//              R1=1
+//           else
+//              R1=0
+0  @R0    // A, M = RAM[0]
+1  D=M    // D = RAM[0]
+
+2  @8
+3  D;JGT  // IF D > 0 goto 8
+
+4  @R1
+5  M=0    // RAM[1] = 0
+6  @10
+7  0;JMP  // jump to 10 (end of program)
+
+8  @R1
+9  M=1    // RAM[1] = 1
+
+10 @10
+11 0;JMP  // infinite loop to end program
+```
+
+위 코드는 잘 동작하지만 readable 하지 않음
+
+> Instead of imagining that our main task is to instruct a computer what to do, let us concentrate rather on explaining to human beings what we want a computer to do.
+
+assembly language에는 "symbolic reference"가 있음
+- 해당 줄을 직접 명시하는 대신 label를 지정하고 사용할 수 있다
+- declaring a label
+- use a label
 
 
 ```
+@R0  
+D=M  
 
+@POSITIVE  // using a label
+D;JGT
+
+@R1
+M=0  
+@END        // using a label
+0;JMP
+
+(POSITIVE)  // declaring a label
+@R1
+M=1  
+
+(END)
+@END
+0;JMP
+```
+
+실제 label instruction은 ROM에 올라갈 때 무시됨
+- label declaratinos은 translate 되지 않음
+- label reference는 해당 label 다음에 나오는 줄로 변환됨
+
+![image](https://i.imgur.com/mgWAIi2.png)
+
+
+### Variables
+
+variable usage example:
+
+```
+// program: Flip.asm
+// flips the values of
+// RAM[0] and RAM[1]
+
+// temp = R1
+// R1 = R0
+// R0 = temp
+
+@R1    // A, M == RAM[1]
+D=M    // D = RAM[1]
+@temp  // declare variable (M = temp)
+M=D    // temp = R1
+
+@R0    // M == RAM[0]
+D=M    // D = RAM[0]
+@R1    // M = RAM[1]
+M=D    // M (R1) = RAM[0]
+
+@temp  // declare variable (M = temp)
+D=M    // D = temp
+@R0    // M = RAM[0]
+M=D    // M (R0) = temp (R1)
+
+(END)
+@END
+0;JMP
+```
+
+위 machine language가 실제로 ROM에서는 다음과 같이 읽힘. `@temp`가 `@16`이 된 것을 볼 수 있다.
+
+```
+@1
+@D=M
+@16
+M=D
+```
+
+`@temp`의 뜻은?
+- "find some available memory register (say register n), and use it to represent the variable `temp`."
+- 그때무너 프로그램의 `@temp`는 모두 `@n`이 된다.
+
+Contract:
+- 특별한 라벨이 정의되어 있지 않은 symbol은 variable로 간주
+- varibale은 RAM에 16부터 정의됨. 더 많은 varibale이 생기면 17, 18... 로 할당됨
+
+
+### Iteration
+
+example: compute 1 + 2 + ... + n
+
+- pseudocode 먼저 작성
+
+
+```
+// Computes RAM[1] = 1+2+...+RAM[0]
+n = R0
+i = 1
+sum = 0
+LOOP:
+  if i > n goto STOP
+  sum = sum + i
+  i = i + 1
+  goto LOOP
+STOP
+  R1 = sum
+```
+
+이를 machine language로 구현해보면 다음과 같음
+
+```
+// Program: Sum1toN.asm
+// Computes RAM[1] = 1+2+...+n
+// Usage: put a number(n) in RAM[0]
+
+@R0  // M = RAM[0]
+D=M  // D = RAM[0]
+@n   // M = n
+M=D  // n = R0 (RAM[0]
+@i   // M = i
+M=1  // i = 1
+@sum // M = sum
+M=0  // sum = 0
+
+(LOOP)
+@i   // M = i
+D=M  // D = i
+@n   // M = n
+D=D-M // D = D(i) - M(n) = i - n
+@STOP
+D;JGT  // Goto STOP if D > 0 => i-n > 0 => i > n
+
+@sum  // M = sum
+D=M   // D = sum
+@i    // M = i
+D=D+M // D = D(sum) + M(i) =-> sum + i
+@sum  // M = sum
+M=D   // M(sum) = sum + i
+@i    // M = i
+M=M+1 // i = i + 1
+@LOOP
+0;JMP // Goto Loop (unconditionally)
+
+(STOP)
+@sum  // M = sum
+D=M   // D = sum
+@R1   // M = RAM[1]
+M=D   // M(RAM[1]) = sum
+
+(END)
+@END
+0;JMP
+```
+
+이 상태로 ROM에 올리면 각각의 변수 (n, i, sum)는 @16, @17, @18로 정의됨
+
+
+
+Best practice:
+- 1. 코드를 작성할 떄에는 pseudocode로 먼저 작성
+- 2. assembly language로 해당 프로그램 작성
+- 3. 작성한 이후에 종이에 직접 적어보면서 실제로 작동하는지 확인해보는게 좋음 (variable-value trace table)
+
+![image](https://i.imgur.com/ARost52.png)
+
+
+## 4.7 Hack Programming, Part 3
+
+- working with register and memory
+- branching
+- variables
+- iterations
+- pointers
+- input/output
+
+이번 장에서는 pointers, input/output
+
+### Pointers
+
+example.
+
+high level language와는 다른 방식.
+
+machine language에서 array는 그저 해당 영역의 메모리를 나타낼뿐
+
+```
+// for (i=0; i<n; i++) {
+//     arr[i] = -1
+// }
+
+// suppose arr=100, n=10
+
+// arr=100
+@100  // A = 100
+D=A   // D = 100
+@arr  // M = arr
+M=D   // arr=D (100)
+
+// n=10
+@10   // A = 10
+D=A   // D=10
+@n    // M=n
+M=D   // n=10
+
+// initialize i = 0
+@i    // M = i
+M=0   // i = 0
+...
+```
+
+위 코드대로면 RAM[16] = 100, RAM[17] = 10, RAM[18]=0 으로 할당된다.
+(variable을 사용하면 RAM[16]부터 순차적으로 할당되기 때문)
+
+```
+...
+(LOOP)
+//  set termination
+//  if (i==n) goto END
+
+//  RAM[arr+i] = -1
+@arr  // M=arr
+D=M   // D=arr
+@i    // M=i
+A=D+M // A = arr+i
+M=-1  // M = RAM[arr+i] = -1
+
+// i++
+@i    // M=i
+M=M+1 // M=i+1
+
+@LOOP
+0;JMP // unconditionally jump to loop
+
+(END)
+@END
+0;JMP
+```
+
+array를 만들기 위해 arr이 할당된 100 번째 ram부터 순차적으로 넣어줌
+
+`A=D+M`
+- 처음으로 A 레지스터에 직접 할당함
+- D+M은 address를 저장함 (우리가 할당하려고 하는 `RAM[arr+i]`)
+- `A=D+M` 명령어를 실행시키면 이 주소 (arr+i)가 A에 할당됨
+- `M=-1`을 실행시키면 M이 가리키는 A address (RAM[arr+i])를 -1로 만들어준다.
+
+**pointer**
+- memory address를 저장한 변수 (arr, i)를 `pointers`라고 부른다
+- Hack pointer logic: pointer를 사용해서 메모리에 접근할 때마다 `A=M`같은 instruction을 사용
+- "Set the address register to the contents of some memory register"
+
+![image](https://i.imgur.com/hJ1Nhk5.png)
+
+
+### Input/Output
+
+- screen: 16384 th register
+  - 8K bit
+  - base address of the screen memory map
+  - 위 8k register들의 값에 따라서 스크린에 표시 (1/0)
+- keyboard: 24576 th register
+  - address of the keyboard memory map
+  - 실제로 눌러지고 있는 키보드의 값을 해당 레지스터에 등록 (입력값이 없으면 0)
+
+#### example: drawing a rectangle to screen
+
+- 16 pixel wide를 가지고, RAM[0] pixel 길이(height)를 가진 rectangle을 그리는 태스크
+
+rectangle.asm
+
+#### Rectangle drawing: pseudo code
+
+```
+// for (i=0; i<n; i++) {
+//     draw 16 black pixels at the beginning of row i
+// }
+
+// set variables
+addr = SCREEN
+n = RAM[0]
+i = 0
+
+LOOP:
+  if i > n goto END
+  RAM[addr] = -1   // 11111111111111
+  // advances to the next row
+  addr = addr + 32  // 16*32 = 512 (512 pixel), go next line with add 33
+  i = i + 1
+  goto LOOP
+
+END:
+  goto END
+```
+
+
+#### Rectangle drawing: machine language
+
+```
+@R0
+D=M
+@n
+M=D   // n = RAM[0]
+
+@i
+M=0   // i = 0
+
+@SCREEN
+D=A
+@addres
+M=D   // address = 16384 (base address of the Hack screen)
+
+(LOOP)  // if i>n goto END
+@i    // M = i
+D=M   // D = i
+@n    // M = n
+D=D-M // D = i-n
+D;JGT // if D > 0 -> i-n > 0 -> i > n goto END
+
+@addr // M = addr
+A=M   // M = RAM[addr]
+M=-1  // M = RAM[addr] = -1 = 11111111111111
+
+@i    // M = i
+M=M+1 // i = i + 1
+@32   // A = 32
+D=A   // D = 32
+@addr // M = addr
+M=D+M // addr = 32 + addr : next line
+@LOOP
+0;JMP // unconditionally goto LOOP
+
+(END)
+@END
+0;JMP
+```
+
+#### Working with the keyboard
+
+
+keyboard가 눌러지면 해당 키의 "scan code"가 할당된 keyboard memory register (24576)에 할당된다.
+
+키보드가 현재 눌러져있는지 확인하려면
+- Read the content of RAM[24576] (address `KBD`)
+- register가 0이라면 키가 눌러지지 않음
+- 0이 아니라면 레지스터에 들어있는 값이 현재 눌러지고 있는 key의 scan code
+
+"Simple people are impressed by sophisticated things, and sophisticated people are impressed by somple things."
+
+
+### 4.9. Project 4 Overview
+
+project objectives
+- low level programming
+- Hack assembly language
+- Hack hardware
+
+Tasks:
+- Write a simple algebraic program
+- Write a simple interactive program
+
+
+#### 1. Mult: a program performming `R2 = R0 * R1`
+
+`RAM[0] * RAM[1]`의 값을 `RAM[2]`에 저장하는 프로그램
+
+hint
+- 곱하기가 제공되지 않기 때문에 더하기, 빼기 등 사용
+- loop 사용
+
+#### 2. a simple interactive program
+
+- interaction with keyboard
+- key가 눌러지면 black screen이 됨
+- key가 떼지면 다시 white screen
+
+2 seperated challenge
+- keyboard가 눌러졌는지 아닌지
+- screen을 키고 끄는것
+
+Implementation strategy
+- listen to the keyboard
+- To blaken/clear the screen, write code that fills the entire screen memory map
+- Addressing the memory requires working with pointers
+
+
+#### Program development process
+
+- write/edit the program: `Prog.asm`
+- Load program into CPU Emulator and run it
+
+#### Best practice
+
+Well-written low-level code is:
+- Short
+- Efficient
+- Elegant
+- Self-describing
+
+Technical tips:
+- Use symbolic variables and labels
+- Use sensible variable and label names
+- Variables: lower-case (convention)
+- Labels: upper-case (convention)
+- Use indentation
+- Start with pseudo code
