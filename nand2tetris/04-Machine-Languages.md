@@ -959,7 +959,7 @@ M=0   // i = 0
 
 @SCREEN
 D=A
-@addres
+@addr
 M=D   // address = 16384 (base address of the Hack screen)
 
 (LOOP)  // if i>n goto END
@@ -1056,3 +1056,162 @@ Technical tips:
 - Labels: upper-case (convention)
 - Use indentation
 - Start with pseudo code
+
+
+아래는 작성한 코드이다
+
+`mult.asm`
+
+```
+// pseudo code
+// // set variable
+// a = RAM[0]
+// b = RAM[1]
+// c = RAM[2]
+// i = 0
+// sum = 0
+// 
+// LOOP:  // a + a + .. + a -> b times
+//     if i >= b goto END
+//     sum = sum + a
+//     i = i + 1
+//     c = sum
+//     goto LOOP
+// 
+// END:
+//     goto END
+
+@R0   // M = RAM[0]
+D=M   // a = RAM[0]
+@a    // M = a
+M=D   // a = RAM[0]
+
+@R1   // M = RAM[1]
+D=M   // b = RAM[1]
+@b    // M = b
+M=D   // b = RAM[1]
+
+@i   // M = i
+M=0  // i = 0
+@sum // M = sum
+M=0  // sum = 0
+
+(LOOP)
+    // if i >= b goto END
+    // i >= b -> i-b >= 0
+    @b    // M = b
+    D=M   // D = b
+    @i    // M = i
+    D=M-D // D=i-b
+    @END
+    D;JGE // if i - b > 0 goto END
+
+    // i = i + 1
+    @i     // M = i
+    M=M+1  // i = i + 1
+
+    // sum = sum + a
+    @a    // M = a
+    D=M   // D = a
+    @sum  // M = sum
+    M=M+D // sum = sum + a
+
+    // RAM[2] = sum
+    D=M   // D = sum
+    @R2   // M = RAM[2]
+    M=D   // RAM[2] = sum
+
+    // unconditionally goto LOOP
+    @LOOP
+    0;JMP
+
+(END)
+@END
+0;JMP
+```
+
+`fill.asm`
+
+```
+// pseudo code
+// (RESET)
+// addr = SCREEN
+// kbd = KBD
+// 
+// (KBDCHECK)
+// if kbd > 0 goto BLACK
+// if kbd == 0 goto WHITE
+// 
+// WHITE:
+//     filled = 0
+//     goto CHANGE
+// 
+// BLACK:
+//     filled = -1
+//     goto CHANGE
+// 
+// CHANGE:
+//     addr = filled
+//     addr = addr + 1
+//     d = kbd - screen
+// 
+//     if d = 0 goto RESET
+//     goto CHANGE
+
+(RESET)
+    @SCREEN       // M = screen (RAM[16384]), A = 16384
+    D=A           // D = 16384
+    @screen_count // M = screen_count
+    M=D           // screen_count = 16384
+
+
+(KBC_CHECK)
+    @KBD          // M = KBD (RAM[24576]), A = 24576
+    D=M           // D = KBD
+    @BLACK
+    D;JGT         // if KBD > 0 goto BLACK
+    @WHITE
+    D;JEQ         // if KBD == 0 goto WHITE
+
+    @KBD_CHECK
+    0;JMP         // infinitly check keyboard
+
+
+(BLACK)
+    @filled       // M = filled
+    M=-1          // filled = -1
+    @CHANGE_SCREEN
+    0;JMP         // unconditionally goto CHANGE_SCREEN
+
+
+(WHITE)
+    @filled       // M = filled
+    M=0           // filled = 0
+    @CHANGE_SCREEN
+    0;JMP         // unconditionally goto CHANGE_SCREEN
+
+
+(CHANGE_SCREEN)
+    @filled       // M = filled
+    D=M           // D = filled (-1 for BLACK, 0 for WHITE)
+
+    @screen_count // M = screen_count, A = 16384 (address)
+    A=M           // A =16384 (이게 필요한지 테스트)
+    M=D           // RAM[16384] = filled (-1 or 0)
+
+    @screen_count // M = screen_count (RAM[0])
+    D=M+1         // D = 16384 + 1
+
+    @KBD          // A = 24576
+    D=A-D         // D = 24576 - (16384 + 0)
+                  // D = 8191, 8190, 8189, ... 0
+
+    @screen_count // M = screen_count
+    M=M+1         // M = RAM[0] + 1 = 16384 + 1
+
+    @RESET        // if D == 0 goto RESET
+    D;JEQ
+
+    @CHANGE_SCREEN       // unconditionally LOOP in CHANGE
+    0;JMP
+```
