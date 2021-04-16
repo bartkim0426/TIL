@@ -1318,6 +1318,7 @@ RDS for MySQL 인스턴스가 읽기 요청으로 인해 리소스 고갈과 관
 > 사용자 증가, rds 단일 인스턴스, 읽기 요청으로 경보, 서비스 중단 방지
 
 a/a
+- EMR: 빅데이터 플랫폼 - https://aws.amazon.com/ko/emr/?whats-new-cards.sort-by=item.additionalFields.postDateTime&whats-new-cards.sort-order=desc
 
 ### 84. :white_check_mark:
 
