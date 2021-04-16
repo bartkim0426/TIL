@@ -1145,4 +1145,196 @@ a
 
 a/d
 
+### 73. :white_check_mark:
 
+솔루션 아키텍트는 시장이 닫혀있는 동안 금융 시장의 성과를 분석하는 시스템을 설계하고 있습니다. 시스템은 매일 밤 4 시간 동안 일련의 컴퓨팅 집약적 인 작업을 실행합니다. 컴퓨팅 작업을 완료하는 데 걸리는 시간은 일정하게 유지 될 것으로 예상되며 일단 시작되면 작업을 중단 할 수 없습니다. 완료되면 시스템은 최소 1 년 동안 실행될 것으로 예상됩니다.
+시스템 비용을 줄이기 위해 어떤 유형의 Amazon EC2 인스턴스를 사용해야합니까?
+
+- A. 스팟 인스턴스
+- B. 온 디맨드 인스턴스
+- C. 표준 예약 인스턴스
+- D. 예약 된 예약 인스턴스
+
+> 매일 밤 4시간, 최소 1년
+
+d/d
+
+### 74. :x:
+
+한 회사가 사용자 데이터를 캡처하고 향후 분석을 위해 저장하는 음식 주문 애플리케이션을 구축했습니다. 애플리케이션의 정적 프런트 엔드는 Amazon
+EC2 인스턴스 에 배포됩니다 . 프런트 엔드 애플리케이션은 별도의 EC2 인스턴스에서 실행되는 백엔드 애플리케이션에 요청을 보냅니다. 그런 다음 백엔드 애플리케이션은 Amazon RDS에 데이터를 저장합니다.
+솔루션 아키텍트는 아키텍처를 분리하고 확장 가능하게 만들기 위해 무엇을해야합니까?
+
+- A. Amazon S3를 사용하여 백엔드 애플리케이션을 실행하기 위해 Amazon EC2에 요청을 보내는 프런트 엔드 애플리케이션을 제공합니다. 백엔드 애플리케이션은 Amazon RDS에서 데이터를 처리하고 저장합니다.
+- B. Amazon S3를 사용하여 프런트 엔드 애플리케이션을 제공하고 Amazon Simple Notification Service (Amazon SNS) 주제에 요청을 작성합니다. 주제의 HTTP / HTTPS 엔드 포인트에 Amazon EC2 인스턴스를 구독하고 Amazon RDS에서 데이터를 처리 및 저장합니다.
+- C. EC2 인스턴스를 사용하여 프런트 엔드를 제공하고 Amazon SQS 대기열에 요청을 작성합니다. 백엔드 인스턴스를 Auto Scaling 그룹에 배치하고 대기열 깊이에 따라 조정하여 Amazon RDS에서 데이터를 처리하고 저장합니다.
+- D. Amazon S3를 사용하여 정적 프런트 엔드 애플리케이션을 제공하고 Amazon API Gateway에 요청을 보내면 요청이 Amazon SQS 대기열에 기록됩니다. 백엔드 인스턴스를 Auto Scaling 그룹에 배치하고 대기열 깊이에 따라 조정하여 Amazon RDS에서 데이터를 처리하고 저장합니다.
+
+> static frontend, ec2, rds, scalable
+
+a/d
+- scalable 하게 만드려면 d가 맞음
+
+### 75. :warning:
+
+솔루션 아키텍트는 고성능 기계 학습을 포함하는 회사의 애플리케이션을위한 관리 형 스토리지 솔루션을 설계해야합니다. 이 애플리케이션은 AWS Fargate에서 실행되며 연결된 스토리지는 파일에 동시에 액세스하고 고성능을 제공해야합니다.
+솔루션 설계자가 권장해야하는 스토리지 옵션은 무엇입니까?
+
+- A. 애플리케이션에 대한 Amazon S3 버킷을 생성하고 Fargate가 Amazon S3와 통신 할 수 있도록 IAM 역할을 설정합니다.
+- B. Lustre 용 Amazon FSx 파일 공유를 생성하고 Fargate가 Lustre 용 FSx와 통신 할 수 있도록하는 IAM 역할을 설정합니다.
+- C. Amazon Elastic File System (Amazon EFS) 파일 공유를 생성하고 Fargate가 Amazon EFS와 통신 할 수 있도록하는 IAM 역할을 설정합니다.
+- D. 애플리케이션에 대한 Amazon Elastic Block Store (Amazon EBS) 볼륨을 생성하고 Fargate가 Amazon EBS와 통신 할 수 있도록하는 IAM 역할을 설정합니다.
+
+> 고성능 기계학습, Fargate, storage - concurrent access, high performance
+
+b/b
+- b,c 논란이 있음
+- c: Fargate는 EFS와만 동작한다는 말이 있음
+
+
+###  76. :white_check_mark:
+
+자전거 공유 회사는 피크 운영 시간에 자전거의 위치를 추적하기 위해 다 계층 아키텍처를 개발하고 있습니다. 이 회사는 기존 분석 플랫폼에서 이러한 데이터 포인트를 사용하려고합니다. 솔루션 아키텍트는이 아키텍처를 지원하기 위해 가장 실행 가능한 다중 계층 옵션을 결정해야합니다. REST API에서 데이터 포인트에 액세스 할 수 있어야합니다.
+위치 데이터 저장 및 검색에 대한 이러한 요구 사항을 충족하는 작업은 무엇입니까?
+
+- A. Amazon S3와 함께 Amazon Athena를 사용합니다.
+- B. AWS Lambda와 함께 Amazon API Gateway를 사용합니다.
+- C. Amazon Redshift와 함께 Amazon QuickSight를 사용합니다.
+- D. Amazon Kinesis Data Analytics와 함께 Amazon API Gateway를 사용합니다.
+
+> 분석 플랫폼, rest api, 저장 및 검색
+
+d/d
+- a라는 의견도 많음: s3 -> athena
+
+### 77. :warning:
+
+솔루션 아키텍트는 ALB (Application Load Balancer) 뒤의 Amazon EC2 인스턴스에서 실행될 웹 애플리케이션을 설계하고 있습니다. 회사는 애플리케이션이 악의적 인 인터넷 활동 및 공격에 대해 복원력이 있고 새로운 일반적인 취약성과 노출로부터 보호 할 것을 엄격히 요구합니다.
+솔루션 아키텍트는 무엇을 권장해야합니까?
+
+- A. ALB 엔드 포인트를 오리진으로 사용하여 Amazon CloudFront를 활용합니다.
+- B. AWS WAF에 대한 적절한 관리 형 규칙을 배포하고 ALB와 연결합니다.
+- C. AWS Shield Advanced를 구독하고 일반적인 취약성과 노출이 차단되었는지 확인합니다.
+- D. 포트 80 및 443 만 EC2 인스턴스에 액세스 할 수 있도록 네트워크 ACL 및 보안 그룹을 구성합니다.
+
+> ALB, vulnerability
+
+b/b
+- 방화벽 설정해주는 b가 가장 적절 (Web Application Firewall)
+- c라는 의견도 있음: AWS Shield Advanced 에서는 WAF가 포함된다고 함
+  - Shield + WAF
+
+
+### 78.  :white_check_mark:
+
+회사에 AWS Lambda 함수를 호출하는 애플리케이션이 있습니다. 최근 코드 검토에서 소스 코드에 저장된 데이터베이스 자격 증명을 찾았습니다. Lambda 소스 코드에서 데이터베이스 자격 증명을 제거해야합니다. 그런 다음 보안 정책 요구 사항을 충족하기 위해 자격 증명을 안전하게 저장하고 지속적으로 교체해야합니다.
+솔루션 설계자는 이러한 요구 사항을 충족하기 위해 무엇을 권장해야합니까?
+
+- A. AWS CloudHSM에 암호를 저장합니다. Lambda 함수를 해당 키 ID가 지정된 CloudHSM에서 암호를 검색 할 수있는 역할과 연결합니다.
+- B. AWS Secrets Manager에 암호를 저장합니다. Lambda 함수를 암호 ID가 지정된 Secrets Manager에서 암호를 검색 할 수있는 역할과 연결합니다.
+- C. 데이터베이스 암호를 Lambda 함수와 연결된 환경 변수로 이동합니다. 실행시 환경 변수에서 암호를 검색합니다.
+- D. AWS Key Management Service (AWS KMS)에 암호를 저장합니다. Lambda 함수를 키 ID가 지정된 AWS KMS에서 암호를 검색 할 수있는 역할과 연결합니다.
+
+> lambda, db 자격증명 제거 -> 저장 및 교체
+
+b/b
+
+### 79. :white_check_mark:
+
+한 회사가 온 프레미스에서 건강 기록을 관리하고 있습니다. 회사는 이러한 기록을 무기한 보관하고, 저장된 기록에 대한 수정을 비활성화하고, 모든 수준에서 액세스를 세부적으로 감사해야합니다. CTO (최고 기술 책임자)는 이미 애플리케이션에서 사용하지 않는 수백만 개의 레코드가 있고 현재 인프라의 공간이 부족하기 때문에 우려합니다. CTO는 솔루션 설계자에게 기존 데이터를 이동하고 향후 기록을 지원하는 솔루션을 설계하도록 요청했습니다.
+솔루션 아키텍트는 이러한 요구 사항을 충족하기 위해 어떤 서비스를 권장 할 수 있습니까?
+
+- A. AWS DataSync를 사용하여 기존 데이터를 AWS로 이동합니다. Amazon S3를 사용하여 기존 데이터와 새 데이터를 저장합니다. Amazon S3 객체 잠금을 활성화하고 데이터 이벤트로 AWS CloudTrail을 활성화합니다.
+- B. AWS Storage Gateway를 사용하여 기존 데이터를 AWS로 이동합니다. Amazon S3를 사용하여 기존 데이터와 새 데이터를 저장합니다. Amazon S3 객체 잠금을 활성화하고 관리 이벤트로 AWS CloudTrail을 활성화합니다.
+- C. AWS DataSync를 사용하여 기존 데이터를 AWS로 이동합니다. Amazon S3를 사용하여 기존 데이터와 새 데이터를 저장합니다. Amazon S3 객체 잠금을 활성화하고 관리 이벤트로 AWS CloudTrail을 활성화합니다.
+- D. AWS Storage Gateway를 사용하여 기존 데이터를 AWS로 이동합니다. Amazon Elastic Block Store (Amazon EBS)를 사용하여 기존 데이터와 새 데이터를 저장합니다. Amazon S3 객체 잠금을 활성화하고 Amazon S3 서버 액세스 로깅을 활성화합니다.
+
+> onpremise, 이동 / 보관 / 수정 비활성화 / 액세스 감사
+
+
+a/a
+- storage gateway vs datasync -> datasync
+- s3 vs ebs -> s3
+- cloudtrail: management event vs data event -> data event
+
+### 80. :white_check_mark:
+
+한 회사에서 온 프레미스 데이터 세트의 보조 복사본에 Amazon S3를 사용하려고합니다. 회사는이 사본에 거의 액세스 할 필요가 없습니다. 스토리지 솔루션의 비용은 최소화되어야합니다.
+이러한 요구 사항을 충족하는 스토리지 솔루션은 무엇입니까?
+
+- A. S3 표준
+- B. S3 지능형 계층화
+- C. S3 Standard-Infrequent Access (S3 Standard-IA)
+- D. S3 One Zone-Infrequent Access (S3 One Zone-IA)
+
+> replica, S3, access 안함, 비용 최소화
+
+d/d
+- 가장 저렴한 d
+
+
+### 81. :x:
+
+
+회사의 운영 팀에는 버킷 내에 새 객체가 생성 될 때 Amazon SQS 대기열에 알리도록 구성된 기존 Amazon S3 버킷이 있습니다. 개발 팀은 또한 새 개체가 생성 될 때 이벤트를 받기를 원합니다. 기존 운영 팀 워크 플로는 그대로 유지되어야합니다.
+이러한 요구 사항을 충족하는 솔루션은 무엇입니까?
+
+- A. 다른 SQS 대기열을 만듭니다. 새 객체가 생성 될 때 새 대기열도 업데이트하도록 버킷의 S3 이벤트를 업데이트합니다.
+- B. Amazon S3 만 대기열에 액세스 할 수 있도록 허용하는 새 SQS 대기열을 생성합니다. 새 객체가 생성 될 때이 대기열을 업데이트하도록 Amazon S3를 업데이트합니다.
+- C. 버킷 업데이트를위한 Amazon SNS 주제 및 SQS 대기열을 생성합니다. 새 주제에 이벤트를 보내도록 버킷을 업데이트하십시오. Amazon SNS를 폴링하도록 두 대기열을 모두 업데이트합니다.
+- D. 버킷 업데이트를위한 Amazon SNS 주제 및 SQS 대기열을 생성합니다. 새 주제에 이벤트를 보내도록 버킷을 업데이트하십시오. 주제의 두 큐에 대한 구독을 추가하십시오.
+
+> 객체 생성시 S3 -> SQS. 이벤트를 받기 원함
+
+c/d
+- c도 가능하겠지만 기존 운영팀 워크플로우가 변경됨
+
+### 82. :x:
+애플리케이션은 프라이빗 서브넷의 Amazon EC2 인스턴스에서 실행됩니다. 애플리케이션은 Amazon DynamoDB 테이블에 액세스해야합니다. 트래픽이 AWS 네트워크를 벗어나지 않도록 보장하면서 테이블에 액세스하는 가장 안전한 방법은 무엇입니까?
+- A. DynamoDB 용 VPC 엔드 포인트를 사용합니다.
+- B. 퍼블릭 서브넷에서 NAT 게이트웨이를 사용합니다.
+- C. 프라이빗 서브넷에서 NAT 인스턴스를 사용합니다.
+- D. VPC에 연결된 인터넷 게이트웨이를 사용합니다.
+
+ > private subnet, dynamoDB, aws network를 벗어나지 않도록 보장
+
+c/a
+- NAT는 퍼블릭 서브넷에 있어야됨
+- 인터넷이 없어야되려면 VPC endpoint
+
+### 83. :white_check_mark:
+한 회사는 사용자가 방문한 장소를 체크인하고 장소의 순위를 매기고 경험에 대한 리뷰를 추가 할 수있는 애플리케이션을 구축했습니다. 이 응용 프로그램은 매달 사용자 수가 급격히 증가하면서 성공적입니다.
+CTO는 단일 Amazon
+RDS for MySQL 인스턴스가 읽기 요청으로 인해 리소스 고갈과 관련된 경보를 트리거 했기 때문에 현재 인프라를 지원하는 데이터베이스가 다음 달에 새로운로드를 처리하지 못할 수 있다고 우려 합니다.
+솔루션 아키텍트는 최소한의 코드 변경으로 데이터베이스 계층에서 서비스 중단을 방지하기 위해 무엇을 권장 할 수 있습니까?
+- A. RDS 읽기 전용 복제본을 생성하고 읽기 전용 트래픽을 읽기 전용 복제본 엔드 포인트로 리디렉션합니다. 다중 AZ 배포를 활성화합니다.
+- B. Amazon EMR 클러스터를 생성하고 복제 요소가 3 인 HDFS (Hadoop Distributed File System)로 데이터를 마이그레이션합니다.
+- C. Amazon ElastiCache 클러스터를 생성하고 모든 읽기 전용 트래픽을 클러스터로 리디렉션합니다. 3 개의 가용 영역에 배포 할 클러스터를 설정합니다.
+- D. Amazon DynamoDB 테이블을 생성하여 RDS 인스턴스를 교체하고 모든 읽기 전용 트래픽을 DynamoDB 테이블로 리디렉션합니다. DynamoDB Accelerator를 활성화하여 기본 테이블에서 트래픽을 오프로드합니다.
+
+> 사용자 증가, rds 단일 인스턴스, 읽기 요청으로 경보, 서비스 중단 방지
+
+a/a
+
+### 84. :white_check_mark:
+
+한 회사가 오래된 뉴스 영상에서 AWS에 비디오 아카이브를 저장할 수있는 솔루션을 찾고 있습니다. 회사는 비용을 최소화해야하며 이러한 파일을 거의 복원 할 필요가 없습니다. 파일이 필요한 경우 최대 5 분 내에 사용할 수 있어야합니다.
+가장 비용 효율적인 솔루션은 무엇입니까?
+- A. Amazon S3 Glacier에 비디오 아카이브를 저장하고 신속 검색을 사용합니다.
+- B. Amazon S3 Glacier에 비디오 아카이브를 저장하고 표준 검색을 사용합니다.
+- C. Amazon S3 Standard-Infrequent Access (S3 Standard-IA)에 비디오 아카이브를 저장합니다.
+- D. Amazon S3 One Zone-Infrequent Access (S3 One Zone-IA)에 비디오 아카이브를 저장합니다.
+
+> 비디오 아카이브 저장, 복원 필요 없음, 비용 최소화, 최대 5분 이내 사용
+
+a/a
+
+### 85.
+한 회사에서 여러 가용 영역 (AZ)에 여러 프라이빗 서브넷이 있고 AZ 중 하나에 하나의 퍼블릭 서브넷이있는 VPC를 생성했습니다. 퍼블릭 서브넷은 NAT 게이트웨이를 시작하는 데 사용됩니다. NAT 게이트웨이를 사용하여 인터넷에 연결하는 프라이빗 서브넷에는 인스턴스가 있습니다. AZ 오류가 발생한 경우 회사는 인스턴스에 모두 인터넷 연결 문제가 발생하지 않고 백업 계획이 준비되어 있는지 확인하려고합니다.
+솔루션 설계자가 가장 가용성이 높은 솔루션을 권장해야합니까?
+- A. 동일한 AZ에 NAT 게이트웨이가있는 새 퍼블릭 서브넷을 생성합니다. 두 NAT 게이트웨이간에 트래픽을 분산합니다.
+- B. 새 퍼블릭 서브넷에 Amazon EC2 NAT 인스턴스를 생성합니다. NAT 게이트웨이와 NAT 인스턴스간에 트래픽을 분산합니다.
+- C. 각 AZ에서 퍼블릭 서브넷을 생성하고 각 서브넷에서 NAT 게이트웨이를 시작합니다. 각 AZ의 프라이빗 서브넷에서 각 NAT 게이트웨이로의 트래픽을 구성합니다.
+- D. 동일한 퍼블릭 서브넷에 Amazon EC2 NAT 인스턴스를 생성합니다. NAT 게이트웨이를 NAT 인스턴스로 교체하고 적절한 조정 정책을 사용하여 인스턴스를 Auto Scaling 그룹에 연결합니다.
+
+> multi-AZ private subnet, public subnet in one az -> NAT, 

@@ -1196,7 +1196,7 @@ M=0  // sum = 0
     D=M           // D = filled (-1 for BLACK, 0 for WHITE)
 
     @screen_count // M = screen_count, A = 16384 (address)
-    A=M           // A =16384 (이게 필요한지 테스트)
+    A=M           // A =16384
     M=D           // RAM[16384] = filled (-1 or 0)
 
     @screen_count // M = screen_count (RAM[0])
