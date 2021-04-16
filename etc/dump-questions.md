@@ -1288,6 +1288,7 @@ d/d
 
 c/d
 - c도 가능하겠지만 기존 운영팀 워크플로우가 변경됨
+- 일반적인 fanout event: https://aws.amazon.com/ko/getting-started/hands-on/send-fanout-event-notifications/
 
 ### 82. :x:
 애플리케이션은 프라이빗 서브넷의 Amazon EC2 인스턴스에서 실행됩니다. 애플리케이션은 Amazon DynamoDB 테이블에 액세스해야합니다. 트래픽이 AWS 네트워크를 벗어나지 않도록 보장하면서 테이블에 액세스하는 가장 안전한 방법은 무엇입니까?
