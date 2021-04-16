@@ -1301,6 +1301,7 @@ c/d
 
 c/a
 - NAT는 퍼블릭 서브넷에 있어야됨
+  - Network Address Translation
 - 인터넷이 없어야되려면 VPC endpoint
 
 ### 83. :white_check_mark:
