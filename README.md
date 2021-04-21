@@ -10,6 +10,7 @@
 - [Implementation](./algorithm/Implementation.md)
 - [search](./algorithm/search.md)
 - [dynamic algorithm](./algorithm/dynamic-algorithm.md)
+- [dijkstra algorithm](./algorithm/dijkstra-algorithm.md)
 
 - [pramp](./algorithm/pramp.md)
 
@@ -24,6 +25,7 @@
 - [kubernetes the hard way](./kubernetes/kubernetes-the-hard-way.md)
 - [troubleshooting kubernetes](./kubernetes/troubleshooting-kubernetes.md)
 - [deploy eks in codepieline](./kubernetes/deploy-eks-in-codepieline.md)
+- [ ] [debug crashLoopBackOff pods trick](./kubernetes/debug-crashLoopBackOff-pods-trick.md)
 
 ## Docker
 
@@ -83,6 +85,7 @@
 - [count files in linux](./linux/count-files-in-linux.md)
 - [turn off swap memory](./linux/turn-off-swap-memory.md)
 - [maximum limits in os](./linux/maximum-limits-in-os.md)
+- [ ] [create shell script to remove all pyenv versions](./linux/create-shell-script-to-remove-all-pyenv-versions.md)
 
 ## ML
 
