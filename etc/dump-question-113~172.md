@@ -165,6 +165,30 @@ a/a
 ### 150.:warning:
 a/a
 
+### 151.:x:
+
+DX: Direct connect
+
+### 152. :white_check_mark:
+b/b
+
+### 153.:white_check_mark:
+d
+### 154.:white_check_mark:
+b
+### 155.:white_check_mark:
+a
+### 156.:white_check_mark:
+a
+### 157.:x:
+b/c
+### 158.:white_check_mark:
+b
+### 159.:white_check_mark:
+a,c
+### 160.:white_check_mark:
+b
+
 ### 161. :x:
 
 
