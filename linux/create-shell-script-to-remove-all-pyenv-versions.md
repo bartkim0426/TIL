@@ -65,4 +65,8 @@ So the file will be only contains specific versions want to delete. like below.
 
 Then, let's create simple script.
 
-### 
+### Script
+
+```
+
+```

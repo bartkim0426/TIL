@@ -11,6 +11,7 @@
 - [search](./algorithm/search.md)
 - [dynamic algorithm](./algorithm/dynamic-algorithm.md)
 - [dijkstra algorithm](./algorithm/dijkstra-algorithm.md)
+- [서로소 집합](./algorithm/서로소-집합.md)
 
 - [pramp](./algorithm/pramp.md)
 
@@ -26,6 +27,7 @@
 - [troubleshooting kubernetes](./kubernetes/troubleshooting-kubernetes.md)
 - [deploy eks in codepieline](./kubernetes/deploy-eks-in-codepieline.md)
 - [ ] [debug crashLoopBackOff pods trick](./kubernetes/debug-crashLoopBackOff-pods-trick.md)
+- [ ] [eks workshop](./kubernetes/eks-workshop.md)
 
 ## Docker
 
@@ -59,6 +61,7 @@
 
 ## Django
 - [ ] [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
+- [ ] [deploy django in elastic beanstalk](./django/deploy-django-in-elastic-beanstalk.md)
 
 ## Vim
 
@@ -86,6 +89,8 @@
 - [turn off swap memory](./linux/turn-off-swap-memory.md)
 - [maximum limits in os](./linux/maximum-limits-in-os.md)
 - [ ] [create shell script to remove all pyenv versions](./linux/create-shell-script-to-remove-all-pyenv-versions.md)
+- [ ] [linux seminar about container](./linux/linux-seminar-about-container.md)
+- [ ] [jq command to pipeline json](./linux/jq-command-to-pipeline-json.md)
 
 ## ML
 
@@ -95,6 +100,10 @@
 
 ## Javscript
 - [typescript basics](./javascript/typescript-basics.md)
+
+## React
+- [ ] [react infinite scroll](./react/react-infinite-scroll.md)
+- [ ] chat-application-with-react-and-socket-io
 
 ## etc
 
@@ -109,6 +118,7 @@
 - [aws cdk for deploy](./etc/aws-cdk-for-deploy.md)
 - [ ] [collapsible section in github markdown](./etc/collapsible-section-in-github-markdown.md)
 - [ ] [aws cdk multiple environment with context](./etc/aws-cdk-multiple-environment-with-context.md)
+- [ ] [mac xcrun error after update mac version](./etc/mac-xcrun-error-after-update-mac-version.md)
 
 ## nand2tetris
 - [nand2tetris project](./nand2tetris/nand2tetris.md)

@@ -6,4 +6,6 @@ course from learning-oreilly
 
 ## 2. [ubiquitous lists](../python/ubiquitous-lists.md)
 
-## 
+## 3. [Pointer Structures](../python/Pointer-Structures.md)
+
+## 4. [Recursive structures](../python/Recursive-Structures.md)

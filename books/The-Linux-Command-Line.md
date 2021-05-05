@@ -2398,3 +2398,618 @@ find playground \
 ```
 
 백슬래쉬 (`\`)를 사용한 줄바꿈과 indentation을 써서 더 읽기 좋아진 것을 볼 수 있다.
+
+## 25. Starting a project
+
+해당 챕터에서는 실제 프로그램을 만들어봄. 
+
+report generator: system과 status에 대한 다양한 통계를 HTML 포맷으로 생성해주는 프로그램
+
+
+### First stage: minimul document
+
+```
+<html>
+      <head>
+            <title>Page Title</title>
+      </head>
+      <body>
+            Page body.
+      </body>
+</html>
+```
+
+간단한 html을 만들어보자. (`foo.html`) 이 파일의 경로를 입력하면 firefox나 chrome 등의 브라우저에서 열 수 있다. (`file://hoem/username/<path_to>/foo.html`)
+
+프로그램의 첫번째 스테이지는 standard output으로 이 HTML 파일을 보내게 하는 것이다. `~/bin/sys_info_page`라는 파일을 만들고 수정해보자.
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+echo "<html>"
+echo "     <head>"
+echo "          <title>Page Title</title>"
+echo "     </head>"
+echo "     <body>"
+echo "          Page body."
+echo "     </body>"
+echo "</html>"
+```
+
+
+이를 실행할 수 있게 만들고 실행해보자.
+
+```
+$ chmod 755 sys_info_page
+$ sys_info_page
+<html>
+     <head>
+          <title>Page Title</title>
+     </head>
+     <body>
+          Page body.
+     </body>
+</html>
+```
+
+이를 html 파일로 만들어서 실행시켜보자.
+
+```
+$ sys_info_page > sys_info_page.html
+$ firefox sys_info_page.html
+```
+
+> mac OS X의 경우에는 `open` 커맨드를 사용해서 열 수 있다. `open -a "Google Chrome" sys_info_page.html`
+
+
+프로그램을 만들 때에는 간단한고 명료하게 만드는 것이 좋다.
+
+지금 프로그램은 잘 작동하지만 더 심플하게 만들 수 있다.
+
+여러 `echo` 명령어를 하나로 만들어서 더 간단하게 해보자.
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+echo "<html>
+     <head>
+          <title>Page Title</title>
+     </head>
+     <body>
+          Page body.
+     </body>
+</html>"
+```
+
+quoted string은 newline을 포함할 수 있기 때문에 여러 줄을 넣을 수 있다. 이는 cli에서도 마찬가지로 작동한다.
+
+```
+$ echo "<html>
+dquote> <head>
+dquote>     <title>test title</title>
+dquote> </head>
+dquote> </html>"
+
+<html>
+<head>
+    <title>test title</title>
+</head>
+</html>
+```
+
+### Second stage: Adding a little data
+
+현재 우리의 프로그램은 간단한 document를 생성해준다. 이 리포트에 데이터를 넣어보자.
+
+이를 위해서 일단 각 데이터의 제목을 추가해준다.
+
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+echo "<html>
+        <head>
+            <title>System Information Report</title>
+        </head>
+        <body>
+            <h1>System Information Report</h1>
+        </body>
+</html>"
+```
+
+#### Variables and constants
+
+위에서 `System Information Report` 텍스트가 반복되고 있다. 이를 변수로 젖아하면 이후에 스크립트를 관리하고 유지보수하는데 훨씬 수월해 질 것이다.
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+title="System Information Report"
+
+echo "<html>
+        <head>
+            <title>$title</title>
+        </head>
+        <body>
+            <h1>$title</h1>
+        </body>
+</html>"
+```
+
+그럼 shell에서는 어떻게 변수가 만들어질까?
+
+shell에서는 다른 프로그래밍 언어들과 다르게 변수를 만나면 즉시 이를 생성한다. 다른 프로그래밍 언어에서는 변수가 사용되기 전에 명시적으로 정의되어야 하는것과는 다르다.
+
+이 때문에 몇몇 문제가 발생할 수 있다. 아래 예시를 살펴보자.
+
+```
+$ foo="yes"
+$ echo $foo
+yes
+$ echo $fool
+
+```
+
+`foo`라는 변수에 "yes"라는 값을 할당했기 때문에 이후 `echo $foo`는 잘 작동한다. 하지만 이후에 `echo $fool`은 에러가 나지 않고 아무 값도 반환하지 않는다.
+
+그렇기 때문에 shell에서 변수를 사용할 떄에는 스펠링이나 오타에 주의하여야 한다.
+
+
+variable 이름은 몇몇 규칙이 있다.
+- alphanumeric + underscore
+- 첫글자는 문자열이나 underscore
+
+variable은 이름에서도 알 수 있듯이 변하는 값을 의미한다. 하지만 위에서 우리가 정의한 `title`은 constant로 사용된다.
+
+constant는 variable과 비슷하게 이름과 value를 가진다. 하지만 constant는 변하지 않는다.
+
+shell에서는 variable과 constant의 구분이 없이 사용되기 때문에 constant는 UPPER case (대문자)로, variable은 lower case (소문자)로 사용하는 것이 컨벤션이다. 이를 적용해서 수정해보자.
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+TITLE="System Information Report For $HOSTNAME"
+
+echo "<html>
+        <head>
+            <title>$TITLE</title>
+        </head>
+        <body>
+            <h1>$TITLE</h1>
+        </body>
+</html>"
+```
+
+> shell에서는 `-r` flag와 함께 `declare` 구문을 사용하여 immutable constant를 생성하는 문법을 제공하기는 한다. 하지만 이는 거의 사용되지 않는다. `declare -r TITLE="Page Title"`
+
+#### Assigning values to variables and constants
+
+지금까지는 아래와 같은 방식으로 변수를 정의했다.
+
+```
+variable=value
+```
+
+다른 프로그래밍 언어들과는 다르게 shell은 할당된 데이터타입은 신경쓰지 않는다.
+
+> `-i` 옵션과 함께 사용되어 integer type으로 강제할 수 있지만 `-r` 옵션처럼 거의 쓰이지 않는다.
+
+변수에 whitespace나 equal sign 등을 허용하지 않기 때문이 이를 넣기 위해서는 string expand를 사용해서 변수를 선언해주어야 한다.
+
+```
+a=z 
+b="a string"          # Embedded spaces must be within quotes
+c="a string and $b"
+d="$(ls -l foo.xtx)"  # command의 결과
+e=$((5 * 7))          # 계산식
+f="\t\ta tring\n"     # tabs, newline은 반드시 quote 안에서 escaped 되어야한다.
+```
+
+한 줄에서 여러 변수를 선언하는것도 가능.
+
+```
+$ a=5 b=string c="c string"
+$ echo $a $b $c
+5 string c string
+```
+
+expansion동안에는 변수명은 `{}`로 감싸주는게 좋다. 이는 모호함을 줄여주는 역할을 한다.
+
+다음 예시는 filename 변수를 사용하여 파일명을 변경하는 예시이다. curly brace가 없으면 원하는대로 작동하지 않는것을 볼 수 있다.
+
+```
+$ filename="myfile"
+$ touch "$filename"
+$ ls
+myfile
+
+$ mv "$filename" "$filename1"
+mv: rename myfile to : No such file or directory
+
+$ mv "$filename" "${filename}1"
+$ ls
+myfile1
+```
+
+`{}`를 추가하여 파일명 뒤에 1을 붙일 수 있는 것을 볼 수 있다.
+
+이를 활용하여 report에 현재 시간을 표시해보자.
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+
+TITLE="System Information Report For $HOSTNAME"
+CURRENT_TIME="$(date +"%x %r %Z")"
+TIMESTAMP="Generated $CURRENT_TIME, by $USER"
+
+echo "<html>
+        <head>
+            <title>$TITLE</title>
+        </head>
+        <body>
+            <h1>$TITLE</h1>
+            <p>$TIMESTAMP</p>
+        </body>
+</html>"
+```
+
+> date 뒤에 나온 flag는 각각 `%x`: `YYYY/MM/DD` format, `%r`: `HH:MM:SS PM` format, `%Z`: display timezone을 의미한다.
+
+> 그래서 `YYYY/MM/DD HH:MM:SS PM KST` 형태가 나온다.
+
+> 더 자세한 정보는 `man date`를 참고하자.
+
+
+### Here documents
+
+지금까지는 echo 명령어만을 사용하여 text를 outputting하였다.
+
+`here document`, 또는 `here script`를 통한 다른 방법을 알아보자.
+
+here document: 스크립트의 text를 명령어의 standard input으로 주는 추가적인 I/O redirection form이다.
+
+아래와 같이 작동한다.
+- command: std input을 줄 명령어
+- text: command에 std input으로 들어가는 텍스트
+- token: 대개 embedded text의 시작과 끝을 나타내줌
+
+```
+command << token
+text
+token
+```
+
+html을 echo로 stdout으로 보내는 기존 스크립트를 here document로 수정해보자.
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+
+TITLE="System Information Report For $HOSTNAME"
+CURRENT_TIME="$(date +"%x %r %Z")"
+TIMESTAMP="Generated $CURRENT_TIME, by $USER"
+
+cat << _EOF_
+<html>
+    <head>
+        <title>$TITLE</title>
+    </head>
+    <body>
+        <h1>$TITLE</h1>
+        <p>$TIMESTAMP</p>
+    </body>
+</html>
+_EOF_
+```
+
+`echo` 대신에 `cat` 명령어를 사용하였다.
+
+컨벤션으로 사용되는 `_EOF_` (End of file) 는 embedded text의 끝을 나타내준다.
+
+그렇다면 echo 대신 here document를 사용하는 이점은 무엇일까?
+
+echo와는 다르게, here document에서는 single/double quotation이 특수 처리되지 않는다.
+
+
+```
+$ foo="some text"
+$ echo $foo
+some text
+$ echo "$foo"
+some text
+$ echo "$foo
+dquote> "
+some text
+```
+
+echo의 예시를 보면 따옴표가 변수를 감싸는걸로 해석되어 없어진 것을 볼 수 있다.
+
+```
+$ cat << _EOF_
+heredoc> $foo
+heredoc> "$foo"
+heredoc> '$foo'
+heredoc> \$foo
+heredoc> _EOF_
+some text
+"some text"
+'some text'
+$foo
+```
+
+반면 here document에서는 shell이 따옴표에 특별한 처리를 하지 않고 작은따옴표, 큰따옴표 모두 일반적인 문자열로 해석된다.
+
+이는 here document를 통해서 embed quote를 자유롭게 쓸 수 있다는 말이 된다.
+
+
+뿐만 아니라 here document는 어떤 명령어의 standard input으로 사용할 수 있다.
+
+다음은 `ftp` 프로그램에 접속하여 파일을 가져오는 예시 스크립트이다.
+
+```
+#! /bin/bash
+
+# Script to retrieve a file via FTP
+
+FTP_SERVER=ftp.nl.debian.org
+FTP_PATH=/debian/dists/stretch/main/installer-amd64/current/images/cdrom
+REMOTE_FILE=debian-cd_info.tar.gz
+
+ftp -n << _EOF_
+open $FTP_SERVER
+user anonymous me@linuxbox
+cd $FTP_PATH
+hash
+get $REMOTE_FILE
+bye
+_EOF_
+ls -l "$REMOTE_FILE"
+```
+
+해당 명령어를 실행시키면 ftp 커맨드가 순차적으로 실행되면서 파일을 다운로드하는것을 볼 수 있다.
+
+
+redirection operator를 `<<`를 `<<-`로 변경하면 shell은 leading tab character를 무시하기 때문에 더 가독성이 좋게 작성이 가능하다. (whitespace는 무시하지 않음)
+
+```
+#! /bin/bash
+
+# Script to retrieve a file via FTP
+
+FTP_SERVER=ftp.nl.debian.org
+FTP_PATH=/debian/dists/stretch/main/installer-amd64/current/images/cdrom
+REMOTE_FILE=debian-cd_info.tar.gz
+
+ftp -n <<- _EOF_
+    open $FTP_SERVER
+    user anonymous me@linuxbox
+    cd $FTP_PATH
+    hash
+    get $REMOTE_FILE
+    bye
+_EOF_
+ls -l "$REMOTE_FILE"
+```
+
+
+이제 간단한 작업을 하는 스크립트를 자주 만들어 보면서 shell script 작성에 익숙해지는 연습을 해야겠다.
+
+
+## 26. Top-down design
+
+프로그램이 점점 커지고 복잡해지면, 디자인하고 유지보수하기가 점점더 어려워짐.
+
+top-down design: 상위의 단계부터 정의하고 디테일한 단계로 내려오는 방식을 얘기함
+- 크고 복잡한 작업을 작고 간단한 작업으로 쪼갤 수 있음
+- 쉘스크립트를 포함한 많은 프로그램을 디자인할 때 쓰이는 방법
+
+### Shell functions
+
+이전 블로그 포스트에서 만들었던 report program은 다음 단계로 쪼갤 수 있따.
+
+1. Open page.
+2. Open page header.
+3. Set page title.
+4. Close page header.
+5. Open page body.
+6. Output page heading.
+7. Output timestamp.
+8. Close page body.
+9. Close page
+
+다음 부분에서는 7-8 단계에 내용을 추가할텐데, 다음과 같은 내용을 추가해보자.
+- system uptime and load
+- disk space
+- home space
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+
+
+TITLE="System Information Report For $HOSTNAME"
+CURRENT_TIME="$(date +"%x %r %Z")"
+TIMESTAMP="Generated $CURRENT_TIME, by $USER"
+
+cat << _EOF_
+<html>
+    <head>
+        <title>$TITLE</title>
+    </head>
+    <body>
+        <h1>$TITLE</h1>
+        <p>$TIMESTAMP</p>
+        $(report_uptime)
+        $(report_disk_space)
+        $(report_home_space)
+    </body>
+</html>
+_EOF_
+```
+
+위의 코드에서 볼 수 있듯이 명령어를 넣어주고 두가지 방법으로 함수를 작성할 수 있다.
+- 분리된 script를 만들고 `PATH` 디렉토리에 추가하덙,
+- `shell function`이라는 방식으로 프로그램 안에 스크립트를 embed 할 수 있다.
+
+```
+# formal form
+function name {
+      commands
+      return
+}
+
+# simpler form
+name () {
+      commands
+      return
+}
+```
+
+간단한 shell function을 작성해보자.
+
+```
+#!/bin/bash
+
+# shell function demo
+
+function step2 {
+    echo "Step 2"
+    return
+}
+
+# main program starts here
+
+echo "Step 1"
+step2
+echo "Step 3"
+```
+
+```
+$ ./shell_function_example
+Step 1
+Step 2
+Step 3
+```
+
+### Local variables
+
+지금까지는 global variable만 사용되었는데,
+다른 많은 프로그래밍 언어들처럼 shell script도 함수에서 local variable이 사용된다.
+
+```
+#!/bin/bash
+
+# local-vars: script to demonstrate local variables
+
+foo=0  # global variable
+
+func_1 () {
+    local foo
+    foo=1
+    echo "func_1: foo = $foo"
+}
+
+func_2() {
+    local foo
+    foo=2
+    echo "func_2: foo = $foo"
+}
+
+echo "global:  foo = $foo"
+func_1
+echo "global:  foo = $foo"
+func_2
+echo "global:  foo = $foo"
+```
+
+실제로 실행하면 예상했던대로 동작하는걸 볼 수 있다
+
+```
+$ local_variable_example
+global:  foo = 0
+func_1: foo = 1
+global:  foo = 0
+func_2: foo = 2
+global:  foo = 0
+```
+
+### keep scripts running
+
+이제 실제로 세 함수를 작성해보자.
+
+```
+#!/bin/bash
+
+# Program to output a system information page
+report_uptime() {
+    cat <<- _EOF_
+           <h2>System Uptime</h2>
+           <pre>$(uptime)</pre>
+_EOF_
+    return
+}
+
+report_disk_space () {
+      cat <<- _EOF_
+            <h2>Disk Space Utilization</h2>
+            <pre>$(df -h)</pre>
+_EOF_
+      return
+}
+
+report_home_space () {
+      cat <<- _EOF_
+            <h2>Home Space Utilization</h2>
+            <pre>$(du -sh /home/*)</pre>
+_EOF_
+      return
+}
+
+
+TITLE="System Information Report For $HOSTNAME"
+CURRENT_TIME="$(date +"%x %r %Z")"
+TIMESTAMP="Generated $CURRENT_TIME, by $USER"
+
+cat << _EOF_
+<html>
+    <head>
+        <title>$TITLE</title>
+    </head>
+    <body>
+        <h1>$TITLE</h1>
+        <p>$TIMESTAMP</p>
+        $(report_uptime)
+        $(report_disk_space)
+        $(report_home_space)
+    </body>
+</html>
+_EOF_
+```
+
+
+shell function은 `~/.bashrc` 파일 등에서도 사용될 수 있다.
+
+이는 alias 대신에 조금 복잡하거나 더 verbose한 경우 유용하게 사용할 수 있다.
+
+```
+ds () {
+  echo "Disk Space Utilization forr $HOSTNAME"
+  df -h
+}
+```

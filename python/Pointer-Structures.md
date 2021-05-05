@@ -137,4 +137,103 @@ class QueueLinkedList:
 
 ## Project: Detect cycles in Linked List
 
+면접 단골 질문이라고 함. linked list에서 infinite loop 찾는방법
 
+```
+def checkInfinite(self):
+    p1 = p2 = self
+    while p1 != None and p2 != None:
+        if p2.next == None: return False
+            
+        p1 = p1.next
+        p2 = p2.next.next
+        if p1 == p2: return True
+    return False
+```
+
+## Prefix Tree
+
+Prefix Tree: data structure that compactly stores string
+
+![image](https://i.imgur.com/eXpIIq4.png)
+
+- Dictionary를 사용하여 pointer를 구현
+- 각 box를 하나의 dictionary로
+
+Python dictionary: `d[k] = v`
+- value로 nested dictionary를 저장
+- 각각의 dict는 최대 26개의 다른 dict objects를 refer
+
+```
+wordkey = '\n'  # can be any character not 'a..z'
+
+
+class PrefixTree:
+    '''
+    Data structure that compactly stores strings
+    # example: init, in
+    {
+        'i': {
+            'n': {
+                'i': {
+                    't': {
+                        'isEnd': True
+                    }
+                },
+                'isEnd': True  #?
+            }
+        }
+    }
+    '''
+    def __init__(self, *args):
+        self.head = {}
+
+        if args:
+            for arg in args:
+                self.add(arg)
+
+    def add(self, value: str) -> bool:
+        '''Add avlue to prefix tree. Return TRUE if updated'''
+        d = self.head
+
+        while len(value) > 0:
+            c = value[0]
+            if c not in d:
+                d[c] = {}
+            d = d[c]
+            value = value[1:]
+        if wordkey in d:
+            return False
+        d[wordkey] = True
+        return True
+
+    def __contains__(self, value: str):
+        '''
+        determine if value in prefix tree
+
+        >>> d = PrefixTree()
+        >>> d.add('in')
+        >>> d.add('inch')
+        >>> 'in' in d
+        True
+        >>> 'inc' in d
+        False
+        >>> 'inch' in d
+        True
+        ''' 
+        d = self.head
+        while len(value) > 0:
+            c = value[0]
+            if c not in d:
+                return False
+            d = d[c]
+            value = value[1:]
+        return wordkey in d
+
+    def __repr__(self):
+        return f'{self.head}'
+```
+
+### Summary
+- Provide structural basis for recursive data structures
+- 코드가 복잡하지만 특정 상황에서 나은 시간복잡도로 구현 가능

@@ -9,3 +9,4 @@
 
 - [amazon sqs faq](../etc/amazon-sqs-faq.md)
 - [Lambda faq](../etc/Lambda-faq.md)
+- [codebuild faq](../etc/codebuild-faq.md)

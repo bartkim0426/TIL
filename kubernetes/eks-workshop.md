@@ -56,5 +56,76 @@ kubernetes는 이 object의 '현재 상태'를 'desired state'와 같게 만들�
   - kubectl이나 Entry point for REST
 - api server가 worker의 `kubelet`에 명령을 내림
 
+## Deploy example microservices
+
+간단하게 kubectl을 사용하여 리소스를 생성/제거하는 부분이라 따로 정리하지는 않음
+
+
+## Helm
+
+helm is a package manager and application management tool for kubernetes that packages multiple k8s resources into a single logical deployment unit called a "Chart"
+
+아래 일들을 해줌.
+
+- 간단하고 재사용 가능한 deployment
+- 특정 버전의 application이나 services 등 dependencies를 관리
+- test, staging, production 등 여러 설정 관리
+- application 배포중 post/pre deployment job을 실행
+- update/rollback 가능
+
+### Deploy nginx with helm
+
+helm 설치 및 repo add, install, uninstall 등 간단한 명령어라 정리하지 않음
+
+### Delpoy example microservices using helm
+
+helm create로 프로젝트를 만들 수 있음. (처름 알았다)
+
+```
+foo/
+├── .helmignore   # Contains patterns to ignore when packaging Helm charts.
+├── Chart.yaml    # Information about your chart
+├── values.yaml   # The default values for your templates
+├── charts/       # Charts that this chart depends on
+└── templates/    # The template files
+    └── tests/    # The test files
+```
+
+> 더 자세한 내용은 `helm create --help`
+
+새로 생성된 파일들 중 `templates/` 안에 있는 내용은 다음과 같음
+- `deployments.yaml`: k8s deployment를 생성하는 basic manifest
+- ingress.yaml, serviceaccount.yaml, service.yaml: k8s object
+- `_helpers.tpl`: chart에서 재사용하는 helper template
+- `NOTES.txt`: help text for your chart. helm install 할때 user에게 노출됨
+- `tests/`: chart test (test도 있따니..)
+
+### Upgrade and rollback
+
+upgrade
+
+```
+helm list
+helm upgrade <chartname>
+```
+
+rollback
+
+```
+helm status <chartname>
+helm history <chartname>
+
+helm rollback <chartname> <revision_number>
+```
+
+## Health check
+
+- liveness: fail시 pod를 restart
+- readiness: fail시 해당 pod으로 요청 보내지 않음. restart는 안시킴.
+
+## Autoscaling with HPA and CA
+
+- HPA: High Pod Autoscaler
+- CA: Cluster Autoscaler
 
 
