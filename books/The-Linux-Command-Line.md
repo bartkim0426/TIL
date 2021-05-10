@@ -3013,3 +3013,646 @@ ds () {
   df -h
 }
 ```
+
+
+## 27. Flow control: branching with if
+
+위에서 만든 스크립트에서 user의 권한에 따라 스크립트의 내용을 변경해야 한다고 생각해보자. programming 용어로 `branch`가 필요하다.
+
+### If statement
+
+pseudo code로 아래와 같은 내용을 생각
+
+```
+X = 5
+If X = 5 then:
+Say "X equals 5."
+Otherwise:
+Say "X is not equal to 5"
+```
+
+
+shell에서는 이를 if/else문을 이용해 나타낼 수 있음.
+
+```
+x=5
+
+if [ "$x" -eq 5 ]; then
+    echo "x equals 5."
+else
+    echo "x does not equal 5."
+fi
+```
+
+이는 command line에서도 동일하게 사용할 수 있다.
+
+```
+$ x=5
+$ if [ "$x" -eq 5 ]; then echo "5"; else echo "not 5";
+else> fi
+5
+
+$ x=4
+$ if [ "$x" -eq 5 ]; then echo "5"; else echo "not 5";
+fi
+not 5
+```
+
+이를 정리하면 다음과 같은 syntax (대괄호 안에는 optional)
+
+```
+if commands; then
+    commands
+[elif commands; then
+    commands...]
+[else
+    commands]
+fi
+```
+
+
+### Exit status
+
+shell script를 포함한 명령어들은 종료될 때 `exit status`라는 value를 내뱉음.
+
+이 값은 0~255의 integer이고, 실행한 명령어가 성공했는지 실패했는지를 나타냄.
+
+```
+$ ls -d /usr/bin
+/usr/bin
+
+$ echo $?
+0
+
+$ ls -d /bin/usr
+ls: /bin/usr: No such file or directory
+
+$ echo $?
+2
+```
+
+명령어마다 error status의 값이 조금씩 다른데 대부분 1. man page에 "Exit Status"에 관한 부분이 대개 포함되어 있다. 대부분 0이 성공을 나타냄.
+
+다음은 `man ls`의 exit status에 대한 설명 부분
+```
+   Exit status:
+       0      if OK,
+
+       1      if minor problems (e.g., cannot access subdirectory),
+
+       2      if serious trouble (e.g., cannot access command-line argument).
+```
+
+shell은 exit status만을 반환하는 아주 심플한 두개의 빌트인 명령어를 제공. `true`, `false`
+
+```
+[sckim@master ~]$ true
+[sckim@master ~]$ echo $?
+0
+[sckim@master ~]$ false
+[sckim@master ~]$ echo $?
+1
+```
+
+이를 if statuement에서 활용할 수 있다.
+
+### Using Test
+
+if와 가장 많이 사용되는 명령어 중 하나는 `test`. `test` 명령어는 다양한 비교나 확인에 쓰임.
+
+아래와 같은 형태로 사용되거나,
+
+```
+test expression
+```
+
+더 축약된 형태로도 사용된다.
+
+```
+[ expression ]
+```
+
+expression이 true인지, false인지에 따라 exit status를 각각 0이나 1을 반환한다.
+
+`[` 캐릭터가 실제로 `/usr/bin`에 있는 명령어인게 흥미로움.
+
+### File Expressions
+
+파일의 상태와 관련된 다양한 file expression들이 있음. (어떤게 있는지만 보고 필요할 때 찾아보는게 좋을듯. [gun manual](https://www.gnu.org/software/bash/manual/html_node/Bash-Conditional-Expressions.html)에서 확인할 수 있다)
+
+```
+-a file
+True if file exists.
+
+-b file
+True if file exists and is a block special file.
+
+-c file
+True if file exists and is a character special file.
+
+-d file
+True if file exists and is a directory.
+
+-e file
+True if file exists.
+
+-f file
+True if file exists and is a regular file.
+
+-g file
+True if file exists and its set-group-id bit is set.
+
+-h file
+True if file exists and is a symbolic link.
+
+-k file
+True if file exists and its "sticky" bit is set.
+
+-p file
+True if file exists and is a named pipe (FIFO).
+
+-r file
+True if file exists and is readable.
+
+-s file
+True if file exists and has a size greater than zero.
+
+-t fd
+True if file descriptor fd is open and refers to a terminal.
+
+-u file
+True if file exists and its set-user-id bit is set.
+
+-w file
+True if file exists and is writable.
+
+-x file
+True if file exists and is executable.
+
+-G file
+True if file exists and is owned by the effective group id.
+
+-L file
+True if file exists and is a symbolic link.
+
+-N file
+True if file exists and has been modified since it was last read.
+
+-O file
+True if file exists and is owned by the effective user id.
+
+-S file
+True if file exists and is a socket.
+
+file1 -ef file2
+True if file1 and file2 refer to the same device and inode numbers.
+
+file1 -nt file2
+True if file1 is newer (according to modification date) than file2, or if file1 exists and file2 does not.
+
+file1 -ot file2
+True if file1 is older than file2, or if file2 exists and file1 does not.
+
+-o optname
+True if the shell option optname is enabled. The list of options appears in the description of the -o option to the set builtin (see The Set Builtin).
+
+-v varname
+True if the shell variable varname is set (has been assigned a value).
+
+-R varname
+True if the shell variable varname is set and is a name reference.
+
+-z string
+True if the length of string is zero.
+```
+
+아래는 파일의 상태를 print해주는 간단한 스크립트 예시.
+
+```
+# test-file: evaluate the statue of a file
+
+FILE=~/.bashrc
+
+if [ -e "$FILE" ]; then
+    if [ -f "$FILE" ]; then
+        echo "$FILE is a regular file."
+    fi
+    if [ -d "$FILE" ]; then
+        echo "$FILE is a directory"
+    fi
+    if [ -r "$FILE" ]; then
+        echo "$FILE is readable"
+    fi
+    if [ -w "$FILE" ]; then
+        echo "$FILE is writable"
+    fi
+    if [ -x "$FILE" ]; then
+        echo "$FILE is executable"
+    fi
+else
+    echo "$FILE does not exist"
+    exit 1   # exit with fail status code
+fi
+
+exit
+```
+
+위 스크립트에는 두가지 살펴볼만한게 있음
+- `$FILE` 변수가 quote 안에서 사용된 점
+  - 굳이 필요 없지만, quote 안에서 사용되지 않으면 empty value일 경우 에러가 남.
+  - quote 안에 넣음으로서 빈 값도 string 처리 가능
+- 마지막의 `exit` 명령어
+  - `exit` 명령어는 script의 exit status를 변수로 받음 (optional)
+  - argument가 없으면 마지막 실행된 명령어의 exit status를 기본으로 사용
+  - 이런식으로 `exit` 명령어를 사용함으로써 스크립트가 없는 파일일 경우 실패한 exit status를 가질 수 있게 해줌
+  - 대부분의 스크립트에서 exit은 이렇게 사용됨
+
+이와 비슷하게 shell function도 `return` command에 integer argument를 포함시켜 exit stauts를 반환할 수 있다.
+
+아래는 위의 스크립트를 함수로 생성한것.
+
+```
+test_file () {
+    FILE=~/.bashrc
+
+    if [ -e "$FILE" ]; then
+        if [ -f "$FILE" ]; then
+            echo "$FILE is a regular file."
+        fi
+        if [ -d "$FILE" ]; then
+            echo "$FILE is a directory"
+        fi
+        if [ -r "$FILE" ]; then
+            echo "$FILE is readable"
+        fi
+        if [ -w "$FILE" ]; then
+            echo "$FILE is writable"
+        fi
+        if [ -x "$FILE" ]; then
+            echo "$FILE is executable"
+        fi
+    else
+        echo "$FILE does not exist"
+        return 1   # return with  fail status code
+    fi
+}
+
+test_file
+
+exit
+```
+
+### String Expression
+
+아래는 string을 평가하는 expression의 리스트
+```
+string
+string is not null
+
+-n string
+True if the length of string is non-zero.
+
+-z string
+True if the length of string is zero
+
+string1 == string2
+string1 = string2
+True if the strings are equal. When used with the [[ command, this performs pattern matching as described above (see Conditional Constructs).
+
+‘=’ should be used with the test command for POSIX conformance.
+
+string1 != string2
+True if the strings are not equal.
+
+string1 < string2
+True if string1 sorts before string2 lexicographically.
+
+string1 > string2
+True if string1 sorts after string2 lexicographically.
+
+arg1 OP arg2
+OP is one of ‘-eq’, ‘-ne’, ‘-lt’, ‘-le’, ‘-gt’, or ‘-ge’. These arithmetic binary operators return true if arg1 is equal to, not equal to, less than, less than or equal to, greater than, or greater than or equal to arg2, respectively. Arg1 and arg2 may be positive or negative integers. When used with the [[ command, Arg1 and Arg2 are evaluated as arithmetic expressions (see Shell Arithmetic).
+```
+
+> `>`와 `<` expression은 `test`와 함께 사용될 때 반드시 쿼팅되거나 backslash로 escaped되어야됨. 그렇지 않으면 redirection operator로 interpreted됨.
+
+아래는 string expression의 예시.
+
+```
+#!/bin/bash
+
+# test-string: evaluate the value of a string
+
+ANSWER=maybe
+
+# -z string
+# True if the length of string is zero
+if [ -z "$ANSWER" ]; then
+    echo "There is no answer." >&2
+    exit 1
+fi
+
+if [ "$ANSWER" = "yes" ]; then
+    echo "The answer is YES."
+elif [ "$ANSWER" = "no" ]; then
+    echo "The answer is NO."
+elif [ "$ANSWER" = "maybe" ]; then
+    echo "The answer is MAYBE."
+else
+    echo "The answer is UNKNOWN."
+fi
+```
+
+### Integer Expression
+
+```
+integer1 -eq integer2
+integer1 is equal to integer2.
+
+integer1 -ne integer2
+integer1 is not equal to integer2.
+
+integer1 -le integer2
+integer1 is less than or equal to integer2.
+
+integer1 -lt integer2
+integer1 is less than integer2.
+
+integer1 -ge integer2
+integer1 is greater than or equal to integer2.
+
+integer1 -gt integer2
+integer1 is greater than integer2.
+```
+
+아래는 간단한 integer expression 예시
+
+```
+#!/bin/bash
+
+# test-integer: evaluate the value of an integer
+
+INT=-5
+
+if [ -z "$INT" ]; then
+    echo "INT is empty." >&2
+    exit 1
+fi
+
+if [ "$INT" -eq 0 ]; then
+    echo "INT is zero"
+else
+    if [ "$INT" -lt 0 ]; then
+        echo "INT is negative"
+    else
+        echo "INT is positive"
+    fi
+    if [ $((INT % 2)) -eq 0 ]; then
+        echo "INT is even"
+    else
+        echo "INT is odd"
+    fi
+fi
+```
+
+### A more modern version of test
+
+modern version의 bash는 `test`에 대해 강화된 대체를 실현시켜줌(?)
+
+아래와 같이 사용된다.
+
+```
+[[ expression ]]
+```
+
+`[[ ]]` 명령어는 `test`와 비슷하지만 새로운 string expression을 제공한다.
+
+```
+string1 =~ regex
+```
+이는 string1이 정규표현식에 매칭되면 true를 반환. 이는 data validation 등 다양한 태스크에서 많은 기능을 제공해줌.
+
+앞의 integer expression에서는 `INT`값에 string이 들어오면 실패했었는데, `[[ ]]`에서 `=~` operator를 쓰면 이 문제를 해결할 수 있다.
+
+```
+#!/bin/bash
+
+# test-ingeter-enhenced: evaluate the value of an integer
+
+INT=-5
+
+if [[ "$INT" =~ ^-?[0-9]+$ ]]; then
+    if [ "$INT" -eq 0 ]; then
+        echo "INT is zero"
+    else
+        if [ "$INT" -lt 0 ]; then
+            echo "INT is negative"
+        else
+            echo "INT is positive"
+        fi
+        if [ $((INT % 2)) -eq 0 ]; then
+            echo "INT is even"
+        else
+            echo "INT is odd"
+        fi
+    fi
+else
+    echo "INT is not an integer." >&2
+    exit 1
+fi
+```
+
+정규표현식을 사용해서 `INT`의 값을 `-` (minus sign)을 옵셔널로 받고 한개 이상의 numeral을 포함시킨 스트링으로 제한시킬 수 있다. 이는 empty value의 가능성도 제거해준다.
+
+`[[  ]]`의 또 다른 기능은 `==` operator. 이는 pathname expansion과 동일한 역할을 한다.
+
+```
+[me@linuxbox ~]$ FILE=foo.bar
+[me@linuxbox ~]$ if [[ $FILE == foo.* ]]; then
+> echo "$FILE matches pattern 'foo.*'"
+> fi
+foo.bar matches pattern 'foo.*'
+```
+
+### (( )) - designed for integers
+
+bash는 `[[ ]]`와 더불어 `(( ))` compound command도 제공해준다. 이는 이후 챕터에서 다룰 arithmetic evaluation을 제공한다.
+
+arithmetic truth test를 실행시킬 때 사용하는데, 이는 arithmetic evaluation이 non-zero일때 true를 반환함.
+
+```
+$ if ((1)); then echo "true"; fi
+true
+$ if ((0)); then echo "true"; fi
+```
+
+이를 사용해서 이전에 만든 integer script를 더 간단하게 만들 수 있음.
+
+```
+#!/bin/bash
+
+# test-ingeter-enhenced: evaluate the value of an integer
+
+INT=-5
+
+if [[ "$INT" =~ ^-?[0-9]+$ ]]; then
+    if ((INT == 0)); then
+        echo "INT is zero"
+    else
+        if (( INT < 0 )); then
+            echo "INT is negative"
+        else
+            echo "INT is positive"
+        fi
+        if (( (( INT%2 )) == 0 )); then
+            echo "INT is even"
+        else
+            echo "INT is odd"
+        fi
+    fi
+else
+    echo "INT is not an integer." >&2
+    exit 1
+fi
+```
+
+### Combining expressions
+
+더 복잡한 evaluation을 위해 expression들을 합치는것도 가능. AND, OR, NOT의 logical operator를 통해서 합칠 수 있다. `test`와 `[[ ]]`는 다른 형태의 operator를 사용함.
+
+```
+| operator | test | [[ ]] and (( )) |
+| AND      | -a   | &&              |
+| OR       | -o   | "||"            |
+| NOT      | !    | !               |
+```
+
+아래는 AND operator를 사용하여 integer가 특정 범위 안에 있는지를 판단하는 스크립트 예시.
+
+```
+#!/bin/bash
+
+# test-ingeter-and: determine if and integer is within a range of values
+
+MIN_VAL=1
+MAX_VAL=100
+
+INT=50
+
+if [[ "$INT" =~ ^-?[0-9]+$ ]]; then
+    if [[ "$INT" -ge "$MIN_VAL" && "$INT" -le "$MAX_VAL" ]]; then
+        echo "$INT is within $MIN_VAL to $MAX_VAL"
+    else
+        echo "$INT is out of range"
+    fi
+else
+    echo "INT is not an integer." >&2
+    exit 1
+fi
+```
+
+`[[  ]]`을 썼기 때문에 `&&` operator를 사용했는데, test command를 사용하면 아래와 같이 쓸 수 있다.
+
+```
+    if [ "$INT" -ge "$MIN_VAL" -a "$INT" -le "$MAX_VAL" ]; then
+```
+
+`!` negation operator는 expression의 결과를 반대로 만들어줌. 아래는 특정 범위를 벗어난 integer인지 확인하는 script
+
+```
+#!/bin/bash
+
+# test-ingeter-and: determine if and integer is within a range of values
+
+MIN_VAL=1
+MAX_VAL=100
+
+INT=50
+
+if [[ "$INT" =~ ^-?[0-9]+$ ]]; then
+    if [[ ! ("$INT" -ge "$MIN_VAL" && "$INT" -le "$MAX_VAL") ]]; then
+        echo "$INT is outside $MIN_VAL to $MAX_VAL"
+    else
+        echo "$INT is in range"
+    fi
+else
+    echo "INT is not an integer." >&2
+    exit 1
+fi
+```
+
+grouping을 위해 괄호를 사용하였는데, 이게 없으면 negation이 처음 나오는 expression에 적용되기 때문.
+
+test에서 사용하려면 escape를 해줘야된다.
+
+```
+    if [ \( "$INT" -ge "$MIN_VAL" && "$INT" -le "$MAX_VAL" \) ]; then
+```
+
+`test`와 `[[ ]]`는 거의 같은 일을 하는데 뭐가 더 선호될까?
+
+`test`는 전통적인 반면 (system startup에 주로 사용되는 POSIX specification for standard shell) `[[  ]]`는 bash와 다른 모던 shell들에 특화되어있다.
+
+### Control operator: another way to branch
+
+bash는 branching에 사용할 수 있는 두가지 operator를 제공해줌: `&&`(AND)와 `||`(OR)는 `[[ ]]`안에서 사용되는 것처럼 쓸 수 있다.
+
+```
+command1 && command2
+command1 || command2
+```
+
+이게 어떻게 작동하는지 이해하는게 중요함.
+
+`&&` operator가 사용되면 command1이 실행되었을 때 성공했을 경우에만 command2가 실행된다.
+
+`||`operator는 command1이 실행되었을 때 실패했을 경우에만 command2가 실행된다.
+
+그래서 아래와 같은 명령어 가능.
+
+```
+$ mkdir temp && cd temp
+```
+
+`temp`를 만들고 이게 성공했을 경우에만 작동함.
+
+아래와 같이 `||`를 사용한 명령어도 가능하다.
+
+```
+$ [[ -d temp ]] || mkdir temp
+```
+
+temp 디렉토리가 있는 경우에는 `[[ -d temp ]]` 명령어가 true를 반환하고 mkdir 명령어는 실행되지 않는다. 이런 형태의 구조는 스크립트에서 아래와 같이 에러 핸들링을 하는데 많이 사용된다.
+
+스트립트가 `temp` 디렉토리가 필요하고, 디렉토리가 없을 때 스크립트를 종료시키려면 이렇게 사용하면 된다.
+
+```
+[ -d temp ] || exit 1
+```
+
+### Summing up
+
+처음에 챕터를 시작할 때 이전에 만든 `sys_info_page` 스크립트가 user가 모든 home 디렉토리를 읽을 수 있는 권한이 있는지에 따라 명령어를 다르게 부여하려고 했었다.
+
+`if`를 사용해서 `report_home_space` function을 만들고 이를 사용할 수 있음.
+
+```
+report_home_space() {
+    if [[ "$(id -u)" -eq 0 ]]; then
+        cat <<- _EOF
+            <h2>Home spae utilization (All user)</h2>
+            <pre>$(du -s /home/*)</pre>
+        _EOF
+    else
+        cat <<- _EOF
+            <h2>Home spae utilization ($USER)</h2>
+            <pre>$(du -sh $HOME)</pre>
+        _EOF
+    fi
+    return
+}
+```
+
+superuser는 id가 0이기 때문에 이 경우 모든 home directory를 확인할 수 있다.
+
+

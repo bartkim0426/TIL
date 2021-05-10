@@ -28,6 +28,11 @@
 - [deploy eks in codepieline](./kubernetes/deploy-eks-in-codepieline.md)
 - [ ] [debug crashLoopBackOff pods trick](./kubernetes/debug-crashLoopBackOff-pods-trick.md)
 - [ ] [eks workshop](./kubernetes/eks-workshop.md)
+- [ ] [What is gitops?](./kubernetes/gitops-with-eks.md)
+- [ ] [gitops-with-flux](./kubernetes/flux.md)
+- [ ] [kustomize usage](./kubernetes/kustomize.md)
+- [ ] [declarative management of kubernetes object using kustomize](./kubernetes/declarative-management-of-kubernetes-object-using-kustomize.md)
+- [ ] [kubernetes terminal tools](./kubernetes/kubernetes-terminal-tools.md)
 
 ## Docker
 
@@ -80,6 +85,7 @@
 - [ ] [redirect command stdout to vim](./vim//redirect-command-stdout-to-vim.md)
 - [ ] [auto save when text chanegd in vim](./vim/auto-save-when-text-chanegd-in-vim.md)
 - [incrementing selected numbers in vim](./vim/incrementing-selected-numbers-in-vim.md)
+- [ ] [4 spaces to 2 spaces in vim](./vim/4-spaces-to-2-spaces-in-vim.md)
 
 
 ## Linux
@@ -104,6 +110,7 @@
 ## React
 - [ ] [react infinite scroll](./react/react-infinite-scroll.md)
 - [ ] chat-application-with-react-and-socket-io
+- [ ] [next js tutorial and documentation](./react/next.js-tutorial-and-documentation.md)
 
 ## etc
 
