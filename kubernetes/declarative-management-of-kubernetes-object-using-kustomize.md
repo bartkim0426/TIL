@@ -216,7 +216,7 @@ deployment에서 사용할 때는 configMap과 동일하게 이름으로 사용�
 
 ### generatorOptions
 
-ConfigMap과 Secret을 새성할 때 content hash suffix를 붙일 수 있다. 이는 content가 변경될 때마다 새로운 ConfigMap과 Secret이 생성되는 것을 보장함.
+ConfigMap과 Secret을 새성할 때 content hash suffix를 붙일 수 있다. 이는 content가 변경될 때마다 새로운 ConfigMap과 Secret이 생성되는 것을 보장함. 이 기능을 안쓰려면 `generatorOptoin` 사용하면 됨.
 
 ```
 cat <<EOF >./kustomization.yaml
