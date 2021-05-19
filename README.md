@@ -67,6 +67,7 @@
 ## Django
 - [ ] [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
 - [ ] [deploy django in elastic beanstalk](./django/deploy-django-in-elastic-beanstalk.md)
+- [ ] [celery unitest using memory broker](./django/celery-unitest-using-memory-broker.md)
 
 ## Vim
 

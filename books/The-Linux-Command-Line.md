@@ -3655,4 +3655,248 @@ report_home_space() {
 
 superuser는 id가 0이기 때문에 이 경우 모든 home directory를 확인할 수 있다.
 
+## 28. Reading Keyboard Input
+
+지금까지 만든 프로그램들은 interactivity가 없었다.
+
+> interactivity: user가 프로그램과 상호작용 할 수 있는 기능
+
+대부분의 프로그램은 interactive 할 필요가 없지만, 특정 프로그램은 사용자에게 input을 직접 전달받아야한다.
+
+
+이전 챕터에서 작성했던 예시 스크립트를 보자.
+
+```
+#!/bin/bash
+
+# test-integer2: evaluate the value of an integer.
+
+INT=-5
+
+if [[ "$INT" =~ ^-?[0-9]+$ ]]; then
+      if [ "$INT" -eq 0 ]; then
+            echo "INT is zero."
+      else
+            if [ "$INT" -lt 0 ]; then
+                  echo "INT is negative."
+            else
+                  echo "INT is positive."
+            fi
+            if [ $((INT % 2)) -eq 0 ]; then
+                  echo "INT is even."
+            else
+                  echo "INT is odd."
+            fi
+      fi
+else
+      echo "INT is not an integer." >&2
+      exit 1
+fi
+```
+
+`INT` 변수의 값을 바꾸고 싶을 때마다 스크립트를 변경해야한다.
+
+이를 스크립트가 실행될 때 사용자에게 값을 받을 수 있게 한다면 훨씬 편리해질 것.
+
+### Read: Read value from standard input
+
+`read` 빌트인 명령어는 standard input의 single line을 읽는데 사용된다.
+
+이 명령어는 키보드의 인풋이나 파일의 라인을 읽을 수 있다.
+
+```
+read [-options] [variable...]
+```
+
+option은 아래 정리된 표 중하나이고, variable은 input value를 사용할 한개 이상의 변수이다.
+
+variable이 주어지지 않으면 `REPLY`라는 shell 변수가 해당 데이터를 가지고 있게 됨
+
+기본적으로 read는 standard input으로부터 지정한 변수로 값을 할당시킨다. 만약 위의 스크립트를 read를 사용하여 변경하면 
+다음과 같이 수정할 수 있따.
+
+```
+#!/bin/bash
+
+# read-integer: evaluate the value of an integer
+
+echo -n "Please enter an integer -> "
+read int
+
+if [[ "$int" =~ ^-?[0-9]+$ ]]; then
+      if [ "$int" -eq 0 ]; then
+            echo "$int is zero."
+      else
+            if [ "$int" -lt 0 ]; then
+                  echo "$int is negative."
+            else
+                  echo "$int is positive."
+            fi
+            if [ $((int % 2)) -eq 0 ]; then
+                  echo "$int is even."
+            else
+                  echo "$int is odd."
+            fi
+      fi
+else
+      echo "Input value is not an integer." >&2
+      exit 1
+fi
+```
+
+echo에 `-n` 옵션을 사용하여 trailing newline을 제거하고, `read` 명령어로 input을 받아 `int` 변수에 할당하였다.
+
+이를 실행하면 다음처럼 됨.
+
+```
+[me@linuxbox ~]$ read-integer
+Please enter an integer -> 5
+5 is positive.
+5 is odd.
+```
+
+`read` 명령어는 여러 변수를 할당할 수 있다.
+
+```
+#!/bin/bash
+
+# read-multiple: read multiple values from keyboard
+
+echo -n "Enter one or more values > "
+read var1 var2 var3 var4 var5
+
+echo "var1 = '$var1'"
+echo "var2 = '$var2'"
+echo "var3 = '$var3'"
+echo "var4 = '$var4'"
+echo "var5 = '$var5'"
+```
+
+이제 read는 whitespace로 구분된 여러개의 변수를 받을 수 있다. 5개가 넘어가면 한 개의 변수(마지막 변수)로 할당됨.
+
+
+```
+$ ./multiple_read_var
+Enter one or more values > a b c d e
+var1 = 'a'
+var2 = 'b'
+var3 = 'c'
+var4 = 'd'
+var5 = 'e'
+
+$ ./multiple_read_var
+Enter one or more values > a
+var1 = 'a'
+var2 = ''
+var3 = ''
+var4 = ''
+var5 = ''
+
+$ ./multiple_read_var
+Enter one or more values > a b c d e f g
+var1 = 'a'
+var2 = 'b'
+var3 = 'c'
+var4 = 'd'
+var5 = 'e f g'
+```
+
+### Options
+
+read는 아래의 옵션들을 제공.
+
+```
+-a array
+Assign the input to array, starting with index zero. We will cover arrays in Chapter 35.
+
+-d delimiter
+The first character in the string delimiter is used to indicate the end of input, rather than a newline character.
+
+-e
+Use Readline to handle input. This permits input editing in the same manner as the command line.
+
+-i string
+Use string as a default reply if the user simply presses ENTER. Requires the -e option.
+
+-n num
+Read num characters of input, rather than an entire line.
+
+-p prompt
+Display a prompt for input using the string prompt.
+
+-r
+Raw mode. Do not interpret backslash characters as escapes.
+
+-s
+Silent mode. Do not echo characters to the display as they are typed. This is useful when inputting passwords and other confidential information.
+
+-t seconds
+Timeout. Terminate input after seconds. read returns a non-zero exit status if an input times out.
+
+-u fd
+Use input from file descriptor fd, rather than standard input.
+```
+
+다양한 옵션들을 통해 read 명령어로 여러가지 흥미로운 작업들을 할 수 있다.
+
+`-p` 옵션으로 prompt string을 제공할 수 있따.
+
+```
+#!/bin/bash
+
+# read-single: read multiple values into default variable
+
+read -p "Enter one or more values > "
+
+echo "REPLY = '$REPLY'"
+```
+
+`-t`와 `-s` 옵션을 사용해서 "secret" input을 받고, 특정 시간동안 input이 입력되지 않으면 timeout 시킬 수 있음.
+
+```
+#!/bin/bash
+
+# read-secret: input a secret passphrase
+
+if read -t 10 -sp "Enter secret passphrase > " secret_pass; then
+      echo -e "\nSecret passphrase = '$secret_pass'"
+else
+      echo -e "\nInput timed out" >&2
+      exit 1
+fi
+```
+
+`-e`와 `-i` 옵션을 같이 사용하여 기본값을 제공할 수 있음.
+
+```
+#!/bin/bash
+
+# read-default: supply a default value if user presses Enter key.
+
+read -e -p "What is your user name? " -i $USER
+echo "You answered: '$REPLY'"
+```
+
+```
+[me@linuxbox ~]$ read-default
+What is your user name? me
+You answered: 'me'
+```
+
+### IFS
+
+보통 shell은 read의 input을 쪼개서 전달한다.
+
+이는 `IFS`(Internal Field Seperator)라는 shell variable로 설정된다.
+
+IFS는 기본값은 스페이스, 탭, newline characher이다.
+
+이를 변경하여 read의 input을 나누는 필드를 변경할 수 있다.
+
+예를들면 `/etc/passwd` 파일은 colon (`:`)을 필드 seperator로 사용한다. IFS를 single colon으로 변경하여 `/etc/passwd`의 내용을 read로 전달할 수 있다.
+
+아래는 이를 구현한 스크립트.
+
+```
+```
 
