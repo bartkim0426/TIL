@@ -25,4 +25,3 @@ docker: Error response from daemon: driver failed programming external connectiv
 
 linux는 init 프로세스 (pid 1)으로부터 자식 프로세스를 만들어서 관리함.
 
-

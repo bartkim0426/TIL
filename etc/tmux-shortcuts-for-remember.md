@@ -14,3 +14,8 @@
 - tmux hotkey + `:`
 
 
+## Tmux see screen in vim
+
+```
+<Ctrl-B> + <Ctrl-C>
+```

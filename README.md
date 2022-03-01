@@ -33,6 +33,12 @@
 - [ ] [kustomize usage](./kubernetes/kustomize.md)
 - [ ] [declarative management of kubernetes object using kustomize](./kubernetes/declarative-management-of-kubernetes-object-using-kustomize.md)
 - [ ] [kubernetes terminal tools](./kubernetes/kubernetes-terminal-tools.md)
+- [ ] [argo workflow 101 in eks](./kubernetes/argo-workflow-101.md)
+- [ ] [luigi with kubernetes](./kubernetes/luigi-with-kubernetes.md)
+- [ ] [kubernetes ebs persistent volume](./kubernetes/kubernetes-ebs-persistent-volume.md)
+- [ ] [kuberntes log with elastic](./kubernetes/kuberntes-log-with-elastic.md)
+- [ ] [flux 2 image update automation](./kubernetes/flux-2-image-update-automation.md)
+- [ ] [upgrade k8s version in eksctl](./kubernetes/upgrade-k8s-version-in-eksctl.md)
 
 ## Docker
 
@@ -68,6 +74,7 @@
 - [ ] [add cronjob to elastic beanstalk django](./django/add-cronjob-to-elastic-beanstalk-django.md)
 - [ ] [deploy django in elastic beanstalk](./django/deploy-django-in-elastic-beanstalk.md)
 - [ ] [celery unitest using memory broker](./django/celery-unitest-using-memory-broker.md)
+- [ ] [django jet 3 collectstatic error](./django/django-jet-3-collectstatic-error.md)
 
 ## Vim
 
@@ -113,13 +120,17 @@
 - [ ] chat-application-with-react-and-socket-io
 - [ ] [next js tutorial and documentation](./react/next.js-tutorial-and-documentation.md)
 
+## VR
+- [ ] [setup unity development environment in mac os for Oculus Quest](./vr/setup-unity-development-environment-in-mac-os.md)
+- [ ] [unity essentials](./vr/unity-essentials.md)
+
 ## etc
 
 - [happy hacking hybrid tips](./etc/happy-hacking-hybrid-tips.md)
 - [gcloud use multiple configuration account](./etc/gcloud-use-multiple-configuration-account.md)
 - [tmux set syncronize pane typing](./etc/tmux-set-syncronize-pane-typing.md)
 - [kafka setup for ec2 server](./etc/kafka-setup-for-ec2-server.md)
-- [tmux shortcuts for remember](./etc/tmux-shortcuts-for-remember.md)
+- [ ] [tmux shortcuts for remember](./etc/tmux-shortcuts-for-remember.md)
 - [aws certificate](./etc/aws-certificate.md)
 - [ ] [XSS and CSRF](./etc/cxx-and-csrf.md)
 - [ ] [about online advertising](./etc/about-online-advertising.md)
@@ -127,6 +138,19 @@
 - [ ] [collapsible section in github markdown](./etc/collapsible-section-in-github-markdown.md)
 - [ ] [aws cdk multiple environment with context](./etc/aws-cdk-multiple-environment-with-context.md)
 - [ ] [mac xcrun error after update mac version](./etc/mac-xcrun-error-after-update-mac-version.md)
+- [ ] [good lectures and books for learning basic of computer](./etc/good-lectures-and-books-for-learning-basic-of-computer)
+- [ ] [deploy application in lambda with docker image](./etc/deploy-application-in-lambda-with-docker-image.md)
+- [ ] [kms decrypt in cli](./etc/kms-decrypt-in-cli.md)
+- [ ] [android log with adb](./etc/android-log-with-adb.md)
+- [ ] [rfc6902 (json6902)](./etc/rfc6902-json6902.md)
+- [ ] [mac brew error](./etc/mac-brew-error.md)
+- [ ] [elastic beanstak https](./etc/elastic-beanstak-https.md)
+- [ ] [recommend study](./etc/recommend-study.md)
+- [ ] [autoencoder의 모든것](./etc/autoencoder의-모든것.md)
+
+## Computer science
+
+- [ ] [floating point](./cs/floating-point.md)
 
 ## nand2tetris
 - [nand2tetris project](./nand2tetris/nand2tetris.md)
@@ -149,6 +173,8 @@
 - [밑바닥부터 시작하는 딥러닝](./books/밑바닥부터-시작하는-딥러닝.md)
 - [The Linux Command Line](./books/The-Linux-Command-Line.md)
 - [fluent python](./books/fluent-python.md)
+- [CODE](./books/code.md)
+- [Operating system concepts](./books/Operating-system-concepts.md)
 
 
 ## My progress

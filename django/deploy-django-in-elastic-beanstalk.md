@@ -17,11 +17,10 @@ container_commands:
   01_set_bne:
     command: "sudo ln -f -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime"
   02_migrate:
-    command: "python3 manage.py migrate --no-input"
+    command: "$PYTHONPATH/python manage.py migrate"
     leader_only: true
-  03_collect_static:
-    command: "python3 manage.py collectstatic --no-input"
-    leader_only: true
+  03_collectstatic:
+    command: "$PYTHONPATH/python manage.py collectstatic --noinput --verbosity=0 --clear"
 option_settings:
   aws:elasticbeanstalk:container:python:
     WSGIPath: path_for/wsgi.py
@@ -40,9 +39,7 @@ Init elastic beanstalk.
 EB is deployed based on the root directory (reference to `.elasticbeanstalk` directory)
 
 ```
-$ eb init <application_name>
-```
-
+$ eb init --profile <profile> --interactive
 If you want to set aws profile name, use `--profile`. Also, if want to use ssh inside eb instance, use `-interactive` option and set or create ssh key.
 
 > If you create new key, your pem key will be automatically download in `~/.ssh` directory.

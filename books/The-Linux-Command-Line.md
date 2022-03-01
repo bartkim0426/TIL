@@ -351,7 +351,7 @@ root@e78e6ae9e14a:~# echo D*
 Desktop Documents
 root@e78e6ae9e14a:~# echo *s
 Documents Pictures Templates Videos
-root@e78e6ae9e14a:~# echo [[:upper:]]*
+root@e78e6ae9e14a:~# echo [:upper:]]*
 Desktop Documents Music Pictures Public Templates Videos
 root@e78e6ae9e14a:~# echo /usr/*/share
 /usr/local/share
@@ -3898,5 +3898,2152 @@ IFS는 기본값은 스페이스, 탭, newline characher이다.
 아래는 이를 구현한 스크립트.
 
 ```
+#!/bin/bash
+
+# read-ifs: read fields from a file
+
+FILE=/etc/passwd
+
+read -p "Enter a username > " user_name
+
+file_info="$(grep "^$user_name:" $FILE)"
+
+if [ -n "$file_info" ]; then
+      IFS=":" read user pw uid gid name home shell <<< "$file_info"
+      echo "User =      '$user'"
+      echo "UID =       '$uid'"
+      echo "GID =       '$gid'"
+      echo "Full Name = '$name'"
+      echo "Home Dir. = '$home'"
+      echo "Shell =     '$shell'"
+else
+      echo "No such user '$user_name'" >&2
+      exit 1
+fi
 ```
+
+file_info를 구하는 줄은 grep 명령 결과를 변수에 할당함.
+
+IFS를 정의하는 줄에서는 변수할당, 읽기 명령, 리디렉션 연산자 세 부분으로 구성됨.
+
+
+**변수 할당**
+
+쉘은 하나 이상의 변수 할당이 명령 직전에 발생할 수 있게 해줌.
+
+이는 일시적으로 명령이 실행되는 동안에만 환경이 변경되 게 함. 위 예시에서는 IFS 값을 콜론으로 변경.
+
+한 줄이 아니라 아래처럼 해도 무방함
+
+```
+OLD_IFS = "$IFS"
+IFS = ":"
+read user pw uid gid name home shell <<< "$file_info"
+IFS="$OLD_IFS"
+```
+
+`<<<` operator는 `here string`임. here string은 앞서 다룬 here document와 비슷하지만 single string만으로 구성되어있다.
+
+위 예시에서는 `/etc/passwd` 파일이 read command의 표준 입력으로 제공.
+
+굳이 here string을 사용한 이유는 read 명령어는 pipe로 사용할 수 없기 때문.
+
+
+```
+echo "foo" | read
+```
+
+위 명령어를 실행시켜보면 read가 pipe의 input을 받지 못해 실제로 아무것도 나오지 않는 것을 볼 수 있다.
+
+이유는 쉘이 파이프라인을 처리하는 방식과 관련있는데, bash나 sh 등의 쉘에서 파이프라인은 `subshell`을 생성하기 때문.
+
+unix-like 시스템에서 subshell은 실행중인 프로세스의 환경의 복사본을 만들어주고, 프로세스가 종료되면 이 환경의 복사본은 파괴됨. 이는 subshell이 부모 프로세스의 환경을 변경할 수 없음을 의미함.
+
+### Validating Input
+
+아래는 input을 validate 해주는 예시. 지금까지 다룬 쉘 함수, `[[ ]]`, `(( ))`, control operator (`&&`), if 등을 모두 다룬 예시이기 때문에 한 번 따라 작성해보면 도움이 많이 된다.
+
+```
+#!/bin/bash
+
+# read-validate: validate input
+
+invalid_input () {
+      echo "Invalid input '$REPLY'" >&2
+      exit 1
+}
+
+read -p "Enter a single item > "
+
+# input is empty (invalid)
+[[ -z "$REPLY" ]] && invalid_input
+
+# input is multiple items (invalid)
+(( "$(echo "$REPLY" | wc -w)" > 1 )) && invalid_input
+
+# is input a valid filename?
+if [[ "$REPLY" =~ ^[-[:alnum:]\._]+$ ]]; then
+      echo "'$REPLY' is a valid filename."
+      if [[ -e "$REPLY" ]]; then
+            echo "And file '$REPLY' exists."
+      else
+            echo "However, file '$REPLY' does not exist."
+      fi
+
+      # is input a floating point number?
+      if [[ "$REPLY" =~ ^-?[[:digit:]]*\.[[:digit:]]+$ ]]; then
+            echo "'$REPLY' is a floating point number."
+      else
+            echo "'$REPLY' is not a floating point number."
+      fi
+
+      # is input an integer?
+      if [[ "$REPLY" =~ ^-?[[:digit:]]+$ ]]; then
+            echo "'$REPLY' is an integer."
+      else
+            echo "'$REPLY' is not an integer."
+      fi
+else
+      echo "The string '$REPLY' is not a valid filename."
+fi
+
+```
+
+### Menu
+
+menu-driven은 interactivity의 흔한 방식으로, 사용자는 여러 선택지중에 하나를 고를 수 있다.
+
+```
+Please Select:
+
+1. Display System Information
+2. Display Disk Space
+3. Display Home Space Utilization
+0. Quit
+
+Enter selection [0-3] >
+```
+
+이전에 만든 `sys_info_page` 프로그램에 이 방식을 도입해서 menu-driven program으로 만들어보자.
+
+```
+#!/bin/bash
+
+# read-menu: a menu driven system information program
+
+clear
+echo "
+Please Select:
+
+1. Display System Information
+2. Display Disk Space
+3. Display Home Space Utilization
+0. Quit
+"
+
+read -p "Enter selection [0-3] > "
+
+if [[ "$REPLY" =~ ^[0-3]$ ]]; then
+  if [[ "$REPLY" == 0 ]]; then
+    echo "Program terminated."
+    exit
+  fi
+  if [[ "$REPLY" == 1 ]]; then
+    echo "Hostname: $HOSTNAME"
+    uptime
+    exit
+  fi
+  if [[ "$REPLY" == 2 ]]; then
+    df -h
+    exit
+  fi
+  if [[ "$REPLY" == 3 ]]; then
+    if [[ "$(id -u)" -eq 0 ]]; then
+      echo "Home Space Utilization (All Users)"
+      du -sh /home/*
+    else
+      echo "Home Space Utilization ($USER)"
+      du -sh "$HOME"
+    fi
+    exit
+  fi
+else
+  echo "Invalid entry." >&2
+  exit 1
+fi
+```
+
+이를 실행시키면 user는 menu를 입력할 수 있게 되고, 입력받은 번호대로 스크립트가 실행됨.
+
+```
+$ ./read_menu
+Please Select:
+
+1. Display System Information
+2. Display Disk Space
+3. Display Home Space Utilization
+0. Quit
+
+Enter selection [0-3] > 1
+Hostname: xxxx
+22:42  up 4 days, 13:03, 3 users, load averages: 3.99 4.19 4.10
+```
+
+## 29. Flow control: looping with while/until
+
+이전 챕터까지 menu-deriven program을 만들었지만 여전히 많은 문제를 가지고 있음. 그 중 하나는 single choice만 받고 바로 종료되어버리는것.
+
+잘못된 정보가 입력되면 다시 시도할 기회를 주지 않고 에러 코드와 함께 바로 종료된다.
+
+사용자가 프로그램을 종료 할 때까지 메뉴 표시, 선택을 반본적으로 할 수 있으면 더 좋을것.
+
+이는 많은 프로그래밍 언어에서 looping 개념으로 구현되어있는데 쉘에서도 looping을 위한 세 가지 명령어를 제공해줌.
+
+### looping
+
+#### while
+
+simple example for while in shell script
+
+```
+#!/bin/bash
+
+# while-count: display a series of numbers
+
+count=1
+
+while [[ "$count" -le 5 ]]; do
+    echo "$count"
+    count=$((count + 1))
+done
+
+echo "Finished"
+```
+
+result of execution is below
+
+```
+$ while-count
+1
+2
+3
+4
+5
+Finished
+```
+
+The syntax of the while command is as follow
+
+```
+while commands; do commands; done
+```
+
+if 문과 마찬가지로 while문도 exit status를 평가함.
+exits status가 0이면 loop안의 명령어를 실행시킴.
+
+이전 예시에서 `count` 변수는 1로 설정됨. `[[ ]]` compond command 안의 명령어를 실행시켜 exit code가 0이기 때문에 loop 안의 명령어를 실행시킴.
+
+while loop를 사용하여 이전 장의 프로그램을 개선
+
+```
+#!/bin/bash
+
+# while-menu: a menu driven system information program
+
+DELAY=3  # Number of seconds to display results
+
+while [[ "REPLY" != 0 ]]; do
+    clear
+cat <<- _EOF_
+    Please Select:
+
+    1. Display System Information
+    2. Display Disk Space
+    3. Display Home Space Utilization
+    0. Quit
+_EOF_
+    read -p "Enter selection [0-3] > "
+
+    if [[ "$REPLY" =~ ^[0-3]$ ]]; then
+      if [[ "$REPLY" == 0 ]]; then
+        echo "Program terminated."
+        sleep "$DELAY"
+      fi
+      if [[ "$REPLY" == 1 ]]; then
+        echo "Hostname: $HOSTNAME"
+        uptime
+        sleep "$DELAY"
+      fi
+      if [[ "$REPLY" == 2 ]]; then
+        df -h
+        sleep "$DELAY"
+      fi
+      if [[ "$REPLY" == 3 ]]; then
+        if [[ "$(id -u)" -eq 0 ]]; then
+          echo "Home Space Utilization (All Users)"
+          du -sh /home/*
+        else
+          echo "Home Space Utilization ($USER)"
+          du -sh "$HOME"
+        fi
+        sleep "$DELAY"
+      fi
+    else
+      echo "Invalid entry." >&2
+      sleep "$DELAY"
+    fi
+done
+echo "Program Terminated"
+```
+
+### Breaking out of a loop
+
+bash는 loop에서 벗어날 수 있는 두 가지 명령어를 제공해줌.
+
+- `break` 명령어: loop를 즉시 종료함
+- `continue` 명령어: 해당 loop의 남은 명령어를 스킵하고 다음 loop로
+
+break, continue를 사용하여 이전 프로그램을 리팩토링
+
+```
+#!/bin/bash
+
+# while-menu: a menu driven system information program
+
+DELAY=3  # Number of seconds to display results
+
+while true; do
+    clear
+cat <<- _EOF_
+    Please Select:
+
+    1. Display System Information
+    2. Display Disk Space
+    3. Display Home Space Utilization
+    0. Quit
+_EOF_
+    read -p "Enter selection [0-3] > "
+
+    if [[ "$REPLY" =~ ^[0-3]$ ]]; then
+      if [[ "$REPLY" == 1 ]]; then
+        echo "Hostname: $HOSTNAME"
+        uptime
+        sleep "$DELAY"
+        continue
+      fi
+      if [[ "$REPLY" == 2 ]]; then
+        df -h
+        sleep "$DELAY"
+        continue
+      fi
+      if [[ "$REPLY" == 3 ]]; then
+        if [[ "$(id -u)" -eq 0 ]]; then
+          echo "Home Space Utilization (All Users)"
+          du -sh /home/*
+        else
+          echo "Home Space Utilization ($USER)"
+          du -sh "$HOME"
+        fi
+        sleep "$DELAY"
+        continue
+      fi
+      if [[ "$REPLY" == 0 ]]; then
+          break
+      fi
+    else
+      echo "Invalid entry." >&2
+      sleep "$DELAY"
+    fi
+done
+echo "Program Terminated"
+```
+
+이 버전에서는 while true를 사용하여 무한 루프를 만들고, 명시적인 break를 사용하였다.
+
+
+### Until
+
+`until` compound command는 while과 흡사하지만, 반대로 작동한다.
+until loop는 zero exit status를 만날 때까지 계속됨.
+
+위에서 5까지 세는 count script를 만들었는데, 이를 until로 구현하면 다음과 같음.
+
+```
+#!/bin/bash
+
+# while-count: display a series of numbers
+
+count=1
+
+until [[ "$count" -gt 5 ]]; do
+    echo "$count"
+    count=$((count + 1))
+done
+
+echo "Finished"
+```
+
+### Reading files with loops
+
+while과 until은 standard input을 처리할 수 있다.
+이는 while, until loop를 사용해서 파일을 처리할 수 있게 해 준다.
+
+```
+#!/bin/bash
+
+# while-read: read lines from a file
+
+while read distro version release; do
+  printf "Distro: %s\tVersion: %s\tReleased: %s\n" \
+        "$distro" \
+        "$version" \
+        "$release"
+done < distros.txt
+```
+
+테스트를 위해서는 아래 내용을 distros.txt로 저장하고 스크립트를 실행시키면 됨.
+
+```
+USE     10.2    12/07/2006
+Fedora  10      11/25/2008
+SUSE    11.0    06/19/2008
+Ubuntu  8.04    04/24/2008
+Fedora  8       11/08/2007
+SUSE    10.3    10/04/2007
+Ubuntu  6.10    10/26/2006
+Fedora  7       05/31/2007
+Ubuntu  7.10    10/18/2007
+Ubuntu  7.04    04/19/2007
+SUSE    10.1    05/11/2006
+Fedora  6       10/24/2006
+Fedora  9       05/13/2008
+Ubuntu  6.06    06/01/2006
+Ubuntu  8.10    10/30/2008
+Fedora  5       03/20/2006
+```
+
+file의 내용을 loop로 redirect 하기 위해 redirection operator (`<`)를 done statement 뒤에 추가.
+
+`read` command는 모든 라인이 종료되면 non-zero exit status를 반환하게 되고 이 때 루프가 종료되게 됨.
+
+이를 pipeline을 사용하여 구현하여도 동일함.
+
+```
+#!/bin/bash
+
+# while-read: read lines from a file
+
+sort -k 1,1 -k 2n distros.txt | while read distro version release; do
+  printf "Distro: %s\tVersion: %s\tReleased: %s\n" \
+        "$distro" \
+        "$version" \
+        "$release"
+done
+```
+
+## 30. Troubleshooting
+
+스크립트가 복잡해질수록 문제가 발생할 가능성이 많아짐.
+
+여기에서는 스크립트에서 발생하는 일반적인 몇가지 오류를 살펴보고 문제를 추적/근절하는 몇가지 기술 소개
+
+
+```
+#!/bin/bash
+
+# trouble: script to demonstrate common errors
+
+number=1
+
+if [ $number = 1 ]; then
+      echo "Number is equal to 1."
+else
+      echo "Number is not equal to 1."
+fi
+```
+
+
+### Syntax error
+
+가장 흔하게 발생하는 에러. 쉘은 syntax error가 발생하면 스크립트 실행을 중지시킴.
+
+#### Missing quote
+
+quoting이 없으면 에러가 나는 경우. 에러 메세지의 줄 번호가 누락된 따옴표가 있는 곳이 아니라 프로그램의 후반부이기 때문에 스크립트에서 이런 오류를 찾기가 어려울 수 있음.
+
+vim이나 다른 syntax highlighting을 제공하는 에디터를 사용하는게 도움이 됨.
+
+```
+#!/bin/bash
+
+# trouble: script to demonstrate common errors
+
+number=1
+
+if [ $number = 1 ]; then
+      echo "Number is equal to 1.
+else
+      echo "Number is not equal to 1."
+fi
+
+```
+
+#### Missing or unexpected tokens
+
+if나 while 등의 compound command를 끝마치는것을 안하는 경우. semicolon이 없는 경우에도 마찬가지.
+
+```
+#!/bin/bash
+
+# trouble: script to demonstrate common errors
+
+number=1
+
+if [ $number = 1 ] then
+      echo "Number is equal to 1."
+else
+      echo "Number is not equal to 1."
+fi
+```
+
+이 경우에도 에러 메세지는 해당 줄이 아니라 이후의 줄을 가리킨다.
+
+
+```
+[me@linuxbox ~]$ trouble
+/home/me/bin/trouble: line 9: syntax error near unexpected token `else'
+/home/me/bin/trouble: line 9: `else'
+```
+
+### Unanticipated Expansions
+
+값에 따라서 어떤 경우에는 잘 작동하고 어떤 경우에는 작동하지 않을 수 있음.
+
+```
+#!/bin/bash
+
+# trouble: script to demonstrate common errors
+
+number=
+
+if [ $number = 1 ]; then
+      echo "Number is equal to 1."
+else
+      echo "Number is not equal to 1."
+fi
+```
+
+number 값이 없기 때문에 `[ = 1 ]`이라는 애매한 식이 생겨서 에러가 남.
+
+```
+[me@linuxbox ~]$ trouble
+/home/me/bin/trouble: line 7: [: =: unary operator expected
+Number is not equal to 1.
+```
+
+이런 경우 `$number` 인수에 따옴표를 추가하여 수정할 수 있다.
+
+```
+["$number"=1]
+```
+이 경우 expansion이 발생하면 아래와 같이 되기 때문에 올바른 인수가 산출된다.
+
+```
+[""=1]
+```
+
+### Logical errors
+
+syntax error와 다르게 logical error는 스크립트의 작동을 멈추지는 않는다.
+
+하지만 이는 로직에 문제가 있기 때문에 원하는 결과를 반환하지 않게 됨.
+
+- incorrect conditional expressions
+- "Off by one" errors
+- Unanticipated situations
+
+## 31. Flow control: branching with case
+
+28장에서 다뤘던 flow control을 이어서 다룸.
+
+shell에서는 단순히 `if` 명령어 이외에 `case` 명령어도 제공해줌.
+
+### The case command
+
+```
+case word in
+        [pattern [| pattern]...) commands ;;]...
+esac
+```
+
+28장에서 작성했던 명령어는 다음과 같음.
+
+```
+#!/bin/bash
+
+# read-menu: a menu driven system information program
+
+clear
+echo "
+Please Select:
+
+1. Display System Information
+2. Display Disk Space
+3. Display Home Space Utilization
+0. Quit
+"
+
+read -p "Enter selection [0-3] > "
+
+if [[ "$REPLY" =~ ^[0-3]$ ]]; then
+      if [[ "$REPLY" == 0 ]]; then
+            echo "Program terminated."
+            exit
+      fi
+      if [[ "$REPLY" == 1 ]]; then
+            echo "Hostname: $HOSTNAME"
+            uptime
+            exit
+      fi
+      if [[ "$REPLY" == 2 ]]; then
+            df -h
+            exit
+      fi
+      if [[ "$REPLY" == 3 ]]; then
+            if [[ "$(id -u)" -eq 0 ]]; then
+                  echo "Home Space Utilization (All Users)"
+                  du -sh /home/*
+            else
+                  echo "Home Space Utilization ($USER)"
+                  du -sh "$HOME"
+            fi
+            exit
+      fi
+else
+      echo "Invalid entry." >&2
+      exit 1
+fi
+```
+
+if/else문 대신에 case를 사용하면 다음과 같음.
+
+```
+#!/bin/bash
+
+# case-menu: a menu driven system information program
+
+clear
+echo "
+Please Select:
+
+1. Display System Information
+2. Display Disk Space
+3. Display Home Space Utilization
+0. Quit
+"
+
+read -p "Enter selection [0-3] > "
+
+case "$REPLY" in
+    0)      echo "Program terminated."
+            exit
+            ;;
+    1)      echo "Hostname: $HOSTNAME"
+            uptime
+            ;;
+    2)      df -h
+            ;;
+    3)      if [[ "$(id -u)" -eq 0 ]]; then
+                echo "Home Space Utilization (All Users)"
+                du -sh /home/*
+            else
+                echo "Home Space Utilization ($USER)"
+                du -sh "$HOME"
+            fi
+            ;;
+    *)      echo "Invalid entry" >&2
+            exit 1
+            ;;
+esac
+```
+
+
+### patterns
+
+case에서 사용하는 패턴들은 다음과 같음.
+
+```
+| a)            | matches if word equals a.                         |
+| [[:alpha::]]) | matches if word is a single alphabetic character. |
+| ???)          | matches if word is exactly three characters long. |
+| *.txt)        | matches if word ends with the char .txt.          |
+| *)            | matchs any value of word.                         |
+```
+
+위 패턴의 예시.
+
+```
+#!/bin/bash
+
+read -p "enter word > "
+
+case "$REPLY" in
+    [[:alpha:]])   echo "is a single alphabetic character." ;;
+    [ABC][0-9])    echo "is A, B, or C followed by a digit." ;;
+    ???)           echo "is three characters long." ;;
+    *.txt)         echo "is a word ending in '.txt'" ;;
+    *)             echo "is something else." ;;
+esac
+```
+
+vertical bar operator로 여러 패턴을 섞어서 사용하는것도 가능하다.
+
+```
+#!/bin/bash
+
+# case-menu: a menu driven system information program
+
+clear
+echo "
+Please Select:
+
+A. Display System Information
+B. Display Disk Space
+C. Display Home Space Utilization
+Q. Quit
+"
+
+read -p "Enter selection [A, B, C or Q] > "
+
+case "$REPLY" in
+    q|Q)    echo "Program terminated."
+            exit
+            ;;
+    a|A)    echo "Hostname: $HOSTNAME"
+            uptime
+            ;;
+    b|B)    df -h
+            ;;
+    c|C)    if [[ "$(id -u)" -eq 0 ]]; then
+                echo "Home Space Utilization (All Users)"
+                du -sh /home/*
+            else
+                echo "Home Space Utilization ($USER)"
+                du -sh "$HOME"
+            fi
+            ;;
+    *)      echo "Invalid entry" >&2
+            exit 1
+            ;;
+esac
+```
+
+
+### performing multiple actions
+
+base 4.0 이전에서는 한번 성공한 match 이후에 매칭되지 않는다.
+
+```
+#!/bin/bash
+
+# case4-1: test a character
+
+read -n 1 -p "Type a character > "
+echo
+case "$REPLY" in
+    [[:upper:]])    echo "'$REPLY' is upper case." ;;
+    [[:lower:]])    echo "'$REPLY' is lower case." ;;
+    [[:alpha:]])    echo "'$REPLY' is alphabetic." ;;
+    [[:digit:]])    echo "'$REPLY' is a digit." ;;
+    [[:graph:]])    echo "'$REPLY' is a visible character." ;;
+    [[:punct:]])    echo "'$REPLY' is a punctuation symbol." ;;
+    [[:space:]])    echo "'$REPLY' is a whitespace character." ;;
+    [[:xdigit:]])   echo "'$REPLY' is a hexadecimal digit." ;;
+esac
+```
+
+위 스크립트를 실행시키면 하나만 결과가 나온다.
+
+```
+[me@linuxbox ~]$ case4-1
+Type a character > a
+'a' is lower case.
+```
+
+최근의 bash 버전에서는 `;;&` operator를 사용해 이후 매칭까지 실행시킬 수 있다.
+
+```
+#!/bin/bash
+
+# case4-2: test a character
+
+read -n 1 -p "Type a character > "
+echo
+case "$REPLY" in
+    [[:upper:]])    echo "'$REPLY' is upper case." ;;&
+    [[:lower:]])    echo "'$REPLY' is lower case." ;;&
+    [[:alpha:]])    echo "'$REPLY' is alphabetic." ;;&
+    [[:digit:]])    echo "'$REPLY' is a digit." ;;&
+    [[:graph:]])    echo "'$REPLY' is a visible character." ;;&
+    [[:punct:]])    echo "'$REPLY' is a punctuation symbol." ;;&
+    [[:space:]])    echo "'$REPLY' is a whitespace character." ;;&
+    [[:xdigit:]])   echo "'$REPLY' is a hexadecimal digit." ;;&
+esac
+```
+
+bash 4.0 이후의 쉘에서는 이후까지 매칭되는 것을 볼 수 있다.
+
+```
+[me@linuxbox ~]$ case4-2
+Type a character > a
+'a' is lower case.
+'a' is alphabetic.
+'a' is a visible character.
+'a' is a hexadecimal digit.
+```
+
+## 32. Positional parameters
+
+shell 프로그램이 command line에서 컨텐츠를 받을 수 있는 법을 다룸.
+
+### Accessing the command line
+
+shell은 `positional parameter`라고 불리는 변수를 제공함.
+
+이 변수는 0~9까지 이름이 붙어있고, 다음 방식으로 사용됨.
+
+```
+#!/bin/bash
+
+# posit-param: script to view command line parameters
+
+echo "
+\$0 = $0
+\$1 = $1
+\$2 = $2
+\$3 = $3
+\$4 = $4
+\$5 = $5
+\$6 = $6
+\$7 = $7
+\$8 = $8
+\$9 = $9
+"
+```
+
+이를 파라미터 없이 실행시키면 다음과 같음.
+
+```
+[me@linuxbox ~]$ posit-param
+
+$0 = /home/me/bin/posit-param
+$1 =
+$2 =
+$3 =
+$4 =
+$5 =
+$6 =
+$7 =
+$8 =
+$9 =
+```
+
+아무 argument가 없음에도 `0` 변수로 실행된 pathname이 나타난 것을 볼 수 있다.
+
+argument를 넣어서 실행시키면 1 변수부터 순차적으로 들어간다.
+
+```
+[me@linuxbox ~]$ posit-param a b c d
+
+$0 = /home/me/bin/posit-param
+$1 = a
+$2 = b
+$3 = c
+$4 = d
+$5 =
+$6 =
+$7 =
+$8 =
+$9 =
+```
+
+> paarameter expansion을 사용하여 9 이상의 변수를 사용할 수 있음. 9보다 큰 숫자는 중괄호로 묶어줘야한다. `${10}`, `${55}` 등...
+
+### Determining the Number of arguments
+
+쉘은 `$#`라는 변수를 제공하는데, argument의 개수를 의미한다.
+
+```
+#!/bin/bash
+
+# posit-param: script to view command line parameters
+
+echo "
+Number of arguments: $#
+\$0 = $0
+\$1 = $1
+\$2 = $2
+\$3 = $3
+\$4 = $4
+\$5 = $5
+\$6 = $6
+\$7 = $7
+\$8 = $8
+\$9 = $9
+"
+```
+
+이를 실행시키면 다음과 같다.
+
+```
+[me@linuxbox ~]$ posit-param a b c d
+
+Number of arguments: 4
+$0 = /home/me/bin/posit-param
+$1 = a
+$2 = b
+$3 = c
+$4 = d
+$5 =
+$6 =
+$7 =
+$8 =
+$9 =
+```
+
+### shift - Getting access to many arguments
+
+만약에 프로그램이 아주 많은 argument를 받아야 하면?
+
+```
+[me@linuxbox ~]$ posit-param *
+
+Number of arguments: 82
+$0 = /home/me/bin/posit-param
+$1 = addresses.ldif
+$2 = bin
+$3 = bookmarks.html
+$4 = debian-500-i386-netinst.iso
+$5 = debian-500-i386-netinst.jigdo
+$6 = debian-500-i386-netinst.template
+$7 = debian-cd_info.tar.gz
+$8 = Desktop
+$9 = dirlist-bin.txt
+```
+
+위 예시에서 wildcard는 82 argument로 사용된다.
+
+shell은 `shift` 명령어를 사용해서 파라미터를 실행시마다 "move down one" 할 수 있다.
+
+실제로 shift를 사용하면, (변하지 않는 `$0` 파라미터를 제외하고) 하나의 파라미터를 사용하는 것이다.
+
+```
+#!/bin/bash
+
+# posit-param2: script to display all arguments
+
+count=1
+
+while [[ $# -gt 0 ]]; do
+      echo "Argument $count = $1"
+      count=$((count + 1))
+      shift
+done
+```
+
+`shift` 명령어가 실행될 때 마다, `$2`의 값은 `$1`로, `$3`의 값은 `$2`로 변경된다. `$1`의 값은 사라지고 `$#`의 값도 1씩 줄어든다.
+
+위 프로그램에서는 argument의 개수 (`$#`)가 0보다 크면 계속 실행되는 loop를 만들고, shift를 사용하여 계속 `$1`를 프린트 해주고 있다.
+
+```
+[me@linuxbox ~]$ posit-param2 a b c d
+Argument 1 = a
+Argument 2 = b
+Argument 3 = c
+Argument 4 = d
+```
+
+### Simple application
+
+`shift` 명령어 없이도 positional parameter를 사용한 유용한 애플리케이션을 만들 수 있다.
+
+```
+#!/bin/bash
+
+# file-info: simple file information program
+
+PROGNAME="$(basename "$0")"
+
+if [[ -e "$1" ]]; then
+      echo -e "\nFile Type:"
+      file "$1"
+      echo -e "\nFile Status:"
+      stat "$1"
+else
+      echo "$PROGNAME: usage: $PROGNAME file" >&2
+      exit 1
+fi
+```
+
+위 프로그램은 (`file` 명령어로 결정되는) file type과 `stat` 명령어로 나오는 file status르 보여준다.
+
+흥미로운 점 중 하나는 `basename "$0"`의 결과인 `PROGNAME` 변수인데, `basename` 명령어는 pathname의 경로를 모두 제거하고 파일의 이름만 남겨준다.
+
+### Using positional parameters with shell functions
+
+shell script에서 사용된 것처럼 argument를 shell function에도 사용할 수 있다.
+
+위에서 만든 `file-info`를 함수로 만들어보자.
+
+```
+file_info () {
+
+      # file_info: function to display file information
+
+      if [[ -e "$1" ]]; then
+            echo -e "\nFile Type:"
+            file "$1"
+            echo -e "\nFile Status:"
+            stat "$1"
+      else
+            echo "$FUNCNAME: usage: $FUNCNAME file" >&2
+            return 1
+      fi
+}
+```
+
+이런 기능으로, 많은 shell function을 단순히 shell script 뿐 아니라 `.bashrc`에서도 사용할 수 있다.
+
+`PROGNAME`이 `FUNCNAME` 변수로 바뀐 것을 주목. shell은 자동으로 해당 변수가 실행시키는 shell function의 이름을 지칭하게 해준다.
+
+### Handling positional parameters en Masse
+
+가끔은 positional parameters를 그룹으로 다루는 것이 유용할 수 있다.
+
+이를 위해 shell은 두가지 특수 변수를 제공한다. `$*`과 `$@`
+
+
+- `$*`: 1부터 시작하는 positional parameters 목록으로 확장. 큰따옴표로 묶이면 모든 positional parameter를 포함하는 문자열로 확장. 각각은 공백 문자(IFS 쉘 변수의 첫번째 문자)로 구분.
+- `$@`: 1부터 시작하는 positional parameters 목록으로 확장. 큰따옴표로 묶이면 각 positional parameter를 큰 따옴표로 묶은 것처럼 별도 단어로 확장.
+
+```
+#!/bin/bash
+
+# posit-params3: script to demonstrate $* and $@
+
+print_params () {
+      echo "\$1 = $1"
+      echo "\$2 = $2"
+      echo "\$3 = $3"
+      echo "\$4 = $4"
+}
+
+pass_params () {
+      echo -e "\n" '$* :';   print_params $*
+      echo -e "\n" '"$*" :'; print_params "$*"
+      echo -e "\n" '$@ :';   print_params $@
+      echo -e "\n" '"$@" :'; print_params "$@"
+}
+
+pass_params "word" "words with spaces"
+```
+
+이를 실행시켜보면 각각 다른 결과가 나타난 것을 볼 수 있다.
+
+```
+[me@linuxbox ~]$ posit-param3
+
+ $* :
+$1 = word
+$2 = words
+$3 = with
+$4 = spaces
+
+ "$*" :
+$1 = word words with spaces
+$2 =
+$3 =
+$4 =
+
+ $@ :
+$1 = word
+$2 = words
+$3 = with
+$4 = spaces
+
+ "$@" :
+$1 = word
+$2 = words with spaces
+$3 =
+$4 =
+```
+
+### A more complete application
+
+이전에 만들던 `sys_info_page` 프로그램을 다시 작업해보자.
+
+- Output file: optional로 특정 파일 이름을 받아 output을 저장해보자. `-f file` or `--file file`
+- Interactive mode: `-i` or `--interactive`
+- Help: `-h` or `--help`
+
+우선 shift를 사용해서 받은 parameter들을 각각의 옵션과 매칭시키는 함수를 만들자.
+
+```
+usage () {
+      echo "$PROGNAME: usage: $PROGNAME [-f file | -i]"
+      return
+}
+
+# process command line options
+
+interactive=
+filename=
+
+while [[ -n "$1" ]]; do
+      case "$1" in
+            -f | --file)            shift
+                                    filename="$1"
+                                    ;;
+            -i | --interactive)     interactive=1
+                                    ;;
+            -h | --help)            usage
+                                    exit
+                                    ;;
+            *)                      usage >&2
+                                    exit 1
+                                    ;;
+      esac
+      shift
+done
+```
+
+`shift`를 사용해서 positional parameters를 하나씩 순회하면서 각각 옵션에 따라 실행시킴.
+
+`-h`일 경우 `usage` 함수를, `-f`, `-i`일 경우 `filename`, `interactive` 변수에 값을 넣어준다.
+
+다음으로 interactive mode를 작성해보자.
+
+```
+# interactive mode
+
+if [[ -n "$interactive" ]]; then
+      while true; do
+            read -p "Enter name of output file: " filename
+            if [[ -e "$filename" ]]; then
+                  read -p "'$filename' exists. Overwrite? [y/n/q] > "
+                  case "$REPLY" in
+                      Y|y)    break
+                              ;;
+                      Q|q)    echo "Program terminated."
+                              exit
+                              ;;
+                      *)      continue
+                              ;;
+                  esac
+            elif [[ -z "$filename" ]]; then
+                  continue
+            else
+                  break
+            fi
+      done
+fi
+```
+
+만약 `interactive` 변수가 있다면, while loop가 실행되면서 상황에 따라 파일을 생성할지, 덮어쓸지 처리한다.
+
+filename이 있을 때 해당 파일로 output을 기록하는 부분을 구현해보자.
+
+```
+write_html_page () {
+      cat <<- _EOF_
+      <html>
+            <head>
+                  <title>$TITLE</title>
+            </head>
+            <body>
+                  <h1>$TITLE</h1>
+                  <p>$TIMESTAMP</p>
+                  $(report_uptime)
+                  $(report_disk_space)
+                  $(report_home_space)
+            </body>
+      </html>
+      _EOF_
+      return
+}
+
+# output html page
+
+if [[ -n "$filename" ]]; then
+      if touch "$filename" && [[ -f "$filename" ]]; then
+            write_html_page > "$filename"
+      else
+            echo "$PROGNAME: Cannot write file '$filename'" >&2
+            exit 1
+      fi
+else
+      write_html_page
+fi
+```
+
+
+이제 위 기능들을 추가하여 기존보다 훨씬 다양한 기능을 갖춘 프로그램을 작성할 수 있다.
+
+```
+#!/bin/bash
+
+# sys_info_page: program to output a system information page
+
+PROGNAME="$(basename "$0")"
+TITLE="System Information Report For $HOSTNAME"
+CURRENT_TIME="$(date +"%x %r %Z")"
+TIMESTAMP="Generated $CURRENT_TIME, by $USER"
+
+report_uptime () {
+      cat <<- _EOF_
+            <h2>System Uptime</h2>
+            <pre>$(uptime)</pre>
+            _EOF_
+      return
+}
+
+report_disk_space () {
+      cat <<- _EOF_
+            <h2>Disk Space Utilization</h2>
+            <pre>$(df -h)</PRE>
+            _EOF_
+      return
+}
+
+report_home_space () {
+      if [[ "$(id -u)" -eq 0 ]]; then
+            cat <<- _EOF_
+                  <h2>Home Space Utilization (All Users)</h2>
+                  <pre>$(du -sh /home/*)</pre>
+                  _EOF_
+      else
+            cat <<- _EOF_
+                  <h2>Home Space Utilization ($USER)</h2>
+                  <pre>$(du -sh "$HOME")</pre>
+                  _EOF_
+      fi
+      return
+}
+
+usage () {
+      echo "$PROGNAME: usage: $PROGNAME [-f file | -i]"
+      return
+}
+
+write_html_page () {
+      cat <<- _EOF_
+      <html>
+            <head>
+                  <title>$TITLE</title>
+            </head>
+            <body>
+                  <h1>$TITLE</h1>
+                  <p>$TIMESTAMP</p>
+                  $(report_uptime)
+                  $(report_disk_space)
+                  $(report_home_space)
+            </body>
+      </html>
+      _EOF_
+      return
+}
+
+# process command line options
+
+interactive=
+filename=
+
+while [[ -n "$1" ]]; do
+    case "$1" in
+        -f | --file)        shift
+                            filename="$1"
+                            ;;
+        -i | --interactive) interactive=1
+                            ;;
+        -h | --help)        usage
+                            exit
+                            ;;
+        *)                  usage >&2
+                            exit 1
+                            ;;
+    esac
+    shift
+done
+
+# interactive mode
+
+if [[ -n "$interactive" ]]; then
+    while true; do
+        read -p "Enter name of output file: " filename
+        if [[ -e "$filename" ]]; then
+            read -p "'$filename' exists. Overwrite? [y/n/q] > "
+            case "$REPLY" in
+                Y|y)    break
+                        ;;
+                Q|q)    echo "Program terminated."
+                        exit
+                        ;;
+                *)      continue
+                        ;;
+            esac
+        elif [[ -z "$filename" ]]; then
+            continue
+        else
+            break  
+        fi
+    done
+fi
+
+# output html page
+
+if [[ -n "$filename" ]]; then
+      if touch "$filename" && [[ -f "$filename" ]]; then
+            write_html_page > "$filename"
+      else
+            echo "$PROGNAME: Cannot write file '$filename'" >&2
+            exit 1
+      fi
+else
+      write_html_page
+fi
+```
+
+## 33. Flow control: looping with for
+
+for loop는 이전에 다룬 while과 until과는 다르게 processing sequence를 제공한다.
+
+### for: traditional shell form
+
+전통적인 형태의 `for`문은 다음과 같이 사용.
+
+```
+for variable [in words]; do
+  commands
+done
+```
+
+for문은 command line에서도 유용하게 사용될 수 있다.
+
+```
+[me@linuxbox ~]$ for i in A B C D; do echo $i; done
+A
+B
+C
+D
+```
+
+`for`문의 강력한 기능 중 하나는 word list를 동적으로 만들 수 있다는 점. brace expansion을 사용 가능.
+
+```
+[me@linuxbox ~]$ for i in {A..D}; do echo $i; done
+A
+B
+C
+D
+```
+
+혹은 pathname expansion을 사용할 수 있다.
+
+```
+[me@linuxbox ~]$ for i in distros*.txt; do echo "$i"; done
+distros-by-date.txt
+distros-dates.txt
+distros-key-names.txt
+distros-key-vernums.txt
+distros-names.txt  
+distros.txt
+distros-vernums.txt
+distros-versions.txt
+```
+
+다른 흔한 예시는 command substitution이다.
+
+```
+#!/bin/bash
+
+# longest-word: find longest string in a file
+
+# if "$1" is not null string
+while [[ -n "$1" ]]; do
+    # if "$1" has read permission
+    if [[ -r "$1" ]]; then
+        max_word=
+        max_len=0
+        for i in $(strings "$1"); do
+            # count the letters of the filename
+            len="$(echo -n "$i" | wc -c)"
+            if (( len > max_len )); then
+                max_len="$len"
+                max_word="$i"
+            fi
+        done
+        echo "$1: '$max_word' ($max_len characters)"
+    fi
+    shift
+done
+```
+
+위 예시는 특정 파일에서 가장 긴 단어를 찾는 스크립트이다.
+
+GUN builtin package인 `strings` 프로그램을 사용해서 읽을 수 있는 파일의 단어 리스트를 생성하고, for문에서 각 단어를 보고 가장 긴 단어인지 판단한다.
+
+> bash operator examples: https://linuxhint.com/bash_operator_examples/#
+
+while 대신 for를 사용하여 받은 인자를 처리하는것도 가능.
+
+```
+#!/bin/bash
+
+# longest-word2: find longest string in a file
+
+for i; do
+    if [[ -r "$1" ]]; then
+        max_word=
+        max_len=0
+        for j in $(strings "$i"); do
+            len="$(echo -n "$j" | wc -c)"
+            if (( len > max_len )); then
+                max_len="$len"
+                max_word="$j"
+            fi
+        done
+        echo "$i: '$max_word' ($max_len characters)"
+    fi
+done
+```
+
+### for: C Language form
+
+최근 버전의 bash는 C언어에서 사용하는 형태의 두번째 for 명령어 문법을 지원한다.
+
+```
+for (( expression1; expression2; expression3 )); do
+  commands
+done
+```
+
+이는 다음 코드와 동일한 의미.
+
+```
+(( expression1 ))
+while (( expression2 )); do
+      commands
+      (( expression3 ))
+done
+```
+
+expression1은 for loop의 조건을 initialize하기 위해 쓰이고, expression2는 for loop를 종료시킬 때 쓰인다. expression3은 각 loop의 종료에 실행된다.
+
+아래는 간단한 예시
+
+```
+#!/bin/bash
+
+# simple_counter: demo of C style for command
+
+for (( i=0; i<5; i=i+1 )); do
+    echo $i
+done
+```
+
+### Summing up
+
+앞에서 다룬 for 명령어를 통해 기존의 sys_info_page 스크립트를 업그레이드 시킬 수 있다.
+
+기존에 아래의 코드로 되어있는데,
+
+```
+report_home_space () {
+      if [[ "$(id -u)" -eq 0 ]]; then
+            cat <<- _EOF_
+                  <h2>Home Space Utilization (All Users)</h2>
+                  <pre>$(du -sh /home/*)</pre>
+                  _EOF_
+      else
+            cat <<- _EOF_
+                  <h2>Home Space Utilization ($USER)</h2>
+                  <pre>$(du -sh "$HOME")</pre>
+                  _EOF_
+      fi
+      return
+}
+```
+
+이를 각 유저의 홈 디렉토리를 순회하면서 각각이 가진 디렉토리와 파일들의 숫자를 제공하게 수정해보자.
+
+```
+report_home_space () {
+      local format="%8s%10s%10s\n"
+      local i dir_list total_files total_dirs total_size user_name
+
+      if [[ "$(id -u)" -eq 0 ]]; then
+            dir_list=/home/*
+            user_name="All Users"
+      else
+            dir_list="$HOME"
+            user_name="$USER"
+      fi
+
+      echo "<h2>Home Space Utilization ($user_name)</h2>"
+
+      for i in $dir_list; do
+            total_files="$(find "$i" -type f | wc -l)"
+            total_dirs="$(find "$i" -type d | wc -l)"
+            total_size="$(du -sh "$i" | cut -f 1)"
+
+            echo "<h3>$i</h3>"
+            echo "<pre>"
+            printf "$format" "Dirs" "Files" "Size"
+            printf "$format" "----" "-----" "----"
+            printf "$format" "$total_dirs" "$total_files" "$total_size"
+            echo "</pre>"
+      done
+      return
+}
+```
+
+## 34. Strings and numbers
+
+33장에서는 파일 수준의 데이터를 처리하는데 중점을 두었지만, 많은 프로그래밍 문제는 작은 데이터 단위를 사용해서 해결하는 경우들이 많음.
+
+이번 챕터에서는 문자열과 숫자를 조작하는데 사용되는 쉘 기능을 다룸.
+
+
+### Parameter expansion
+
+이전 장에서 이미 쉘 변수와 같은 몇몇 parameter expansion을 다뤄보았다. 쉘은 훨씬 많은 기능을 제공함.
+
+> 특별한 이유가 없지 않으면 parameter expansion을 큰따옴표로 묶는것이 좋음.
+
+#### Basic parameters
+
+가장 단순한 형태는 일반적인 변수 형태. 중괄호로 묶을수도 있음.
+
+```
+$a
+${a}
+```
+중괄호는 큰 영향을 미치니 않지만 다른 텍스트와 인접한 경우 사용됨.
+
+```
+a="foo"
+echo "$a_file"
+echo "${a}_file"
+```
+
+
+## 35. Array
+
+지금까지 살펴본 변수는 단일 값을 포함하는 스칼라 변수. 이번 장에서는 여러 값을 보유하는 array 데이터 구조를 살펴보고 쉘에서 이를 다루는 방식을 정리.
+
+### What is array?
+
+배열은 한 번에 둘 이상의 값을 보유하는 변수.
+
+대부분의 프로그래밍 언어는 다차원 배열을 지원하지만 bash의 배열은 단일 차원으로 제한됨.
+
+> bash 2에서 처음 array를 지원. sh에서는 array를 지원하지 않음.
+
+### Create array
+
+array 변수는 다른 bash 변수와 마찬가지로 이름이 지정
+
+```
+[me@linuxbox ~]$ a[1]=foo
+[me@linuxbox ~]$ echo ${a[1]}
+foo
+```
+
+declare를 사용해서 만들수도 있음.
+
+```
+[me@linuxbox ~]$ declare -aa
+```
+
+### Assigning values to an array
+
+두가지 방법으로 할당 가능.
+
+```
+name[subscript]=value
+```
+
+name은 array의 이름이며 subscript는 0 이상의 정수. (첫 번째 인자는 subscript 0부터 시작)
+
+
+```
+name=(value1 value2...)
+```
+
+아래와 같이 만들 수 있음.
+
+```
+[me@linuxbox ~]$ days=(Sun Mon Tue Wed Thu Fri Sat)
+```
+
+특정 subscriptㅌ와 함께 값을 지정 할 수도 있다.
+
+```
+[me@linuxbox ~]$ days=([0]=Sun [1]=Mon [2]=Tue [3]=Wed [4]=Thu [5]=Fri [6]=Sat)
+```
+
+### Accessing Array elements
+
+array는 언제 사용하면 좋을까? 여러 데이터를 다루는 태스크나 spreadsheet 프로그램에서 사용 가능.
+
+간단한 데이터 수집 예제를 만들어 보자.
+
+저장된 디렉토리에 있는 파일의 수정 시간을 검사하는 스크립트. 각 파일이 마지막으로 수정된 시간을 보여주는 테이블을 출력
+
+```
+[me@linuxbox ~]$ hours .
+Hour  Files  Hour  Files
+----  -----  ----  -----
+00    0      12    11
+01    1      13    7
+02    0      14    1
+03    0      15    7
+04    1      16    6
+05    1      17    5
+06    6      18    4
+07    3      19    4
+08    1      20    1
+09    14     21    0
+10    2      22    0
+11    5      23    0
+
+Total files = 80
+```
+
+위 코드는 다음과 같음.
+
+```
+#!/bin/bash
+
+# hours: script to count files by modification time
+
+usage () {
+      echo "usage: ${0##*/} directory" >&2
+}
+
+# check that argument is a directory
+
+if [[ ! -d "$1" ]]; then
+    usage
+    exit 1
+fi
+
+# Initialize array
+for i in {0..23}; do hours[i]=0; done
+
+# Collect data
+for i in $(stat -c %y "$1"/* | cut -c 12-13); do
+      j="${i#0}"
+      ((++hours[j]))
+      ((++count))
+done
+
+# Display data
+echo -e "Hour\tFiles\tHour\tFiles"
+echo -e "----\t-----\t----\t-----"
+for i in {0..11}; do
+      j=$((i + 12))
+      printf "%02d\t%d\t%02d\t%d\n" \
+            "$i" \
+            "${hours[i]}" \
+            "$j" \
+            "${hours[j]}"
+done
+printf "\nTotal files = %d\n" $count
+```
+
+### Array operation
+
+array를 제거하거나, 개수를 세거나 정렬하는 등 많은 공통적인 array operation을 지원한다.
+
+
+#### Outputting the entire contents of an array
+
+`*`와 `@` subscipt는 array의 모든 element에 접근할 수 있게 해준다. positional parameter로 `@`가 더 유용하게 쓰임.
+
+```
+[me@linuxbox ~]$ animals=("a dog" "a cat" "a fish")
+[me@linuxbox ~]$ for i in ${animals[*]}; do echo $i; done
+a
+dog
+a
+cat
+a
+fish
+[me@linuxbox ~]$ for i in ${animals[@]}; do echo $i; done
+a
+dog
+a
+cat
+a
+fish
+[me@linuxbox ~]$ for i in "${animals[*]}"; do echo $i; done
+a dog a cat a fish
+[me@linuxbox ~]$ for i in "${animals[@]}"; do echo $i; done
+a dog
+a cat
+a fish
+```
+
+#### Determining the Number of Array Elements
+
+parameter extension을 사용해서 array가 가진 수를 셀 수 있다.
+
+```
+[me@linuxbox ~]$ a[100]=foo
+[me@linuxbox ~]$ echo ${#a[@]}  # number of array elements
+1
+[me@linuxbox ~]$ echo ${#a[100]}  # length of element 100
+3
+```
+
+#### Finding the Subscripts Used by an Array
+
+어떤 element가 array에 있는지 결정하는 것도 유용하게 쓰일 수 있다. 아래 문법으로 사용
+
+```
+${!array[*}}
+${!array[@}}
+```
+
+
+```
+[me@linuxbox ~]$ foo=([2]=a [4]=b [6]=c)
+[me@linuxbox ~]$ for i in "${foo[@]}"; do echo $i; done
+a
+b
+c
+[me@linuxbox ~]$ for i in "${!foo[@]}"; do echo $i; done
+2
+4
+6
+```
+
+#### Adding Elements to the End of an Array
+
+`+=` operator 를 사용해서 array에 값을 추가할 수 있다.
+
+```
+[me@linuxbox ~]$ foo=(a b c)
+[me@linuxbox ~]$ echo ${foo[@]}
+a b c
+[me@linuxbox ~]$ foo+=(d e f)
+[me@linuxbox ~]$ echo ${foo[@]}
+a b c d e f
+```
+
+#### Sorting an Array
+
+쉘에서는 array를 정렬하는 기능을 바로 제공하지 않지만 약간의 코드로 쉽게 구현할 수있다.
+
+```
+#!/bin/bash
+
+# array-sort: Sort an array
+
+a=(f e d c b a)
+
+echo "Original array: ${a[@]}"
+a_sorted=($(for i in "${a[@]}"; do echo $i; done | sort))
+echo "Sorted array:   ${a_sorted[@]}"
+```
+
+이를 실행하면 다음과 같음.
+
+```
+[me@linuxbox ~]$ array-sort
+Original array: f e d c b a
+Sorted array:   a b c d e f
+```
+
+#### Deleting an Array
+
+array를 제거하기 위해서는 `unset` 명령어를 사용하면 된다.
+
+```
+[me@linuxbox ~]$ foo=(a b c d e f)
+[me@linuxbox ~]$ echo ${foo[@]}
+a b c d e f
+[me@linuxbox ~]$ unset foo
+[me@linuxbox ~]$ echo ${foo[@]}
+
+[me@linuxbox ~]$
+```
+
+이는 각각의 element에도 사용 가능.
+
+
+```
+[me@linuxbox ~]$ foo=(a b c d e f)
+[me@linuxbox ~]$ echo ${foo[@]}
+a b c d e f
+[me@linuxbox ~]$ unset 'foo[2]'
+[me@linuxbox ~]$ echo ${foo[@]}
+a b d e f
+```
+
+흥미로운 점은 기존에 존재하는 array 변수에 empty value를 할당해도 array 자체가 제거되는 것은 아니다.
+
+```
+[me@linuxbox ~]$ foo=(a b c d e f)
+[me@linuxbox ~]$ foo=
+[me@linuxbox ~]$ echo ${foo[@]}
+b c d e f
+```
+
+subscript가 없이 array를 사용하면 array의 첫번째 element를 지칭하게 되기 때문.
+
+```
+[me@linuxbox ~]$ foo=(a b c d e f)
+[me@linuxbox ~]$ echo ${foo[@]}
+a b c d e f
+[me@linuxbox ~]$ foo=A
+[me@linuxbox ~]$ echo ${foo[@]}
+A b c d e f
+```
+
+### Associative Arrays
+
+bash 4.0 이상에서는 associative array를 제공한다. 이는 array index로 integer 대신에 string을 사용한다.
+
+```
+declare -A colors
+colors["red"]="#ff0000"
+colors["green"]="#00ff00"
+colors["blue"]="#0000ff"
+```
+
+
+## 36. Exotica
+
+책의 마지막 장에서는 자주 사용하지는 않지만 특정 상황에서 도움이 되는 bash 명령어들을 살펴볼 것.
+
+
+### Group commands and subshells
+
+아래 문법으로 사용한다.
+
+```
+# group command
+{ command1; command2; [command3; ...] }
+
+# subshell
+(command1; command2; [command3;...])
+```
+
+둘 다 redirection을 관리하는데서 사용된다. 여러 명령에서 redirection을 수행하는 스크립트를 생각해보자.
+
+```
+ls -l > output.txt
+echo "foo.txt" >> output.txt
+cat foo.txt >> output.txt
+```
+
+위 명령어는 각 명령어의 output들을 `output.txt`에 적는 간단한 명령어들이다. 이를 group command로 적으면 다음과 같다.
+
+```
+{ ls -l; echo "Listing of foo.txt"; cat foo.txt; } > output.txt
+```
+
+subshell로는 아래와 같이 적는다.
+
+```
+(ls -l; echo "Listing of foo.txt"; cat foo.txt) > output.txt
+```
+
+이 기술로 한 줄로 명령어를 만들었지만, 실제로 group command와 subshell은 파이프라인에서 잘 활용된다.
+
+command pipeline을 구성할 때 여러 명령의 결과를 단일 stream으로 결합하는 경우에 이를 쉽게 수행할 수 있다.
+
+
+아래는 이를 활용한 예시 스크립트이다. `array-2`라는 스크립트를 만들어서 디렉토리 이름을 받아 해당 파일 소유자, 그룹 소유자의 이름과 함께 
+목록의 끝에서 각 소유자/그룹에 속하는 파일 수를 집계한다.
+
+```
+[me@linuxbox ~]$ array-2 /usr/bin
+/usr/bin/2to3-2.6                        root       root      
+/usr/bin/2to3                            root       root      
+/usr/bin/a2p                             root       root      
+/usr/bin/abrowser                        root       root      
+/usr/bin/aconnect                        root       root      
+/usr/bin/acpi_fakekey                    root       root      
+/usr/bin/acpi_listen                     root       root      
+/usr/bin/add-apt-repository              root       root
+--snip--
+/usr/bin/zipgrep                         root       root      
+/usr/bin/zipinfo                         root       root      
+/usr/bin/zipnote                         root       root      
+/usr/bin/zip                             root       root      
+/usr/bin/zipsplit                        root       root      
+/usr/bin/zjsdecode                       root       root      
+/usr/bin/zsoelim                         root       root      
+
+File owners:
+daemon    :     1 file(s)
+root      :  1394 file(s)
+
+File group owners:
+crontab   :     1 file(s)
+daemon    :     1 file(s)
+lpadmin   :     1 file(s)
+mail      :     4 file(s)
+mlocate   :     1 file(s)
+root      :  1380 file(s)
+shadow    :     2 file(s)
+ssh       :     1 file(s)
+tty       :     2 file(s)
+utmp      :     2 file(s)
+
+```
+
+아래는 실제 스크립트.
+
+```
+ 1    #!/bin/bash
+ 2    
+ 3    # array-2: Use arrays to tally file owners
+ 4    
+ 5    declare -A files file_group file_owner groups owners
+ 6    
+ 7    if [[ ! -d "$1" ]]; then
+ 8        echo "Usage: array-2 dir" >&2
+ 9        exit 1
+10    fi
+11    
+12    for i in "$1"/*; do
+13        owner="$(stat -c %U "$i")"
+14        group="$(stat -c %G "$i")"
+15        files["$i"]="$i"
+16        file_owner["$i"]="$owner"
+17        file_group["$i"]="$group"
+18        ((++owners[$owner]))
+19        ((++groups[$group]))
+20    done
+21    
+22    # List the collected files
+23    { for i in "${files[@]}"; do
+24        printf "%-40s %-10s %-10s\n" \
+25            "$i" "${file_owner["$i"]}" "${file_group["$i"]}"
+26    done } | sort
+27    echo
+28    
+29    # List owners
+30    echo "File owners:"
+31    { for i in "${!owners[@]}"; do
+32        printf "%-10s: %5d file(s)\n" "$i" "${owners["$i"]}"
+33    done } | sort
+34    echo
+35    
+36    # List groups
+37    echo "File group owners:"
+38    { for i in "${!groups[@]}"; do
+39        printf "%-10s: %5d file(s)\n" "$i" "${groups["$i"]}"
+40    done } | sort
+
+```
+
+각 스크립트를 살펴보자.
+
+- 5번쨰 줄: declare를 사용해서 이후에 사용할 array를 만듦
+- 7-10번째 줄: 유효한 디렉토리 명인지 검증.
+- 12-20번째 줄: 디렉토리의 파일을 반복하면서 stat 명령어로 필요한 정보를 각각의 배열에 추가
+- 22-27번째 줄: 파일 목록을 출력함. group command를 사용해서 전체 출력을 pipeline으로 `sort`할 수 있음.
+- 29-40번째 줄: owner/group 목록을 출력. 위와 흡사하게 사용
+
+### process substitution
+
+group command와 subshell은 거의 동일해 보이지만 중요한 차이점이 있다.
+
+- group command 은 현재 쉘에서 모든 명령을 실행하는 반면
+- subshell은 현재 shell의 자식 복사본에서 명령을 실행: 환경이 복사되어 쉘의 새 인스턴스에 제공
+  - subshell이 종료되면 환경에 대한 변경 사항 (변수 할당 등)이 모두 손실
+
+그래서 subshell이 꼭 필요한 경우가 아니라면 group command가 더 선호됨. 실제로 group command가 더 적은 메모리를 필요로 한다.
+
+
+이전 장에서 subshell의 문제를 다뤘는데 이를 보여주는 간단한 스크립트
+
+```
+echo "foo" | read
+echo $REPLY
+```
+
+`REPLY` 변수는 read pipeline이 subshell에서 실행되고, subshell이 종료될 때 변수 할당이 파괴되기 때문에 항상 비어있게 됨.
+
+pipeline은 항상 subshell에서 실행되기 때문에 변수를 할당하는 모든 명령에서 이 문제가 발생.
+
+이를 해결하기 위해 shell에서 `process substitution`이라는 확장 형식을 제공함.
+
+이는 두 가지 방식으로 표현된다.
+
+표준 출력을 생성하는 프로세스의 경우
+
+```
+<(list)
+```
+
+표준 입력을 받는 프로세스의 경우
+
+```
+>(list)
+```
+
+위 read pipeline 스크립트의 문제를 해결하기 위해서 process substitution을 사용해 보자.
+
+```
+read < <(echo "foo")
+echo $REPLY
+```
+
+process substitution을 사용하면 redirection을 위헤 subshell의 출력을 일반 파일로 취급할 수 있다.
+이를 실제로 확인해 보면 특정 파일이 subshell의 출력을 제공하고 있는걸 볼 수 있음.
+
+```
+[me@linuxbox ~]$ echo <(echo "foo")
+/dev/fd/63
+```
+
+
+### Trap
+
+이전에 프로그램이 신호에 응답할 수 있는 기능을 추가할 수 있었다. 크고 복잡한 스크립트는 신호 처리 루틴을 사용하는 것이 좋다.
+
+스크립트가 실행되는 동안 사용자가 로그오프 하거나 컴퓨터가 종료되는 등의 이벤트가 발생하면, 영향을 받는 프로세스에 신호가 전송되고 이에 대한 조치를 실행시킬 수 있음.
+
+예를 들어 실행중에 임시 파일을 생성하는 스크립트가 있으면, 스크립트 실행 중 특정 이벤트 신호가 수신되면 파일을 삭제하게 할 수 있다.
+
+bash는 이를 위해 `trap`을 제공한다.
+
+```
+trap argument signal [signal...]
+```
+
+간단한 예시
+
+```
+#!/bin/bash
+
+# trap-demo: simple signal handling demo
+
+trap "echo 'I am ignoring you.'" SIGINT SIGTERM
+
+for i in {1..5}; do
+      echo "Iteration $i of 5"
+      sleep 5
+done
+```
+
+이 스크립트는 5초마다 echo 명령어가 실행되는 간단한 스크립트. `SIGINT`나 `SIGTERM`이 수신될 때마다 `I am ignoring you` 메세지를 출력하게 한다.
+
+실제로 스크립트를 실행시키고 `Ctrl-C`를 눌러 스크립트를 중지하려고 할 때 마다 해당 메세지를 볼 수 있다.
+
+```
+$ ./trap-demo.sh
+Iteration 1 of 5
+Iteration 2 of 5
+d^CI am ignoring you.
+Iteration 3 of 5
+^CI am ignoring you.
+Iteration 4 of 5
+^CI am ignoring you.
+Iteration 5 of 5
+```
+
+이를 문자열로 적ㅇ 때문에 보통은 shell function으로 만들어서 사용한다.
+
+```
+#!/bin/bash
+
+# trap-demo2: simple signal handling demo
+
+exit_on_signal_SIGINT () {
+      echo "Script interrupted." 2>&1
+      exit 0
+}
+
+exit_on_signal_SIGTERM () {
+      echo "Script terminated." 2>&1
+      exit 0
+}
+
+trap exit_on_signal_SIGINT SIGINT
+trap exit_on_signal_SIGTERM SIGTERM
+
+for i in {1..5}; do
+      echo "Iteration $i of 5"
+      sleep 5
+done
+```
+
+### Asynchronous execution with wait
+
+가끔은 동시에 둘 이상의 작업을 수행하는 것이 좋을 때가 있다.
+
+스크립트를 멀티태스킹 방식으로 작동하게 할 수 있는데, bash에서는 `wait`명령어로 지정된 프로세스 (하위 스크립트)가 완료 될 때까지 부모 스크립트를 일시 정지 시킬 수 있다.
+
+이를 위해서는 부모 스크립트와 자식 스크립트가 필요한다.
+
+아래는 부모 스크립트
+
+```
+#!/bin/bash
+
+# async-parent: Asynchronous execution demo (parent)
+
+echo "Parent: starting..."
+
+echo "Parent: launching child script..."
+async-child &
+pid=$!
+echo "Parent: child (PID= $pid) launched."
+
+echo "Parent: continuing..."
+sleep 2
+
+echo "Parent: pausing to wait for child to finish..."
+wait "$pid"
+
+echo "Parent: child is finished. Continuing..."
+echo "Parent: parent is done. Exiting."
+```
+
+다음은 자식 스크립트 예시
+
+```
+#!/bin/bash
+
+# async-child: Asynchronous execution demo (child)
+
+echo "Child: child is running..."
+sleep 5
+echo "Child: child is done. Exiting."
+```
+
+위 예시에서 볼 수 있듯이 자식 스크립트는 아무런 역할을 하지 않고 실제 작업은 부모 스크립트가 진행한다.
+
+상위 스크립트는 하위 스크립트의 PID를 사용하여 `wait` 명령을 싱행하고, 하위 스크립트가 종료될 때 까지 상위 스크립트가 일시 중지된다.
+
+```
+[me@linuxbox ~]$ async-parent
+Parent: starting...
+Parent: launching child script...
+Parent: child (PID= 6741) launched.
+Parent: continuing...
+Child: child is running...
+Parent: pausing to wait for child to finish...
+Child: child is done. Exiting.
+Parent: child is finished. Continuing...
+Parent: parent is done. Exiting.
+```
+
 
