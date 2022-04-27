@@ -33,4 +33,12 @@ Non-Linear한 방식
 
 ## 3. Autoencoders
 
+![image](https://user-images.githubusercontent.com/23415251/156154895-48574d4a-204b-4b24-8337-1a0ee77247e5.png)
+
 - 입력과 출력이 갖게 하는 구조
+- unsupervised로 풀 수 밖에 없는 문제를 supervised로 해결
+- loss (reconstruction error): L(x, y)
+
+여러 종류가 있음
+- Noise AutoEncoder (NAE)
+- SCAE (Stochastic Contractive AutoEncoder)
