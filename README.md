@@ -146,6 +146,7 @@
 - [ ] [mac brew error](./etc/mac-brew-error.md)
 - [ ] [elastic beanstak https](./etc/elastic-beanstak-https.md)
 - [ ] [recommend study](./etc/recommend-study.md)
+- [ ] [ga4 study](./etc/ga4-study.md)
 - [ ] [autoencoder의 모든것](./etc/autoencoder의-모든것.md)
 
 ## Computer science
@@ -175,6 +176,8 @@
 - [fluent python](./books/fluent-python.md)
 - [CODE](./books/code.md)
 - [Operating system concepts](./books/Operating-system-concepts.md)
+- [파이썬 자료구조와 알고리즘](./books/python-data-structures-and-algorithm.md)
+- [kafka the definitive edition](./books/kafka-the-definitive-edition.md)
 
 
 ## My progress
@@ -188,3 +191,6 @@
 - [data science](./my-progress/data-science.md)
 - [graphql](./my-progress/graphql.md)
 - [mathematics](./my-progress/mathematics.md)
+
+
+[In miami](./miami.md)
