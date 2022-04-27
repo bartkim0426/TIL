@@ -62,3 +62,5 @@
 - 그래서 현재는 대부분 app 보고서를 따로 만들지 않고 웹 보고서 형태로 구축하고 있음
 
 ## 03. GA4 소개 3- UA 버전과의 차이점
+
+![image](https://user-images.githubusercontent.com/23415251/165626828-8a1b6760-ac2f-4ba6-961c-5a8e9a934395.png)
