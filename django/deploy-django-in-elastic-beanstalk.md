@@ -40,6 +40,7 @@ EB is deployed based on the root directory (reference to `.elasticbeanstalk` dir
 
 ```
 $ eb init --profile <profile> --interactive
+```
 If you want to set aws profile name, use `--profile`. Also, if want to use ssh inside eb instance, use `-interactive` option and set or create ssh key.
 
 > If you create new key, your pem key will be automatically download in `~/.ssh` directory.
